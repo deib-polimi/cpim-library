@@ -12,7 +12,7 @@ public class GlassfishTaskQueue implements CloudTaskQueue {
 	public GlassfishTaskQueue(String queueName, QueueInfo queueInfo) {
 		this.name=queueName;
 		new GlassfishTaskHandler(this, queueInfo);
-		Queue q;
+
 	}
 
 	@Override
