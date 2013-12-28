@@ -5,26 +5,7 @@
 DETTAGLI IMPLEMENTAZIONE SERVIZI CPIM PER GLASSFISH
 
 SERVIZIO NoSQL
-Per l'implementazione del servizio NoSQL si è utilizzata la specifica JPA. Il provider scelto è EclipseLink disponibile di default su glassfish. Per poter utilizzare il servizio NoSQL è necessario inserire nella cartella META-INF il file persistence.xml, opportunamente configurato. Il persistence.xml dovrebbe avere una struttura simile a quella riportata di seguito:
-
-<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"><persistence-unit name="MyPersistenceUnit" transaction-type="JTA">
-	<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider> 
-	<jta-data-source>YOUR-SOURCE-IN-GLASSFISH</jta-data-source>
-	<class>it.polimi.modaclouds.cloudapp.mic.entity.Topic</class>
-	<class>it.polimi.modaclouds.cloudapp.mic.entity.UserRatings</class>
-	<exclude-unlisted-classes>false</exclude-unlisted-classes>
-	<properties>
-      <property name="javax.persistence.jdbc.password" value="DATABASE-USER"/>
-		<property name="javax.persistence.jdbc.user" value="DATABASE-PASSWROD"/>
-		<property name="javax.persistence.driver" value="com.mysql.jdbc.Driver"/>
-		<property name="javax.persistence.url" value="DATABASE-CONNECTION"/>
-		<property name="eclipselink.ddl-generation" value="create-tables"/>
-		<property name="eclipselink.logging.level" value="INFO"/>
-	</properties>
-</persistence-unit>
-</persistence>
+Per l'implementazione del servizio NoSQL si è utilizzata la specifica JPA. Il provider scelto è EclipseLink disponibile di default su glassfish. Per poter utilizzare il servizio NoSQL è necessario inserire nella cartella META-INF il file persistence.xml, opportunamente configurato. Il persistence.xml dovrebbe avere una struttura simile a quella riportata nel file persistence-template.xml reperibile dal file tools.zip.
 
 SERVIZIO SQL
 Il servizio SQL è stato implementato in maniera simile a quanto fatto per gli altri vendor. In questo caso la stringa di connessione che sarà quella creata tra Glassfish e MySQL come si vedrà nel paragrafo sulla configurazione.
@@ -63,23 +44,7 @@ I passi da seguire per poter ottenere una struttura funzionante sono i seguenti:
 
 Nel caso mancassero è inoltre necessario instllare sotto maven le libreri jpa4azure e simplejpa utilizzate rispettivamente nella libreria cpim per Azure e per Amazon al fine di non riscontrare errori.
 
-Una nota va fatta per il file di configurazione della cpim configuration.xml. Come si è detto nel caso di glassfish tale file è stato ampliato nella sua struttura prevedendo ora l'inclusione di una seconda stringa di connessione necessaria per il database che conterrà i file Blob. Tale stringa viene parificata solo nel caso in cui venga scelto Glassfish come vendor ed è necessario quindi includerla per abilitare il servizio. Il file configuration.xml avrà quindi una struttura simile a quella riportata di seguito:
-
-<configurations>
-<vendor>Glassfish</vendor>
-<services>
-<sql>
-<connection string="THE-CONNECTION-STRING-TO-YOUR-DATABASE"/>
-<blobconnection string="THE-CONNECTION-STRING-TO-YOUR-BLOB-DATABASE"/>
-</sql>
-<mail>
-<account_info username="YOUR-EMAIL" password="YOUR-EMAIL-PASSWORD"/>/>
-</mail>
-<memcache>
-<host address="127.0.0.1" port="11211"/>
-</memcache>
-</services>
-</configurations>
+Una nota va fatta per il file di configurazione della cpim configuration.xml. Come si è detto nel caso di glassfish tale file è stato ampliato nella sua struttura prevedendo ora l'inclusione di una seconda stringa di connessione necessaria per il database che conterrà i file Blob. Tale stringa viene parificata solo nel caso in cui venga scelto Glassfish come vendor ed è necessario quindi includerla per abilitare il servizio. Il file configuration.xml avrà quindi una struttura simile a quella riportata nel file configuration-template.xml reperibile dal file tools.zip.
 
 Per quanto riguarda il file queue.xml la configurazione di questo resta invariata rispetto a quella adottata per gli altri vendor.
 
