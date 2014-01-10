@@ -399,10 +399,13 @@ public class CloudMetadata {
 			}
 		}
 		if (persistenceInfo.containsKey("account.name")) {
+		
 			this.account = persistenceInfo.get("account.name");
+
 		}
 		if (persistenceInfo.containsKey("account.key")) {
 			this.key = persistenceInfo.get("account.key");
+
 		}
 
 	}

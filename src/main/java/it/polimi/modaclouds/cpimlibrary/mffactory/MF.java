@@ -153,8 +153,7 @@ public class MF {
 	 * @see Connection
 	 */
 	public CloudSqlService getSQLService() {
-		return CloudSqlService.getCloudSqlService(metadata.getTypeCloud(),
-				metadata.getConnectionString());
+		return CloudSqlService.getCloudSqlService(metadata);
 	}
 
 	/**

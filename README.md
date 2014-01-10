@@ -38,8 +38,7 @@ I passi da seguire per poter ottenere una struttura funzionante sono i seguenti:
 -configurare glassfish per permettergli di utilizzare MySQL connector/j
 -creare tramite MySQL due database uno per i dati ordinari delle applicazioni e uno per i dati di tipo Blob
 -installare ed avviare in locale il server memcached
--creare su Glassfish una connessione due connessioni JDBC per i due database e una connessione JMS per il servizio di MessageQueue
--includere tra i moduli di glassfish tutti i jar necessari all'utilizzo della libreria spymemcache presenti nel pacchetto degli strumenti utili sotto la directory "jar couchbase manager"
+-creare su Glassfish una connessione due connessioni JDBC per i due database e una connessione JMS per il servizio di MessageQueue -includere tra i moduli di glassfish tutti i jar necessari all'utilizzo della libreria spymemcache presenti nel pacchetto degli strumenti utili sotto la directory "jar couchbase manager"
 -includere nella direttory WEB-INF il file di configurazione di glassfish glassfish-web.xml (necessario per utilizzare il protocollo memcached)
 
 Nel caso mancassero è inoltre necessario instllare sotto maven le libreri jpa4azure e simplejpa utilizzate rispettivamente nella libreria cpim per Azure e per Amazon al fine di non riscontrare errori.

@@ -1,17 +1,20 @@
 package it.polimi.modaclouds.cpimlibrary.taskqueuemng;
 
-import java.util.Queue;
+import java.util.LinkedList;
+
 
 import it.polimi.modaclouds.cpimlibrary.QueueInfo;
 
 public class GlassfishTaskQueue implements CloudTaskQueue {
 
 	private String name=null;
-	private Queue<CloudTask> taskQueue=null;
+	private LinkedList<CloudTask> taskQueue=null;
 
 	public GlassfishTaskQueue(String queueName, QueueInfo queueInfo) {
 		this.name=queueName;
+		this.taskQueue= new LinkedList<CloudTask>();
 		new GlassfishTaskHandler(this, queueInfo);
+		
 
 	}
 
@@ -34,5 +37,12 @@ public class GlassfishTaskQueue implements CloudTaskQueue {
 	public boolean delete(CloudTask t) {
 		return this.taskQueue.remove(t);
 	}
+	
+	public CloudTask getNext(){
+		if(!this.taskQueue.isEmpty())
+			return this.taskQueue.getFirst();
+		return null;
+	}
+	
 
 }

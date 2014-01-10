@@ -63,7 +63,14 @@ public abstract class CloudSqlService {
 		}
 		//aggiunto caso glassfish
 		else if (vendor.equals("Glassfish")) {
-			return new GlassfishSqlService(connection_string);
+			try {
+				throw new NotSupportedVendorException("The vendor " + vendor
+						+ " is not supported by the library using thiS version of the method");
+			} catch (NotSupportedVendorException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
 		}  else
 			try {
 				throw new NotSupportedVendorException("The vendor " + vendor
@@ -93,7 +100,7 @@ public abstract class CloudSqlService {
 		}
 		//aggiunto caso glassfish
 		else if (metadata.getTypeCloud().equals("Glassfish")) {
-			return new GlassfishSqlService(metadata.getConnectionString());
+			return new GlassfishSqlService(metadata.getConnectionString(),metadata.getPersistenceInfo().get("account.name"), metadata.getPersistenceInfo().get("account.key"));
 		} else
 			try {
 				throw new NotSupportedVendorException("The vendor "

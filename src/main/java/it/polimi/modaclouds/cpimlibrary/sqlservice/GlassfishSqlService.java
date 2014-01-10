@@ -6,10 +6,14 @@ import java.sql.SQLException;
 
 public class GlassfishSqlService extends CloudSqlService {
 	private String connectionString = null;
+	private String username=null;
+	private String password=null;
 
 
-	public GlassfishSqlService(String connectionString) {
+	public GlassfishSqlService(String connectionString, String username, String password) {
 		this.connectionString = connectionString;
+		this.username=username;
+		this.password=password;
 	}
 
 	@Override
@@ -17,7 +21,7 @@ public class GlassfishSqlService extends CloudSqlService {
 		Connection c = null;
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			c = (Connection) DriverManager.getConnection(connectionString,"deib-polimi","deib-polimi");
+			c = (Connection) DriverManager.getConnection(connectionString,username,password);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}catch (ClassNotFoundException e) {
