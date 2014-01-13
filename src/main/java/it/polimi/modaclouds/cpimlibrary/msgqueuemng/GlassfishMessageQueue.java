@@ -4,13 +4,13 @@ import java.util.Enumeration;
 
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
+import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueReceiver;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -18,20 +18,20 @@ import javax.naming.NamingException;
 
 public class GlassfishMessageQueue implements CloudMessageQueue {
 
-	private TemporaryQueue destination=null;
+	private Queue messageQueue=null;
+	private String messageConnection=null;
 	
-	public GlassfishMessageQueue(String queueName) {
+	public GlassfishMessageQueue(String queueName, String connectionResource, String queueResource) {
 		
 		try {
 		
+		this.messageConnection=connectionResource;
 		Context jndiContext = new InitialContext();
-		QueueConnectionFactory connectionFactory = (QueueConnectionFactory) jndiContext.lookup("GlassfishMessageQueueConnectionFactory");
+		QueueConnectionFactory connectionFactory = (QueueConnectionFactory) jndiContext.lookup(this.messageConnection);
 		QueueConnection connection = (QueueConnection) connectionFactory.createConnection();
 		connection.start();
-		QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		TemporaryQueue temporaryQueue = session.createTemporaryQueue();       
-		jndiContext.bind(queueName, temporaryQueue);    
-		this.destination = temporaryQueue;
+		Queue queue = (Queue) jndiContext.lookup(queueResource);
+		this.messageQueue = queue;
 		connection.close(); 
 		} catch (NamingException e) {
 			e.printStackTrace();
@@ -45,7 +45,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 		try {
 			
 			Context jndiContext = new InitialContext();
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) jndiContext.lookup("GlassfishMessageQueueConnectionFactory");
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) jndiContext.lookup(this.messageConnection);
 			QueueConnection connection = (QueueConnection) connectionFactory.createConnection();
 			connection.start();
 			QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -53,7 +53,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			TextMessage txtMsg;
 			txtMsg = session.createTextMessage();
 			txtMsg.setText(msg);
-			session.createSender(this.destination).send(txtMsg);
+			session.createSender(this.messageQueue).send(txtMsg);
 			connection.close(); 
 
 
@@ -67,7 +67,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 	@Override
 	public String getQueueName() {
 		try {
-			return this.destination.getQueueName();
+			return this.messageQueue.getQueueName();
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
@@ -84,10 +84,10 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			connection.start();
 			QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
-			QueueBrowser browser = session.createBrowser(this.destination);
+			QueueBrowser browser = session.createBrowser(this.messageQueue);
 
 			Enumeration<?> enum1 = browser.getEnumeration();
-		    MessageConsumer consumer = session.createConsumer(this.destination);
+		    MessageConsumer consumer = session.createConsumer(this.messageQueue);
 		    
 
 			while(enum1.hasMoreElements())
@@ -116,7 +116,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			connection.start();
 			QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
-			QueueReceiver queueReceiver = session.createReceiver(this.destination); 
+			QueueReceiver queueReceiver = session.createReceiver(this.messageQueue); 
 			TextMessage txtMsg=(TextMessage) queueReceiver.receive(); //controllare cosa riceve (dovrebbe essere il prossimo in coda)
 			CloudMessage toReturn=new CloudMessage(txtMsg.getText());
 			
@@ -142,7 +142,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			connection.start();
 			QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
-			QueueBrowser browser = session.createBrowser(this.destination);
+			QueueBrowser browser = session.createBrowser(this.messageQueue);
 
 			Enumeration<?> enum1 = browser.getEnumeration();
 			
@@ -151,7 +151,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			   TextMessage mex = (TextMessage)enum1.nextElement();
 			   if(mex.getText().equals(msg.getMsg()))
 			   {
-			       MessageConsumer consumer = session.createConsumer(this.destination, "id='" +   mex.getStringProperty("id") + "'");
+			       MessageConsumer consumer = session.createConsumer(this.messageQueue, "id='" +   mex.getStringProperty("id") + "'");
 			      consumer.receive(1000);
 			   }
 			}
@@ -176,7 +176,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			connection.start();
 			QueueSession session = (QueueSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
-			QueueBrowser browser = session.createBrowser(this.destination);
+			QueueBrowser browser = session.createBrowser(this.messageQueue);
 
 			Enumeration<?> enum1 = browser.getEnumeration();
 			
@@ -185,7 +185,7 @@ public class GlassfishMessageQueue implements CloudMessageQueue {
 			   TextMessage mex = (TextMessage)enum1.nextElement();
 			   if(mex.getStringProperty("id").equals(msgId))
 			   {
-			       MessageConsumer consumer = session.createConsumer(this.destination, "id='" +   mex.getStringProperty("id") + "'");
+			       MessageConsumer consumer = session.createConsumer(this.messageQueue, "id='" +   mex.getStringProperty("id") + "'");
 			      consumer.receive(1000);
 			   }
 			}

@@ -54,7 +54,7 @@ public class CloudMetadata {
 	private String account = null;
 	private String key = null;
 	private String connection_string = null;
-	//campo che identifica la connessione verso il secondo database che conterrà i file blob
+	//campo che identifica la connessione verso il secondo database che conterrï¿½ i file blob
 	//utilizzato solo nel caso di glassfish
 	private String blob_connection_string = null;
 	private String memcacheAddr = null;
@@ -476,11 +476,19 @@ public class CloudMetadata {
 							} else
 								throw new ParserConfigurationFileException(
 										"Error!! Mode in config queue is wrong (pull or push)");
+						}else if (attribute.item(j).getNodeName()
+								.equals("messageQueueConnection")) {
+							String  messageQueueConnection= attribute.item(j).getTextContent();
+							info.setMessageQueueConnection(messageQueueConnection);
+						}else if (attribute.item(j).getNodeName()
+								.equals("messageQueueResource")) {
+							String  messageQueueResource= attribute.item(j).getTextContent();
+							info.setMessageQueueResource(messageQueueResource);
 						}
-					}
 					queueInfo.put(name, info);
 				}
 			}
+		}
 		} catch (ParserConfigurationException e) {
 			throw new ParserConfigurationFileException(e.getMessage());
 		} catch (SAXException e) {

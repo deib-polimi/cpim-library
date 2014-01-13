@@ -23,7 +23,7 @@ public class GlassfishMessageQueueFactory extends CloudMessageQueueFactory {
 	public CloudMessageQueue getQueue(String queueName) {
 		QueueInfo queueInfo = info.get(queueName);
 		if (queueInfo.getMode().equals(ModeQueue.PULL))
-			return new GlassfishMessageQueue(queueName);
+			return new GlassfishMessageQueue(queueName, queueInfo.getMessageQueueConnection(),queueInfo.getMessageQueueResource());
 		try {
 			throw new CloudMessageQueueException("Wrong Mode...Please check your configurations in queue.xml");
 		

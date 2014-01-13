@@ -31,6 +31,8 @@ public class QueueInfo {
 
 	private long rate;
 	private ModeQueue mode = ModeQueue.PUSH;
+	private String messageQueueConnectionString=null;
+	private String messageQueueResource=null;
 
 	public QueueInfo() {
 
@@ -61,6 +63,29 @@ public class QueueInfo {
 	public void setMode(ModeQueue mode) {
 		this.mode = mode;
 	}
+
+
+	public String getMessageQueueConnection() {
+		return this.messageQueueConnectionString;
+	}
+
+
+	public void setMessageQueueConnection(String connectionString) {
+		if(this.mode==ModeQueue.PULL)
+			this.messageQueueConnectionString=connectionString;
+			
+	}
+	
+	public String getMessageQueueResource() {
+		return this.messageQueueResource;
+	}
+
+
+	public void setMessageQueueResource(String queueResource) {
+		if(this.mode==ModeQueue.PULL)
+			this.messageQueueResource=queueResource;
+	}
+	
 
 	/**
 	 * Assigns the rate of the queue. <b>(only TaskQueue)</b>
