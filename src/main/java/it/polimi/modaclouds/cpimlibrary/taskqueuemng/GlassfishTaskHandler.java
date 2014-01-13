@@ -22,7 +22,7 @@ public class GlassfishTaskHandler extends Thread {
 			QueueInfo queueInfo) {
 		this.queue=glassfishTaskQueue;
 		this.info=queueInfo;
-		this.run();
+
 		
 	}
 	
