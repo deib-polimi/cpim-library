@@ -90,7 +90,11 @@ public class GlassfishEntityManager implements CloudEntityManager {
 	}
 
 	public void persist(Object entity) {
+
+		EntityTransaction tx=em.getTransaction();
+		tx.begin();
 		em.persist(entity);
+		tx.commit();
 		close();
 	}
 
