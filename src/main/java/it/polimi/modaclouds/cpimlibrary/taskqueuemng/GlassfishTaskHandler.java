@@ -11,16 +11,22 @@ import java.net.URL;
 
 
 
+
+
+
 import it.polimi.modaclouds.cpimlibrary.QueueInfo;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 
 public class GlassfishTaskHandler extends Thread {
 
-	private GlassfishTaskQueue queue=null;
+	private String name=null;
 	private QueueInfo info=null;
+	private GlassfishTaskQueue queue = null;
+
 	
-	public GlassfishTaskHandler(GlassfishTaskQueue glassfishTaskQueue,
+	public GlassfishTaskHandler(String queueName,
 			QueueInfo queueInfo) {
-		this.queue=glassfishTaskQueue;
+		this.name=queueName;
 		this.info=queueInfo;
 
 		
@@ -28,6 +34,10 @@ public class GlassfishTaskHandler extends Thread {
 	
 	public void run()
 	{
+		
+		queue = (GlassfishTaskQueue) MF.getFactory().getTaskQueueFactory().getQueue(name);
+
+		
 		while(true)
 		{
 			
@@ -35,6 +45,8 @@ public class GlassfishTaskHandler extends Thread {
 
 			if (toExecute!=null) {
 				System.out.println("Task found");
+				
+			
 				new Thread() {
 					
 					///////////////////////////////////////THREAD ////////////////////////////
@@ -61,9 +73,9 @@ public class GlassfishTaskHandler extends Thread {
 						System.out.println("Starting servlet.");
 						//creo l'url
 						URI host = URI.create("http://localhost:8080/");
-						String url = "http://" + host.getHost() + ":" + host.getPort() + host.getPath() + te.getServletUri().getPath() + parameters;
+						String url = "http://" + host.getHost() + ":" + host.getPort() + host.getPath() + te.getServletUri().getPath()  + parameters;
 						System.out.println(url);
-						
+					
 						URL iurl = null;
 						HttpURLConnection uc = null;
 						//DataOutputStream  out = null;
@@ -72,6 +84,10 @@ public class GlassfishTaskHandler extends Thread {
 						try {
 							iurl = new URL(url);
 							uc = (HttpURLConnection)iurl.openConnection();
+							//da inserire per evitre l errore di input output??
+							uc.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
+							uc.setRequestProperty("Accept","*/*");
+							
 							uc.setDoOutput(true);
 						    
 							uc.setRequestMethod(te.getMethod().toUpperCase());

@@ -64,6 +64,7 @@ public class AmazonTaskQueueFactory extends CloudTaskQueueFactory {
 		}
 		if (map.containsKey(queueName))
 			return map.get(queueName);
+		
 		if(queueInfo.getMode().equals(ModeQueue.PUSH)){
 			AmazonTaskQueue newqueue = new AmazonTaskQueue(queueName, sqs);
 			map.put(queueName, newqueue);

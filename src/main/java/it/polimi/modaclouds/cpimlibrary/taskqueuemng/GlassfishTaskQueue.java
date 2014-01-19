@@ -13,7 +13,6 @@ public class GlassfishTaskQueue implements CloudTaskQueue {
 	public GlassfishTaskQueue(String queueName, QueueInfo queueInfo) {
 		this.name=queueName;
 		this.taskQueue= new LinkedList<CloudTask>();
-		new GlassfishTaskHandler(this, queueInfo).start();
 		
 
 	}
@@ -41,6 +40,7 @@ public class GlassfishTaskQueue implements CloudTaskQueue {
 	public CloudTask getNext(){
 		if(!this.taskQueue.isEmpty())
 			return this.taskQueue.getFirst();
+		
 		return null;
 	}
 	
