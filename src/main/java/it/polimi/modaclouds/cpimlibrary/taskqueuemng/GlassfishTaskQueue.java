@@ -38,9 +38,11 @@ public class GlassfishTaskQueue implements CloudTaskQueue {
 	}
 	
 	public CloudTask getNext(){
-		if(!this.taskQueue.isEmpty())
-			return this.taskQueue.getFirst();
-		
+		if(!this.taskQueue.isEmpty()){
+			CloudTask toReturn=this.taskQueue.getFirst();
+			this.delete(toReturn);
+			return toReturn;
+		}
 		return null;
 	}
 	

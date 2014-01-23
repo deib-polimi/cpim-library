@@ -72,7 +72,7 @@ public class GlassfishTaskHandler extends Thread {
 						
 						System.out.println("Starting servlet.");
 						//creo l'url
-						URI host = URI.create("http://localhost:8080/");
+						URI host = URI.create("http://deib-polimi-PC:8080/mic-frontend");
 						String url = "http://" + host.getHost() + ":" + host.getPort() + host.getPath() + te.getServletUri().getPath()  + parameters;
 						System.out.println(url);
 					
@@ -92,6 +92,7 @@ public class GlassfishTaskHandler extends Thread {
 						    
 							uc.setRequestMethod(te.getMethod().toUpperCase());
 
+							/*
 							InputStream is = uc.getInputStream();
 							
 							rd = new BufferedReader(new InputStreamReader(is));
@@ -101,23 +102,23 @@ public class GlassfishTaskHandler extends Thread {
 						    	System.out.println("Response: "+ line);
 						    }
 						    rd.close();
+						    */
 						    System.out.println("Response code: "+ uc.getResponseCode());
+						    /*
 						    if (uc.getResponseCode() == 500){
 						    	;;
 						    }
+						    */
 						    
 						} catch (RuntimeException e) {
-							// TODO Auto-generated catch block
 							System.out.println("RuntimeException error!!");
 							System.out.println("------");
 							e.printStackTrace();
 						} catch (MalformedURLException e) {
-							// TODO Auto-generated catch block
 							System.out.println("MalformedURLException error!!");
 							System.out.println("------");
 							e.printStackTrace();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							System.out.println("IOException error!!");
 							System.out.println("------");
 							e.printStackTrace();
@@ -133,7 +134,6 @@ public class GlassfishTaskHandler extends Thread {
 					///////////////////////////// THREAD ///////////////////////////////////
 				}.start();
 			}
-			System.out.println("Sleeping..");
 			try {
 				Thread.sleep(this.info.getRate());
 			} catch (InterruptedException e) {
