@@ -62,12 +62,14 @@ public class GlassfishBlobManager implements CloudBlobManager {
 
 		try {
 			conn = (Connection) DriverManager.getConnection(blobConnectionString,"deib-polimi","deib-polimi");
-			String sql="select Picture from UserPicture where FileName=?";
+			String sql="select Picture from UserPicture up where up.FileName=?";
             PreparedStatement pst=conn.prepareStatement(sql);
             pst.setString(1, fileName);
             ResultSet rs=pst.executeQuery();
-            Blob b1 = rs.getBlob(1);
-            return new CloudDownloadBlob(fileName, b1.getBinaryStream(),null,b1.length(),b1.toString());
+            if(rs.next()){
+            	Blob b1 = rs.getBlob(1);
+            	return new CloudDownloadBlob(fileName, b1.getBinaryStream(),null,b1.length(),b1.toString());
+            }
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
