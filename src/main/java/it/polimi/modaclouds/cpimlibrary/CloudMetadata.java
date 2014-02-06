@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 public class CloudMetadata {
 
 	private static CloudMetadata instance = null;
+	
 	private String typeCloud = null;
 	private String hostServerSmtp = null;
 	private String portServerSmtp = null;
