@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 public class CloudMetadata {
 
 	private static CloudMetadata instance = null;
+	
 	private String typeCloud = null;
 	private String hostServerSmtp = null;
 	private String portServerSmtp = null;
@@ -54,7 +55,7 @@ public class CloudMetadata {
 	private String account = null;
 	private String key = null;
 	private String connection_string = null;
-	//campo che identifica la connessione verso il secondo database che conterr� i file blob
+	//campo che identifica la connessione verso il secondo database che conterr��� i file blob
 	//utilizzato solo nel caso di glassfish
 	private String blob_connection_string = null;
 	private String memcacheAddr = null;
