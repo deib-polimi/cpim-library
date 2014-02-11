@@ -1,5 +1,3 @@
-% !TEX encoding = MacOSRoman
-
 CPIM Installation Manual
 
 The CPIM library is available on github at the following url:
@@ -78,12 +76,15 @@ Quickly analyze the meaning of the various tags :
 vendor:  allows you to set the cloud platform choice for the deployment of the application. Possible values ??currently will be: 
 
 Glassfish
+
 Google
+
 Azure
+
 Amazon
 
 
-sql:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to include in the attribute string of the tag <connection>, the connection string to access the database via JDBC to use. The tag <blobconnection> , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
+sql:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to specify the connection string to access the database via JDBC to use. The tag < blobconnection > , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
 
 
 memcache: memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
