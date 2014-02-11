@@ -24,18 +24,26 @@ The platforms currently supported are Google App Engine , Windows Azure and Amaz
 The library CPIM exposes APIs for access to the following Cloud services , among the most common in PaaS platforms :
 
 • NoSQL Service
-• SQL Service
+
+• SQL Service 
+
 • Blob Service
+
 • Message Queue
+
 • Task Queue
+
 • Mail Service
+
 • Memcache
 
 The library, using only the metadata contained in the configuration files, can remap, at runtime, requests to these generic cloud services, into vendor-specific calls in respect of the service provider you choose.
 In particular, the library makes use of 3 XML configuration file:
 
 • configuration.xml
+
 • persistence.xml
+
 • queue.xml
 
 These files should be placed in the META-INF folder of the project.
@@ -43,6 +51,7 @@ The persistence.xml file is the well known configuration file of the  data persi
 The configuration.xml file and queue.xml are proper to the library. Then we go below to analyze their structure in order to better understand the correct manual configuration of an application that makes use of the CPIM .
 
 configurations.xml
+
 The file structure is as follows:
 
 <configurations>
