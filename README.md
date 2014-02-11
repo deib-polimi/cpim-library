@@ -58,7 +58,6 @@ The file structure is as follows:
 		<mail>
 			<server smtp host="smtp.provider.com" port="587"/>
 			<account info username="mail address" password="psw"/>
-
 		</mail>
 		<backend name="value"/>
 	</services>
@@ -74,16 +73,16 @@ Azure
 Amazon
 
 
-<sql> :  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to include in the attribute string of the tag <connection>, the connection string to access the database via JDBC to use. The tag <blobconnection> , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
+<sql>:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to include in the attribute string of the tag <connection>, the connection string to access the database via JDBC to use. The tag <blobconnection> , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
 
 
-<memcache> : memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
+<memcache>: memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
 
 
-<mail> : for configuring the mail service you will first need to specify the SMTP server that you will use going to set the host and port attributes of the tag <server smtp> . In addition, the tag <mail> also admits the tag <account info> whose attributes are used to specify the authentication information ( username and password) to the service.
+<mail>: for configuring the mail service you will first need to specify the SMTP server that you will use going to set the host and port attributes of the tag <server smtp> . In addition, the tag <mail> also admits the tag <account info> whose attributes are used to specify the authentication information ( username and password) to the service.
 
 
-<backend> : CPIM library also allows you to perform tasks in a queue, which is configured with the tag <mode> PUSH </ mode> on a dedicated VM . This is enabled by entering the tag backend. the values to be specified in the name attribute change according on the platform on which the application runs, 
+<backend>: CPIM library also allows you to perform tasks in a queue, which is configured with the tag <mode> PUSH </ mode> on a dedicated VM . This is enabled by entering the tag backend. the values to be specified in the name attribute change according on the platform on which the application runs, 
 
 
 queue.xml
@@ -95,7 +94,6 @@ The file structure is as follows:
 		<name> message_queue_name < / name>
 		<mode> PULL </ mode>
 	</queue >
-
 	<queue>
 		<name>task_queue_name</name>
 		<mode>PUSH</mode>
