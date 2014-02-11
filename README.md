@@ -57,38 +57,38 @@ configurations.xml
 
 The file structure is as follows:
 
-< configurations >
+	< configurations >
 
-	< vendor name="value" / >
+		< vendor name="value" / >
 	
-	< services >
+		< services >
 	
-		< slq >
+			< slq >
 		
-			< connection string="value" / >
+				< connection string="value" / >
 			
-			< blobconnection string="value" / >
+				< blobconnection string="value" / >
 			
-		< sql >
+			< / sql >
 		
-		< memcache >
+			< memcache >
 		
-			< host address="value" port="11211" / >
+				< host address="value" port="11211" / >
 			
-		< / memcache >
+			< / memcache >
 		
-		< mail >
+			< mail >
 		
-			< server smtp host="smtp.provider.com" port="587" / >
+				< server smtp host="smtp.provider.com" port="587" / >
 			
-			< account info username="mail address" password="psw" / >
-		< / mail >
+				< account info username="mail address" password="psw" / >
+			< / mail >
 		
-		< backend name="value" / >
+			< backend name="value" / >
 		
-	< / services >
+		< / services >
 	
-< / configurations >
+	< / configurations >
 
 Quickly analyze the meaning of the various tags :
 
@@ -120,24 +120,25 @@ queue.xml
 The file structure is as follows:
 
 
-< queue-entries >
+	< queue-entries >
 
-	< queue >
+		< queue >
 	
-		< name > message_queue_name < / name >
+			< name > message_queue_name < / name >
 		
-		< mode >PULL< / mode >
+			< mode >PULL< / mode >
 		
-	< / queue >
+		< / queue >
 	
-	< queue >
+		< queue >
 	
-		< name >task_queue_name< / name >
+			< name >task_queue_name< / name >
 		
-		< mode >PUSH< / mode >
-		< rate >VALUE< / rate >
-	< / queue >
-< / queue-entries >
+			< mode >PUSH< / mode >
+			< rate >VALUE< / rate >
+		< / queue >
+		
+	< / queue-entries >
 
 
 With this file you can configure both queue services ( tasks and messages ) provided by the CPIM .
@@ -235,7 +236,7 @@ The structure of the document in the case of Glassfish is the following :
 xmlns: xsi = " http://www.w3.org/2001/XMLSchema-instance "
 xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd " > 
 
-< persistence- unit name = " MyPersistenceUnit " transaction- type = " JTA ??" >
+	< persistence- unit name = " MyPersistenceUnit " transaction- type = " JTA ??" >
 
 	< provider > org.eclipse.persistence.jpa.PersistenceProvider < / provider >
 	
@@ -265,9 +266,9 @@ xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.c
 		
 	< / properties >
 	
-< / persistence -unit >
+	< / persistence -unit >
 
-< / persistence >
+	< / persistence >
 
 The tags to be defined are shown in uppercase and are self-explanatory .
 The repetition of the fields "DATABASE-USER " and " DATABASE-PASSWORD" is present in order to enable the CPIM to configure and use the service.
