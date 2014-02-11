@@ -8,9 +8,13 @@ The library is managed by maven with which you need to install it .
 In order to use within a project the CPIM library it is necessary to add the following maven dependency :
 
 < dependency >
+
 	< groupId > it.polimi.modaclouds.cpimlibrary < / groupId >
+	
 	< artifactId >CPIM-library< / artifactId >
+	
 	< version > 0.0.1 -SNAPSHOT < / version >
+	
 < / dependency >
 
 At the moment it is not yet present any maven repository to enable the automatic import.
@@ -53,23 +57,38 @@ configurations.xml
 
 The file structure is as follows:
 
-<configurations>
-	<vendor name="value"/>
-	<services>
-		<slq>
-			<connection string="value"/>
-			<blobconnection string="value"/>
-		<sql>
-		<memcache>
-			<host address="value" port="11211"/>
-		</memcache>
-		<mail>
-			<server smtp host="smtp.provider.com" port="587"/>
-			<account info username="mail address" password="psw"/>
-		</mail>
-		<backend name="value"/>
-	</services>
-</configurations>
+< configurations >
+
+	< vendor name="value" / >
+	
+	< services >
+	
+		< slq >
+		
+			< connection string="value" / >
+			
+			< blobconnection string="value" / >
+			
+		< sql >
+		
+		< memcache >
+		
+			< host address="value" port="11211" / >
+			
+		< / memcache >
+		
+		< mail >
+		
+			< server smtp host="smtp.provider.com" port="587" / >
+			
+			< account info username="mail address" password="psw" / >
+		< / mail >
+		
+		< backend name="value" / >
+		
+	< / services >
+	
+< / configurations >
 
 Quickly analyze the meaning of the various tags :
 
@@ -84,16 +103,16 @@ Azure
 Amazon
 
 
-sql:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to specify the connection string to access the database via JDBC to use. The tag < blobconnection > , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
+< sql >:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to specify the connection string to access the database via JDBC to use. The tag < blobconnection > , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
 
 
-memcache: memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
+< memcache >: memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
 
 
-mail: for configuring the mail service you will first need to specify the SMTP server that you will use going to set the host and port attributes of the tag <server smtp> . In addition, the tag <mail> also admits the tag <account info> whose attributes are used to specify the authentication information ( username and password) to the service.
+< mail >: for configuring the mail service you will first need to specify the SMTP server that you will use going to set the host and port attributes of the tag <server smtp> . In addition, the tag <mail> also admits the tag <account info> whose attributes are used to specify the authentication information ( username and password) to the service.
 
 
-backend: CPIM library also allows you to perform tasks in a queue, which is configured with the tag <mode> PUSH </ mode> on a dedicated VM . This is enabled by entering the tag backend. the values to be specified in the name attribute change according on the platform on which the application runs, 
+< backend >: CPIM library also allows you to perform tasks in a queue, which is configured with the tag <mode> PUSH </ mode> on a dedicated VM . This is enabled by entering the tag backend. the values to be specified in the name attribute change according on the platform on which the application runs, 
 
 
 queue.xml
@@ -101,17 +120,24 @@ queue.xml
 The file structure is as follows:
 
 
-<queue-entries>
-	<queue>
-		<name> message_queue_name </name>
-		<mode>PULL</mode>
-	</queue>
-	<queue>
-		<name>task_queue_name</name>
-		<mode>PUSH</mode>
-		<rate>VALUE</rate >
-	</queue>
-</queue-entries>
+< queue-entries >
+
+	< queue >
+	
+		< name > message_queue_name < / name >
+		
+		< mode >PULL< / mode >
+		
+	< / queue >
+	
+	< queue >
+	
+		< name >task_queue_name< / name >
+		
+		< mode >PUSH< / mode >
+		< rate >VALUE< / rate >
+	< / queue >
+< / queue-entries >
 
 
 With this file you can configure both queue services ( tasks and messages ) provided by the CPIM .
@@ -151,8 +177,7 @@ Memcache Service
 
 Even in this case not being present in a Glassfish implementation of such a service has been necessary to resort to external tools. First of all you must have a memecached server that implements the service locally. Has selected the use memcached available for windows. As regards the actual implementation of the APIs that are meeting this problem, it is chosen to use the library spymemcached already used for the implementation of the service provider to the relatively Azure. In order to use this library properly, you must also instruct Glassfish providing the necessary forms . Even in this case , see the chapter on the setup of the architecture for more details.
 
-TaskQueue Service 
-( explain how achieved )
+
 
 SETUP OF ARCHITECTURE
 
@@ -161,11 +186,19 @@ If you are missing is also necessary instllare under the maven libreri jpa4azure
 NoSQL, SQL and Blob Services
 
 The 3 services in the case of Glassfish make use of MySQL database. First thing to do then is to have a MySQL server. Through this it will be necessary to create two databases, one for data and one for normal data type Blob providing the user with which you will access to MySQL all rights to the two databases created by using the command:
+
+
 mysql grant all on database_name . * to ' account_name ' @ ' host_name '
+
+
 In the case of deployment in local course host_name = localhost.
 Once you have successfully created the backend , you will need to instruct Glassfish in order to interact with the newly created database through MySQL. To do this you will need :
+
+
 • add between modules of the Glassfish JDBC connector for MySQL connector / j (found in the file tools.zip )
+
 • create on a Glassfish JDBC connection to the MySQL server
+
 • create two resources on Glassfish JDBC to use the two databases created
 
 Mail Service
@@ -200,23 +233,40 @@ The structure of the document in the case of Glassfish is the following :
 
 < persistence version = "1.0" xmlns = " http://java.sun.com/xml/ns/persistence "
 xmlns: xsi = " http://www.w3.org/2001/XMLSchema-instance "
-xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd "> 
-< persistence- unit name = " MyPersistenceUnit " transaction- type = " JTA ??">
-	<provider> org.eclipse.persistence.jpa.PersistenceProvider < / provider >
-	<jta-data-source> -IN- YOUR- RESOURCE GlassFish </ jta -data- source>
-	<class> LIST- OF- CLASS- TO- PERSIST </ class >
-	<exclude-unlisted-classes> false < / exclude- unlisted -classes >
-	<properties>
-	<property name="javax.persistence.jdbc.password" value="DATABASE-USER"/>
-	<property name="javax.persistence.jdbc.user" value="DATABASE-PASSWROD"/>
-		<property name="javax.persistence.driver" value="com.mysql.jdbc.Driver"/>
-		<property name="javax.persistence.url" value="DATABASE-CONNECTION"/>
-		<property name="eclipselink.ddl-generation" value="create-tables"/>
-		<property name="eclipselink.logging.level" value="INFO"/>
-		<property name="account.name" value="DATABASE-USER"/>
-		<property name="account.key" value="DATABASE-PASSWORD"/>
+xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd " > 
+
+< persistence- unit name = " MyPersistenceUnit " transaction- type = " JTA ??" >
+
+	< provider > org.eclipse.persistence.jpa.PersistenceProvider < / provider >
+	
+	< jta-data-source > -IN- YOUR- RESOURCE GlassFish </ jta -data- source >
+	
+	< class > LIST- OF- CLASS- TO- PERSIST < / class >
+	
+	< exclude-unlisted-classes > false < / exclude- unlisted -classes >
+	
+	< properties >
+	
+	< property name="javax.persistence.jdbc.password" value="DATABASE-USER" / >
+	
+	< property name="javax.persistence.jdbc.user" value="DATABASE-PASSWROD" / >
+	
+		< property name="javax.persistence.driver" value="com.mysql.jdbc.Driver" / >
+		
+		< property name="javax.persistence.url" value="DATABASE-CONNECTION" / >
+		
+		< property name="eclipselink.ddl-generation" value="create-tables" / >
+		
+		< property name="eclipselink.logging.level" value="INFO" / >
+		
+		< property name="account.name" value="DATABASE-USER" / >
+		
+		< property name="account.key" value="DATABASE-PASSWORD" / >
+		
 	< / properties >
+	
 < / persistence -unit >
+
 < / persistence >
 
 The tags to be defined are shown in uppercase and are self-explanatory .
