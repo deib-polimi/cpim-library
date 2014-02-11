@@ -9,15 +9,15 @@ https://github.com/deib-polimi/cpim-library
 The library is managed by maven with which you need to install it .
 In order to use within a project the CPIM library it is necessary to add the following maven dependency :
 
-< dependency >
+	< dependency >
 
-	< groupId > it.polimi.modaclouds.cpimlibrary < / groupId >
+		< groupId > it.polimi.modaclouds.cpimlibrary < / groupId >
 	
-	< artifactId >CPIM-library< / artifactId >
+		< artifactId >CPIM-library< / artifactId >
 	
-	< version > 0.0.1 -SNAPSHOT < / version >
+		< version > 0.0.1 -SNAPSHOT < / version >
 	
-< / dependency >
+	< / dependency >
 
 At the moment it is not yet present any maven repository to enable the automatic import.
 
