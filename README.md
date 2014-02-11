@@ -1,4 +1,6 @@
 CPIM Installation Manual
+============
+
 
 The CPIM library is available on github at the following url:
 
@@ -21,6 +23,8 @@ At the moment it is not yet present any maven repository to enable the automatic
 
 
 CPIM User Manual
+============
+
 
 The library introduces a software abstraction between applications and cloud services by exposing Vendor-Independent  API.
 The platforms currently supported are Google App Engine , Windows Azure and Amazon Web Services. In addition, the library has been extended in order to allow the deployment of local applications that make use of Glassifish Application Server.
@@ -54,6 +58,8 @@ The persistence.xml file is the well known configuration file of the  data persi
 The configuration.xml file and queue.xml are proper to the library. Then we go below to analyze their structure in order to better understand the correct manual configuration of an application that makes use of the CPIM .
 
 configurations.xml
+============
+
 
 The file structure is as follows:
 
@@ -116,6 +122,7 @@ Amazon
 
 
 queue.xml
+============
 
 The file structure is as follows:
 
@@ -149,10 +156,14 @@ In the case of task queue, it must also be specified a rate, which is the time i
 To also allow integration with Glassfish the file structure was extended. In the case of a deployment on Glassfish applications that makes use of the message queue service must also specify the two tags <messagequeueconnection> <messagequeueresource.> whose meaning will be explained in the paragraphs relating to the setup of the architecture and the deploy configuration for Glassfish .
 
 Deploy on GlassFish AS
+============
+
 
 The library CPIM has been extended to allow applications that use it can be performed on Glassfish AS . All services exposed by the library have been appropriately extended in order to be available in case of deployment on Glassfish .
 
-DETAILS ABOUT THE IMPLEMENTATION OF THE CPIM SERVICES IN THE GLASSFISH EXTENSION
+Details about the Implementation of the CMPI Services in the Glassfish Extension
+============
+
 
 NoSQL Service 
 
@@ -180,7 +191,9 @@ Even in this case not being present in a Glassfish implementation of such a serv
 
 
 
-SETUP OF ARCHITECTURE
+Setup of the Architecture
+============
+
 
 If you are missing is also necessary instllare under the maven libreri jpa4azure and simplejpa respectively used in library CPIM for Azure and Amazon in order not to encounter errors .
 
@@ -225,7 +238,9 @@ TaskQueue Service
 Your use of the service TaskQueue not impact in any way on the setup of the architecture and just goes properly configured
 Finally, it is important to install using maven libraries SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure , in order not to encounter compilation errors and installation . The two libraries are usually available in the file tools.zip .
 
-APPLICATION CONFIGURATION
+Application Configuration
+============
+
 
 NoSQL Service 
 
