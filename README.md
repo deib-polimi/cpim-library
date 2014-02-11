@@ -189,7 +189,6 @@ The structure of the document in the case of Glassfish is the following :
 xmlns: xsi = " http://www.w3.org/2001/XMLSchema-instance "
 xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd "> 
 < persistence- unit name = " MyPersistenceUnit " transaction- type = " JTA ??">
-	
 	<provider> org.eclipse.persistence.jpa.PersistenceProvider < / provider >
 	<jta-data-source> -IN- YOUR- RESOURCE GlassFish </ jta -data- source>
 	<class> LIST- OF- CLASS- TO- PERSIST </ class >
@@ -204,7 +203,6 @@ xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.c
 		<property name="account.name" value="DATABASE-USER"/>
 		<property name="account.key" value="DATABASE-PASSWORD"/>
 	< / properties >
-
 < / persistence -unit >
 < / persistence >
 
