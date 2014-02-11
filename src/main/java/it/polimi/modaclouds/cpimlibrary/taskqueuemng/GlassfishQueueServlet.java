@@ -67,7 +67,7 @@ public class GlassfishQueueServlet extends HttpServlet {
 			if(qinfo.getMode().equals(ModeQueue.PUSH))
 			{
 				System.out.println("Start " + qname + " Internal Worker.");
-				new GlassfishTaskHandler(qname, qinfo).start();
+				new GlassfishTaskHandler(qname, qinfo, metadata.getBackend_name()).start();
 			}
 		}
     }

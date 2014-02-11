@@ -1,9 +1,6 @@
 package it.polimi.modaclouds.cpimlibrary.taskqueuemng;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,12 +19,13 @@ public class GlassfishTaskHandler extends Thread {
 	private String name=null;
 	private QueueInfo info=null;
 	private GlassfishTaskQueue queue = null;
-
+	private String backend=null;
 	
 	public GlassfishTaskHandler(String queueName,
-			QueueInfo queueInfo) {
+			QueueInfo queueInfo, String backend) {
 		this.name=queueName;
 		this.info=queueInfo;
+		this.backend=backend;
 
 		
 	}
@@ -72,14 +70,13 @@ public class GlassfishTaskHandler extends Thread {
 						
 						System.out.println("Starting servlet.");
 						//creo l'url
-						URI host = URI.create("http://deib-polimi-PC:8080/mic-frontend");
+						URI host = URI.create(backend);
 						String url = "http://" + host.getHost() + ":" + host.getPort() + host.getPath() + te.getServletUri().getPath()  + parameters;
 						System.out.println(url);
 					
 						URL iurl = null;
 						HttpURLConnection uc = null;
 						//DataOutputStream  out = null;
-						BufferedReader rd = null;
 						
 						try {
 							iurl = new URL(url);
