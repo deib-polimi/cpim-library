@@ -44,11 +44,6 @@
 			<version>1.6.5</version>
 		</dependency>
 		<dependency>
-			<groupId>it.polimi.modaclouds.windowsazure</groupId>
-			<artifactId>jpa4azure-extended</artifactId>
-			<version>0.1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.microsoft.windowsazure</groupId>
 			<artifactId>microsoft-windowsazure-api</artifactId>
 			<version>0.4.6</version>
@@ -62,11 +57,6 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>ejb3-persistence</artifactId>
 			<version>1.0.2.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>SimpleJPA</groupId>
-			<artifactId>SimpleJPA</artifactId>
-			<version>1.6-SNAPSHOT-aldrinleal</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
