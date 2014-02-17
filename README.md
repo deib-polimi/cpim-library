@@ -7,6 +7,8 @@ The CPIM library is available on github at the following url:
 https://github.com/deib-polimi/cpim-library
 
 The library is managed by maven with which you need to install it .
+At the moment it is not yet present any maven repository to enable the automatic import.
+
 In order to use within a project the CPIM library it is necessary to add the following maven dependency :
 
 	< dependency >
@@ -18,8 +20,10 @@ In order to use within a project the CPIM library it is necessary to add the fol
 		< version > 0.0.1 -SNAPSHOT < / version >
 	
 	< / dependency >
+	
+Once you have imported the library you also have to add to your buildpath the two library, SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure , in order not to encounter compilation errors and installation.
+You can find the SimpleJPA and the JPA4azure library in the lib folder of the tools.zip.
 
-At the moment it is not yet present any maven repository to enable the automatic import.
 
 
 CPIM User Manual
@@ -236,7 +240,8 @@ You also need to educate Glassfish in order to use the library spymemcached used
 TaskQueue Service
 
 Your use of the service TaskQueue not impact in any way on the setup of the architecture and just goes properly configured
-Finally, it is important to install using maven libraries SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure , in order not to encounter compilation errors and installation . The two libraries are usually available in the file tools.zip .
+
+
 
 Application Configuration
 ============
