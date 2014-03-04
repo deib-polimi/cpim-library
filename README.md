@@ -211,8 +211,6 @@ In the case of deployment in local course host_name = localhost.
 Once you have successfully created the backend , you will need to instruct Glassfish in order to interact with the newly created database through MySQL. To do this you will need :
 
 
-• add between modules of the Glassfish JDBC connector for MySQL connector / j (found in the file tools.zip )
-
 • create on a Glassfish JDBC connection to the MySQL server
 
 • create two resources on Glassfish JDBC to use the two databases created
