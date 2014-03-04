@@ -29,7 +29,7 @@ CPIM User Manual
 
 
 The library introduces a software abstraction between applications and cloud services by exposing Vendor-Independent  API.
-The platforms currently supported are Google App Engine , Windows Azure and Amazon Web Services. In addition, the library has been extended in order to allow the deployment of local applications that make use of Glassifish Application Server.
+The platforms currently supported are Google App Engine , Windows Azure and Amazon Web Services. In addition, the library has been extended in order to allow the deployment of local applications that make use of Glassifish 4.0 Application Server.
 The library CPIM exposes APIs for access to the following Cloud services , among the most common in PaaS platforms :
 
 • NoSQL Service
@@ -161,7 +161,7 @@ Deploy on GlassFish AS
 ============
 
 
-The library CPIM has been extended to allow applications that use it can be performed on Glassfish AS . All services exposed by the library have been appropriately extended in order to be available in case of deployment on Glassfish .
+The library CPIM has been extended to allow applications that use it can be performed on Glassfish AS 4.0. All services exposed by the library have been appropriately extended in order to be available in case of deployment on Glassfish 4.0.
 
 Details about the Implementation of the CMPI Services in the Glassfish Extension
 ============
@@ -169,11 +169,11 @@ Details about the Implementation of the CMPI Services in the Glassfish Extension
 
 NoSQL Service 
 
-For the implementation of the service NoSQL it has been used the JPA specification . The chosen provider is EclipseLink available by default on Glassfish .
+For the implementation of the service NoSQL it has been used the JPA specification . The chosen provider is EclipseLink available by default on Glassfish 4.0.
 
 SQL Service 
 
-The SQL service has been implemented in a manner similar to what was done for the other vendors. The DBMS is MySQL.
+The SQL service has been implemented in a manner similar to what was done for the other vendors. The DBMS is MySQL 5.6.15.
 
 MAIL Service 
 
@@ -195,13 +195,10 @@ Even in this case not being present in a Glassfish implementation of such a serv
 
 Setup of the Architecture
 ============
-
-
-If you are missing is also necessary instllare under the maven libreri jpa4azure and simplejpa respectively used in library CPIM for Azure and Amazon in order not to encounter errors .
-
+ 
 NoSQL, SQL and Blob Services
 
-The 3 services in the case of Glassfish make use of MySQL database. First thing to do then is to have a MySQL server. Through this it will be necessary to create two databases, one for data and one for normal data type Blob providing the user with which you will access to MySQL all rights to the two databases created by using the command:
+The 3 services in the case of Glassfish make use of MySQL 5.6.15 DBMS. First thing to do then is to have a MySQL 5.6.15 server. Through this it will be necessary to create two databases, one for data and one for normal data type Blob providing the user with which you will access to MySQL all rights to the two databases created by using the command:
 
 
 mysql grant all on database_name . * to ' account_name ' @ ' host_name '
@@ -329,4 +326,4 @@ Normally specify the address and port of the server intended to implement the se
 
 
 
-In the templates folder there are also templates of the  3 configuration files needed to use the CPIM that summarize what has been said in the paragraphs relating to the structure of the file and in the latter part relating to configuration details specific to Glassfish AS.
+In the templates folder there are also templates of the  3 configuration files needed to use the CPIM that summarize what has been said in the paragraphs relating to the structure of the file and in the latter part relating to configuration details specific to Glassfish  4.0 AS.
