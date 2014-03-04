@@ -241,7 +241,16 @@ If you are running under MacOSX systems you can find instraction on how to get a
 
 http://www.journaldev.com/1/how-to-install-memcached-server-on-mac-oslinux
 
-You also need to educate Glassfish in order to use the library spymemcached used in the CPIM to implement the service . To this end it is necessary to add the modules to Glassifish all files found inside the folder "jar Couchbase manager " in the file tools.zip .
+You also need to educate Glassfish and your application in order to use the library spymemcached used in the CPIM to implement the service . To this end you just have to follow the instruction available at the following link:
+
+https://github.com/rickyepoderi/couchbase-manager/wiki/Installation
+
+You can drop the phase of adding a glassifish-web.xml to you application cause it is not strictly necessary for our pourpose.
+
+Note that to this last end (instructing Glassfish and th application) there are some modification to apply both in the architecture and in the application even if the following section is dedicated to the application configuration. This is for coherence matter and we left in the following section just the file configuration in order to use the service.
+
+
+
 
 TaskQueue Service
 
