@@ -21,9 +21,7 @@ In order to use within a project the CPIM library it is necessary to add the fol
 	
 	< / dependency >
 	
-Once you have imported the library you also have to add to your buildpath the two library, SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure , in order not to encounter compilation errors and installation.
-You can find the SimpleJPA and the JPA4azure library in the lib folder.
-
+The two library, SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure, are automatically imported by maven and a local maven repository present in this project (repo folder). Thus in order to dispose of these library we have just to install via maven the cpim library. However we remind that this could be just a temporary solution.
 
 
 CPIM User Manual
@@ -229,7 +227,7 @@ The service uses a JMS connection MessageQueue and specifies a JMS resource asso
 • create a JMS Connection
 • create JMS resources as there are so many message queues used by the application.
 
-This solution is obviously designed for deployment in local as the number and type of code that the application uses , and thus in particular the number of JNDI resources from the budgeting, it should be known only at runtime by the application itself . Soon we will attempt to provide a more general solution.
+This solution is obviously designed for deployment in local as the number and type of queue that the application uses , and thus in particular the number of JNDI resources from the budgeting, it should be known only at runtime by the application itself . Soon we will attempt to provide a more general solution.
 
 Memcache Service
 
@@ -314,4 +312,4 @@ Normally specify the address and port of the server intended to implement the se
 
 
 
-In the file tools.zip there are also templates of the  3 configuration files needed to use the CPIM that summarize what has been said in the paragraphs relating to the structure of the file and in the latter part relating to configuration details specific to Glassfish AS.
+In the templates folder there are also templates of the  3 configuration files needed to use the CPIM that summarize what has been said in the paragraphs relating to the structure of the file and in the latter part relating to configuration details specific to Glassfish AS.
