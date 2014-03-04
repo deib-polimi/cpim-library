@@ -229,8 +229,18 @@ This solution is obviously designed for deployment in local as the number and ty
 
 Memcache Service
 
-To use the service as you have already mentioned you need to use a dedicated server that implements the memcached protocol . This server can run locally or remotely. You can use any server that implements the protocol. In particular, in the file tools.zip is a memcached server usable on Windows ( memcached.exe ) . If the protocol is realized on a MacOS system can be a memcached server ( and installation instructions ) is available at the following link:
+To use the service as you have already mentioned you need to use a dedicated server that implements the memcached protocol . This server can run locally or remotely. You can use any server that implements the protocol. 
+
+In particular, if you are running under windows systems you can download memcached-1.4.4 server directly from the following link:
+
+http://s3.amazonaws.com/downloads.northscale.com/memcached-win64-1.4.4-14.zip
+
+all you need to do at this point it's just to run the executable using administrator privilegies.
+
+If you are running under MacOSX systems you can find instraction on how to get a memcached server at the following link:
+
 http://www.journaldev.com/1/how-to-install-memcached-server-on-mac-oslinux
+
 You also need to educate Glassfish in order to use the library spymemcached used in the CPIM to implement the service . To this end it is necessary to add the modules to Glassifish all files found inside the folder "jar Couchbase manager " in the file tools.zip .
 
 TaskQueue Service
