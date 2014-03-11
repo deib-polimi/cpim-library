@@ -28,10 +28,14 @@ import java.sql.SQLException;
 public class GlassfishBlobManager implements CloudBlobManager {
 	
 	String blobConnectionString=null;
+	String user=null;
+	String pwd=null;
 	
 	//il costruttore semplicemente registra la connessione da utilizzare per effettuare tutte le operazioni necessarie
-	public GlassfishBlobManager(String blobConnectionString) {
+	public GlassfishBlobManager(String blobConnectionString, String userName, String password) {
 		this.blobConnectionString=blobConnectionString;
+		this.user=userName;
+		this.pwd=password;
 	}
 
 	@Override
@@ -40,7 +44,7 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		Connection conn;
 		try {
 			
-		conn = (Connection) DriverManager.getConnection(blobConnectionString,"deib-polimi","deib-polimi");
+		conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 		Blob b1 = conn.createBlob();
 	    b1.setBytes(1, file);
 	    PreparedStatement ps = conn.prepareStatement("insert into UserPicture(FileName,Picture) value (?,?)");

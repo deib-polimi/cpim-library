@@ -24,18 +24,22 @@ import java.sql.Statement;
 public class GlassfishBlobManagerFactory extends CloudBlobManagerFactory {
 
 	String blobConnectionString=null;
+	String dbAccount=null;
+	String dbPwd=null;
 	
 	//questo metodo crea nel database identificato dalla stringa di connessione passata una tabella che andr� a contenere i blob
 	//istanzia quindi un nuovo glassfishblob manager passando la tringa di connessione in quanto necessaria per l inserimento dei blob
-	public GlassfishBlobManagerFactory(String blobConnectionString) {
+	public GlassfishBlobManagerFactory(String blobConnectionString, String user, String password) {
 		
 		Statement statement;
 		Connection c=null;
 		
 		this.blobConnectionString=blobConnectionString;
+		this.dbAccount=user;
+		this.dbPwd=password;
 		
 		try {
-			c = (Connection) DriverManager.getConnection(blobConnectionString,"deib-polimi","deib-polimi");
+			c = (Connection) DriverManager.getConnection(blobConnectionString,dbAccount, dbPwd);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -64,7 +68,7 @@ public class GlassfishBlobManagerFactory extends CloudBlobManagerFactory {
 
 	@Override
 	public CloudBlobManager createCloudBlobManager() {
-		return new GlassfishBlobManager(this.blobConnectionString);
+		return new GlassfishBlobManager(this.blobConnectionString, this.dbAccount, this.dbPwd);
 	}
 
 }
