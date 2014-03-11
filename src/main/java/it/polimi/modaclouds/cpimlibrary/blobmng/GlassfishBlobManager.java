@@ -62,7 +62,7 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		
 		Connection conn;
 		try {
-			conn = (Connection) DriverManager.getConnection(blobConnectionString,"deib-polimi","deib-polimi");
+			conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 			String sql="delete from UserPicture where FileName=?";
             PreparedStatement pst=conn.prepareStatement(sql);
             pst.setString(1, fileName);
@@ -81,7 +81,7 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		Connection conn;
 
 		try {
-			conn = (Connection) DriverManager.getConnection(blobConnectionString,"deib-polimi","deib-polimi");
+			conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 			String sql="select Picture from UserPicture up where up.FileName=?";
             PreparedStatement pst=conn.prepareStatement(sql);
             pst.setString(1, fileName);
@@ -103,7 +103,7 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		Connection conn;
 
 		try {
-			conn = (Connection) DriverManager.getConnection(blobConnectionString,"deib-polimi","deib-polimi");
+			conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 			String sql="select FileName from UserPicture";
             PreparedStatement pst=conn.prepareStatement(sql);
             ResultSet rs=pst.executeQuery();
