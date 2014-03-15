@@ -34,8 +34,13 @@ class AzurePersistenceProvider{
 	  List<PersistenceProvider> list=getProviders();
 	  for(PersistenceProvider p:list)
 	  {
-		  ap=(AzureProvider) p;
+		  if(p instanceof AzureProvider & ap==null)
+		  {
+			  ap=(AzureProvider) p;
+		  }
 	  }
+	  if(ap==null)
+		  System.out.println("no valid provider found");
 	}
 	
 	
@@ -54,7 +59,7 @@ class AzurePersistenceProvider{
 	}
 
 	public CloudEntityManagerFactory createCloudEntityManagerFactory(
-			String persistenceUnit, @SuppressWarnings("rawtypes") Map map) {
+			String persistenceUnit, @SuppressWarnings("rawtypes") Map <String,String> map) {
 		return new AzureEntityManagerFactory(persistenceUnit,map);
 	}
 }
