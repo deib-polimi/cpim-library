@@ -21,7 +21,7 @@ In order to use within a project the CPIM library it is necessary to add the fol
 	
 	< / dependency >
 	
-The two library, SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure, are automatically imported by maven and a local maven repository present in this project (repo folder). Thus in order to dispose of these library we have just to install via maven the cpim library. However we remind that this could be just a temporary solution.
+The two library, SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure, are automatically imported by maven and a local maven repository present in this project (repo folder). Also all the other dependency needed to deploying on the different cloud provider and not available on any maven repository, are stored in the local maven repo. Thus in order to dispose of these library we have just to install via maven the cpim library. However we remind that this could be just a temporary solution.
 
 
 CPIM User Manual
@@ -168,28 +168,39 @@ Details about the Implementation of the CMPI Services in the Glassfish Extension
 
 
 NoSQL Service 
+============
 
 For the implementation of the service NoSQL it has been used the JPA specification . The chosen provider is EclipseLink available by default on Glassfish 4.0.
 
-SQL Service 
+SQL Service
+============
+ 
 
 The SQL service has been implemented in a manner similar to what was done for the other vendors. The DBMS is MySQL 5.6.15.
 
 MAIL Service 
+============
+
 
 The implementation was carried out using the JavaMail specification . In the case of Glassfish should be noted that unlike GAE and Azure is necessary to specify in the configuration file the SMTP server you want to use for the mail service , there being not the one used by the AS default , specifying the address and port as specified in paragraph application configuration .
 
 MessageQueue Service 
+============
+
 
 The service MessageQueue has been implemented using the JMS specification and then leaning into JNDI as we shall see in the setup of the architecture.
 
 Blob Service 
+============
+
 
 Regarding this service , as other vendors have a specific database in which to store the files Blob and the specific API to handle , it is thought to create also in this case a second database , managed by MySQL and always using the interface Blob available in the package java.sql . To make the second database is recognized by the library, has also extended the structure and parsing the file configuration.xml including a second connection string to a second database and extending the class CloudMetadata for this string is equalized in the case of Glassfish as vendors. The database for the file type Blob goes just created and attached to the application as its initialization is carried out internally by the library at the time of instantiation of the class GlassfishBlobManagerFactory .
 
 Memcache Service 
+============
 
-Even in this case not being present in a Glassfish implementation of such a service has been necessary to resort to external tools. First of all you must have a memecached server that implements the service locally. Has selected the use memcached available for windows. As regards the actual implementation of the APIs that are meeting this problem, it is chosen to use the library spymemcached already used for the implementation of the service provider to the relatively Azure. In order to use this library properly, you must also instruct Glassfish providing the necessary forms . Even in this case , see the chapter on the setup of the architecture for more details.
+
+Even in this case not being present in a Glassfish implementation of such a service has been necessary to resort to external tools. First of all you must have a memecached server that implements the service locally. In the configuration section we will explain how to get one. As regards the actual implementation of the APIs that are meeting this problem, it is chosen to use the library spymemcached already used for the implementation of the service provider to the relatively Azure. In order to use work with the memcached server we also need to provide Glassifish extra modules . Even in this case , see the chapter on the setup of the architecture for more details.
 
 
 
@@ -208,9 +219,8 @@ In the case of deployment in local course host_name = localhost.
 Once you have successfully created the backend , you will need to instruct Glassfish in order to interact with the newly created database through MySQL. To do this you will need :
 
 
-• create on a Glassfish JDBC connection to the MySQL server
-
-• create two resources on Glassfish JDBC to use the two databases created
+• create on Glassfish two JDBC connection to the two created databases
+• create a resources on Glassfish JDBC to use the  databases created for the table service
 
 Mail Service
 
@@ -219,10 +229,11 @@ The use of the mail service does not impact in any way on the setup of the archi
 MessageQueue Service
 
 The service uses a JMS connection MessageQueue and specifies a JMS resource associated with each message queue you want to use as specified in queue.xml , recall that the CPIM via JNDI . The steps to configure Glassfish in order to use the service are therefore the following :
+
 • create a JMS Connection
 • create JMS resources as there are so many message queues used by the application.
 
-This solution is obviously designed for deployment in local as the number and type of queue that the application uses , and thus in particular the number of JNDI resources from the budgeting, it should be known only at runtime by the application itself . Soon we will attempt to provide a more general solution.
+This solution is obviously designed for deployment in local as the number and type of queue that the application uses , and thus in particular the number of JNDI resources to create, it should be known only at runtime by the application itself . Soon we will attempt to provide a more general solution.
 
 Memcache Service
 
@@ -238,15 +249,9 @@ If you are running under MacOSX systems you can find instraction on how to get a
 
 http://www.journaldev.com/1/how-to-install-memcached-server-on-mac-oslinux
 
-You also need to educate Glassfish and your application in order to use the library spymemcached used in the CPIM to implement the service . To this end you just have to follow the instruction available at the following link:
+-configure Glassfish in order to work with the memcached server  following the instruction at the following link (skip the phase of adding a glass fish-web.xml file and of adding spymemcached library to Glassfish modules since it is already imported by the CPIM):
 
 https://github.com/rickyepoderi/couchbase-manager/wiki/Installation
-
-You can drop the phase of adding a glassifish-web.xml to you application cause it is not strictly necessary for our pourpose.
-
-Note that to this last end (instructing Glassfish and th application) there are some modification to apply both in the architecture and in the application even if the following section is dedicated to the application configuration. This is for coherence matter and we left in the following section just the file configuration in order to use the service.
-
-
 
 
 TaskQueue Service
@@ -321,9 +326,6 @@ In the case of Glassfish that tag will be filled with the URL of the servlet fro
 
 Memcache Service
 
-Normally specify the address and port of the server intended to implement the service , in the specific tag configuration.xml file as seen in the section on.
-
-
-
+Just specify the address and port of the server intended to implement the service , in the specific tag configuration.xml file as seen in the section on.
 
 In the templates folder there are also templates of the  3 configuration files needed to use the CPIM that summarize what has been said in the paragraphs relating to the structure of the file and in the latter part relating to configuration details specific to Glassfish  4.0 AS.
