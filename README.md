@@ -11,15 +11,15 @@ At the moment it is not yet present any maven repository to enable the automatic
 
 In order to use within a project the CPIM library it is necessary to add the following maven dependency :
 
-  < dependency >
-
-		< groupId > it.polimi.modaclouds.cpimlibrary < / groupId >
+    < dependency >
+  
+  	< groupId > it.polimi.modaclouds.cpimlibrary < / groupId >
 	
-		< artifactId >CPIM-library< / artifactId >
+	  < artifactId >CPIM-library< / artifactId >
 	
-		< version > 1.0 -SNAPSHOT < / version >
+	  < version > 1.0 -SNAPSHOT < / version >
 	
-	< / dependency >
+    < / dependency >
 	
 The two library, SimpleJPA and JPA4azure used by the CPIM to implement the service NoSQL respectively in the case of Amazon and Azure, are automatically imported by maven and a local maven repository present in this project (repo folder). Also all the other dependency needed to deploying on the different cloud provider and not available on any maven repository, are stored in the local maven repo. Thus in order to dispose of these library we have just to install via maven the cpim library. However we remind that this could be just a temporary solution.
 
@@ -269,11 +269,11 @@ NoSQL Service
 In order to use the service NoSQL is necessary to include in the META-INF folder persistence.xml file , properly configured.
 The structure of the document in the case of Glassfish is the following :
 
-< persistence version = "1.0" xmlns = " http://java.sun.com/xml/ns/persistence "
-xmlns: xsi = " http://www.w3.org/2001/XMLSchema-instance "
-xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd " > 
+    < persistence version = "1.0" xmlns = "     http://java.sun.com/xml/ns/persistence "
+    xmlns: xsi = " http://www.w3.org/2001/XMLSchema-instance "
+    xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd " > 
 
-	< persistence- unit name = " MyPersistenceUnit " transaction- type = " JTA ??" >
+	< persistence-unit name = " MyPersistenceUnit " transaction- type = " JTA ??" >
 
 	< provider > org.eclipse.persistence.jpa.PersistenceProvider < / provider >
 	
@@ -303,7 +303,7 @@ xsi: schemaLocation = " http://java.sun.com/xml/ns/persistence http://java.sun.c
 		
 	< / properties >
 	
-	< / persistence -unit >
+	< / persistence-unit >
 
 	< / persistence >
 
