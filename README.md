@@ -11,7 +11,7 @@ At the moment it is not yet present any maven repository to enable the automatic
 
 In order to use within a project the CPIM library it is necessary to add the following maven dependency :
 
-	< dependency >
+  < dependency >
 
 		< groupId > it.polimi.modaclouds.cpimlibrary < / groupId >
 	
@@ -32,28 +32,28 @@ The library introduces a software abstraction between applications and cloud ser
 The platforms currently supported are Google App Engine , Windows Azure and Amazon Web Services. In addition, the library has been extended in order to allow the deployment of local applications that make use of Glassifish 4.0 Application Server.
 The library CPIM exposes APIs for access to the following Cloud services , among the most common in PaaS platforms :
 
-• NoSQL Service
+- NoSQL Service
 
-• SQL Service 
+- SQL Service 
 
-• Blob Service
+- Blob Service
 
-• Message Queue
+- Message Queue
 
-• Task Queue
+- Task Queue
 
-• Mail Service
+- Mail Service
 
-• Memcache
+- Memcache
 
 The library, using only the metadata contained in the configuration files, can remap, at runtime, requests to these generic cloud services, into vendor-specific calls in respect of the service provider you choose.
 In particular, the library makes use of 3 XML configuration file:
 
-• configuration.xml
+- configuration.xml
 
-• persistence.xml
+- persistence.xml
 
-• queue.xml
+- queue.xml
 
 These files should be placed in the META-INF folder of the project.
 The persistence.xml file is the well known configuration file of the  data persistence service and is in fact used by the CPIM to perform the NoSQL service. Being already in itself a standard we will analyze only the configuration for the specific provider in the following sections .
@@ -111,16 +111,16 @@ Azure
 Amazon
 
 
-< sql >:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to specify the connection string to access the database via JDBC to use. The tag < blobconnection > , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
+- < sql >:  tags come within this specified all the information you need to use the SQL service. In particular, it is necessary to specify the connection string to access the database via JDBC to use. The tag < blobconnection > , similar to the first , was introduced following the extension to Glassfish for the only purpose of managing the Blob data in a database different from the one used for normal data, as will be explained in subsequent sections. Note that for the other vendors the Blob service is provided by the Cloud Provider itself and is then automatically configured using the same information required for the SQL service.
 
 
-< memcache >: memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
+- < memcache >: memcache service is configured simply by entering the address of the memcached server. The port associated with this service is usually the " 11211 ".
 
 
-< mail >: for configuring the mail service you will first need to specify the SMTP server that you will use going to set the host and port attributes of the tag <server smtp> . In addition, the tag <mail> also admits the tag <account info> whose attributes are used to specify the authentication information ( username and password) to the service.
+- < mail >: for configuring the mail service you will first need to specify the SMTP server that you will use going to set the host and port attributes of the tag <server smtp> . In addition, the tag <mail> also admits the tag <account info> whose attributes are used to specify the authentication information ( username and password) to the service.
 
 
-< backend >: CPIM library also allows you to perform tasks in a queue, which is configured with the tag <mode> PUSH </ mode> on a dedicated VM . This is enabled by entering the tag backend. the values to be specified in the name attribute change according on the platform on which the application runs, 
+- < backend >: CPIM library also allows you to perform tasks in a queue, which is configured with the tag <mode> PUSH </ mode> on a dedicated VM . This is enabled by entering the tag backend. the values to be specified in the name attribute change according on the platform on which the application runs, 
 
 
 queue.xml
@@ -153,7 +153,7 @@ The file structure is as follows:
 With this file you can configure both queue services ( tasks and messages ) provided by the CPIM .
 A generic queue is marked by the tag <queue> ,specifying a unique name for each queue so that it can be recognized and recalled.
 What makes explicit the difference between message and task queue is the tag <mode> that admits values PULL or PUSH to indicate that you want to use , in the first case a message queue,in the second a task queue. 
-In the case of task queue, it must also be specified a rate, which is the time interval that the system will wait between the execution of a task and that of the next one. The rate should be specified as [number_of_tasks/seconds] .
+In the case of task queue, it must also be specified a rate, which is the time interval that the system will wait between the execution of a task and that of the next one. The rate should be specified as [numberoftasks/seconds] .
 
 To also allow integration with Glassfish the file structure was extended. In the case of a deployment on Glassfish applications that makes use of the message queue service must also specify the two tags <messagequeueconnection> <messagequeueresource.> whose meaning will be explained in the paragraphs relating to the setup of the architecture and the deploy configuration for Glassfish .
 
@@ -219,8 +219,8 @@ In the case of deployment in local course host_name = localhost.
 Once you have successfully created the backend , you will need to instruct Glassfish in order to interact with the newly created database through MySQL. To do this you will need :
 
 
-• create on Glassfish two JDBC connection to the two created databases
-• create a resources on Glassfish JDBC to use the  databases created for the table service
+- create on Glassfish two JDBC connection to the two created databases
+- create a resources on Glassfish JDBC to use the  databases created for the table service
 
 Mail Service
 
@@ -230,8 +230,8 @@ MessageQueue Service
 
 The service uses a JMS connection MessageQueue and specifies a JMS resource associated with each message queue you want to use as specified in queue.xml , recall that the CPIM via JNDI . The steps to configure Glassfish in order to use the service are therefore the following :
 
-• create a JMS Connection
-• create JMS resources as there are so many message queues used by the application.
+- create a JMS Connection
+- create JMS resources as there are so many message queues used by the application.
 
 This solution is obviously designed for deployment in local as the number and type of queue that the application uses , and thus in particular the number of JNDI resources to create, it should be known only at runtime by the application itself . Soon we will attempt to provide a more general solution.
 
@@ -249,7 +249,7 @@ If you are running under MacOSX systems you can find instraction on how to get a
 
 http://www.journaldev.com/1/how-to-install-memcached-server-on-mac-oslinux
 
--configure Glassfish in order to work with the memcached server  following the instruction at the following link (skip the phase of adding a glass fish-web.xml file and of adding spymemcached library to Glassfish modules since it is already imported by the CPIM):
+Configure Glassfish in order to work with the memcached server  following the instruction at the following link (skip the phase of adding a glass fish-web.xml file and of adding spymemcached library to Glassfish modules since it is already imported by the CPIM):
 
 https://github.com/rickyepoderi/couchbase-manager/wiki/Installation
 
