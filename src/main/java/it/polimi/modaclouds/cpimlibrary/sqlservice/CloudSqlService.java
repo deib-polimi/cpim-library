@@ -25,7 +25,7 @@ import java.sql.Connection;
  * This abstract class allows to use the SQL service in an independent-platform
  * way. To instantiate this class you need to use the
  * {@code CloudSqlService.getCloudSqlService()} method.
- * 
+ *
  */
 public abstract class CloudSqlService {
 
@@ -33,14 +33,14 @@ public abstract class CloudSqlService {
 	 * This method instances a CloudSqlService object. It receives the
 	 * <i>vendor</i> and the <i>connection_string</i> used to connect to the
 	 * database service.
-	 * 
+	 *
 	 * <p>
 	 * If it passed the String like {@code "Azure"} or {@code "Google"} as
 	 * vendor this method becomes cloud dependent, but if it passed the
 	 * <i>vendor</i> contained in the CloudMetadata class calling the
 	 * {@code getTypeCloud()} method, the method becomes platform-independet.
 	 * </p>
-	 * 
+	 *
 	 * @param vendor
 	 * @param connection_string
 	 * @return a CloudSqlService instance
@@ -76,22 +76,24 @@ public abstract class CloudSqlService {
 			}
 	}
 
-	
+
 	/**
 	 * This method instances a CloudSqlService class in an independent-platform way.
 	 * It receives the CloudMetadata object to instantiate the specific service.
-	 * 
-	 * 
+	 *
+	 *
 	 * @param metadata
 	 * @return a CloudSqlService instance
 	 * @throws NotSupportedVendorException
 	 *             if the vendor string is not "Azure" or "Google"
 	 */
 	public static CloudSqlService getCloudSqlService(CloudMetadata metadata) {
-		if (metadata.getTypeCloud().equals("Azure"))
+		if (metadata.getTypeCloud().equals("Azure")) {
 			return new AzureSqlService(metadata.getConnectionString());
-		else if (metadata.getTypeCloud().equals("Google")) {
+		} else if (metadata.getTypeCloud().equals("Google")) {
 			return new GoogleSqlService(metadata.getConnectionString());
+		} else if (metadata.getTypeCloud().equals("Amazon")) {
+			return new AmazonSqlService(metadata.getConnectionString());
 		}
 		//aggiunto caso glassfish
 		else if (metadata.getTypeCloud().equals("Glassfish")) {
@@ -110,7 +112,7 @@ public abstract class CloudSqlService {
 	/**
 	 * Connects to a SQL database on cloud platform and returns the
 	 * {@link java.sql.Connection} interface.
-	 * 
+	 *
 	 * @return a {@link java.sql.Connection} interface
 	 * @see java.sql.Connection
 	 */
