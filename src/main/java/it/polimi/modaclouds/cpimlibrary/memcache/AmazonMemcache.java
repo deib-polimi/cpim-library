@@ -46,7 +46,7 @@ public class AmazonMemcache extends CloudMemcache {
 	private final int timeout = 5;
 	private static MemcachedClient memCache = null;
 	private CacheCluster cluster = null;
-	
+
 	private void start(String memcacheAddr) {
 		AWSCredentials credentials = null;
 		try {
@@ -70,19 +70,19 @@ public class AmazonMemcache extends CloudMemcache {
 			}
 		}
 		//setting security groups
-		List<String> sec_groups_names = new ArrayList<String>();
-		List<CacheSecurityGroup> res = ec.describeCacheSecurityGroups().getCacheSecurityGroups();
-		for(int i = 0; i < res.size(); i++) {
-			if(res.get(i).getDescription().contains("Cloud Platform Independent Model"))
-				sec_groups_names.add(res.get(i).getCacheSecurityGroupName());
-		}
-		ModifyCacheClusterRequest req = new ModifyCacheClusterRequest(cluster.getCacheClusterId());
-		req.setCacheSecurityGroupNames(sec_groups_names);
-		req.setApplyImmediately(true);
-		ec.modifyCacheCluster(req);
+		// List<String> sec_groups_names = new ArrayList<String>();
+		// List<CacheSecurityGroup> res = ec.describeCacheSecurityGroups().getCacheSecurityGroups();
+		// for(int i = 0; i < res.size(); i++) {
+		// 	if(res.get(i).getDescription().contains("Cloud Platform Independent Model"))
+		// 		sec_groups_names.add(res.get(i).getCacheSecurityGroupName());
+		// }
+		// ModifyCacheClusterRequest req = new ModifyCacheClusterRequest(cluster.getCacheClusterId());
+		// req.setCacheSecurityGroupNames(sec_groups_names);
+		// req.setApplyImmediately(true);
+		// ec.modifyCacheCluster(req);
 		//creation of memcached client
 		List<InetSocketAddress> addrs = new ArrayList<InetSocketAddress>();
-        if (cluster.getCacheNodes() != null ) {
+        if (cluster != null && cluster.getCacheNodes() != null ) {
             for (CacheNode node : cluster.getCacheNodes()) {
                     if (node != null) {
                     	Endpoint endpoint = node.getEndpoint();
@@ -105,15 +105,15 @@ public class AmazonMemcache extends CloudMemcache {
         else
         	System.out.println("No available nodes.");
 	}
-	
+
 	public AmazonMemcache(String memcacheAddr) {
-		
+
 		if (memCache == null) {
 			this.start(memcacheAddr);
 		}
-		
+
 	}
-	
+
 	@Override
 	public void clearAll() {
 		Future<Boolean> f = memCache.flush();
@@ -128,7 +128,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public Boolean contains(Object key) {
-		
+
 		Future<Object> f = memCache.asyncGet(key.toString());
 		try {
 			if(f.get(timeout, TimeUnit.SECONDS)!=null)
@@ -143,7 +143,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public Boolean delete(Object key) {
-		
+
 		Future<Boolean> f = memCache.delete(key.toString());
 		try {
 			return f.get(timeout, TimeUnit.SECONDS);
@@ -156,7 +156,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public Boolean deleteAll(Collection<Object> keys) {
-		
+
 		for(Object key: keys){
 			Future<Boolean> f = memCache.delete(key.toString());
 			try {
@@ -172,7 +172,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public Object get(Object key) {
-		
+
 		Future<Object> f = memCache.asyncGet(key.toString());
 		try {
 			return f.get(timeout, TimeUnit.SECONDS);
@@ -186,7 +186,7 @@ public class AmazonMemcache extends CloudMemcache {
 	@SuppressWarnings("null")
 	@Override
 	public Map<Object, Object> getAll(Collection<Object> keys) {
-		
+
 		Map<Object, Object> ret = null;
 		for(Object key: keys){
 			Future<Object> f = memCache.asyncGet(key.toString());
@@ -203,7 +203,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public void put(Object key, Object value) {
-		
+
 		Future<Boolean> f = memCache.set(key.toString(), expire_time, value);
 		try {
 			f.get(timeout, TimeUnit.SECONDS);
@@ -216,7 +216,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public void put(Object key, Object value, Integer expires) {
-		
+
 		Future<Boolean> f = memCache.set(key.toString(), expires, value);
 		try {
 			f.get(timeout, TimeUnit.SECONDS);
@@ -229,7 +229,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public void putAll(Map<Object, Object> values) {
-		
+
 		Set<Object> keys = values.keySet();
 		for(Object key: keys){
 			Future<Boolean> f = memCache.set(key.toString(), expire_time, values.get(key.toString()));
@@ -245,7 +245,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public void putAll(Map<Object, Object> values, Integer expires) {
-		
+
 		Set<Object> keys = values.keySet();
 		for(Object key: keys){
 			Future<Boolean> f = memCache.set(key.toString(), expires, values.get(key.toString()));
@@ -261,7 +261,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public Long increment(Object key, long delta) {
-		
+
 		Future<Long> f = memCache.asyncIncr(key.toString(), delta);
 		try {
 			return f.get(timeout, TimeUnit.SECONDS);
@@ -277,7 +277,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 		if(this.contains(key.toString()))
 			this.put(key, initialValue);
-		
+
 		Future<Long> f = memCache.asyncIncr(key.toString(), delta);
 		try {
 			return f.get(timeout, TimeUnit.SECONDS);
@@ -291,7 +291,7 @@ public class AmazonMemcache extends CloudMemcache {
 	@SuppressWarnings("null")
 	@Override
 	public Map<Object, Long> incrementAll(Collection<Object> keys, long delta) {
-		
+
 		Map<Object, Long> incremented = null;
 		for(Object key: keys){
 			Future<Long> f = memCache.asyncIncr(key.toString(), delta);
@@ -359,7 +359,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public void replace(Object key, Object newValue) {
-		
+
 		Future<Boolean> f = memCache.replace(key.toString(), expire_time, newValue);
 		try {
 			f.get(timeout, TimeUnit.SECONDS);
@@ -372,7 +372,7 @@ public class AmazonMemcache extends CloudMemcache {
 
 	@Override
 	public void replaceAll(Map<Object, Object> newvalues) {
-		
+
 		Set<Object> keys = newvalues.keySet();
 		for(Object key: keys){
 			Future<Boolean> f = memCache.replace(key.toString(), expire_time, newvalues.get(key.toString()));
