@@ -29,12 +29,12 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceProviderResolverHolder;
 import javax.xml.stream.XMLStreamException;
 
-import jpa4azure.impl.AzureProvider;
+//import jpa4azure.impl.AzureProvider;
 
 class AzureMessageQueueFactory extends
 		CloudMessageQueueFactory {
 
-	private AzureProvider provider = null;
+//	private AzureProvider provider = null;
 	private HashMap<String, AzureMessageQueue> map = null;
 	private HashMap<String, QueueInfo> info = null;
 
@@ -42,14 +42,14 @@ class AzureMessageQueueFactory extends
 
 	public AzureMessageQueueFactory(CloudMetadata metadata) {
 		initProvider();
-		try {
-			this.aqmf = provider.createQueueManagerFactory(metadata.getPersistenceUnit(), metadata.getPersistenceInfo());
+//		try {
+//			this.aqmf = provider.createQueueManagerFactory(metadata.getPersistenceUnit(), metadata.getPersistenceInfo());
 			this.info = metadata.getQueueMedatada();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
-		}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (XMLStreamException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -74,7 +74,7 @@ class AzureMessageQueueFactory extends
 	private void initProvider() {
 		List<PersistenceProvider> list = getProviders();
 		for (PersistenceProvider p : list) {
-			provider = (AzureProvider) p;
+//			provider = (AzureProvider) p;
 		}
 	}
 

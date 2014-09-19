@@ -29,28 +29,28 @@ import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceProviderResolverHolder;
 import javax.xml.stream.XMLStreamException;
 
-import jpa4azure.impl.AzureProvider;
+//import jpa4azure.impl.AzureProvider;
 
 class AzureTaskQueueFactory extends CloudTaskQueueFactory {
 
-	private AzureProvider provider = null;
+	//private AzureProvider provider = null;
 	private HashMap<String, AzureTaskQueue> map = null;
 	private HashMap<String, QueueInfo> info = null;
   	private com.windowsazure.samples.queue.AzureQueueManagerFactory aqmf = null;
 
 	public AzureTaskQueueFactory(CloudMetadata metadata) {
 		initProvider();
-		try {
+//		try {
 		
-			this.aqmf = provider.createQueueManagerFactory(
-					metadata.getPersistenceUnit(),
-					metadata.getPersistenceInfo());
+//			this.aqmf = provider.createQueueManagerFactory(
+//					metadata.getPersistenceUnit(),
+//					metadata.getPersistenceInfo());
 			this.info = metadata.getQueueMedatada();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
-		}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (XMLStreamException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -76,7 +76,7 @@ class AzureTaskQueueFactory extends CloudTaskQueueFactory {
 	private void initProvider() {
 		List<PersistenceProvider> list = getProviders();
 		for (PersistenceProvider p : list) {
-			provider = (AzureProvider) p;
+//			provider = (AzureProvider) p;
 		}
 	}
 

@@ -19,6 +19,8 @@ package it.polimi.modaclouds.cpimlibrary.entitymng;
 import java.util.Map;
 
 
+
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
@@ -29,23 +31,23 @@ import javax.persistence.Persistence;
 
 class AzureEntityManagerFactory extends CloudEntityManagerFactory  {
 
-	private jpa4azure.impl.AzureEntityManagerFactory factory=null;
+	private /*jpa4azure.impl.Azure*/EntityManagerFactory factory=null;
 	private String persistenceUnit = null;
 	
 	public AzureEntityManagerFactory(String persistenceUnit){
 		this.persistenceUnit=persistenceUnit;
-		factory=(jpa4azure.impl.AzureEntityManagerFactory) Persistence.createEntityManagerFactory(persistenceUnit);
+		factory=/*(jpa4azure.impl.AzureEntityManagerFactory)*/ Persistence.createEntityManagerFactory(persistenceUnit);
 	}
 	
-	public AzureEntityManagerFactory(String persistenceUnit, @SuppressWarnings("rawtypes") Map <String,String> map) {
+	public AzureEntityManagerFactory(String persistenceUnit, /*@SuppressWarnings("rawtypes")*/ Map <String,String> map) {
 		this.persistenceUnit=persistenceUnit;
-			factory=new jpa4azure.impl.AzureEntityManagerFactory(map.get("account.name"), map.get("account.key"),map);
-			//factory=(jpa4azure.impl.AzureEntityManagerFactory) Persistence.createEntityManagerFactory(persistenceUnit,map);
+			//factory=new jpa4azure.impl.AzureEntityManagerFactory(map.get("account.name"), map.get("account.key"),map);
+			factory=/*(jpa4azure.impl.AzureEntityManagerFactory)*/ Persistence.createEntityManagerFactory(persistenceUnit,map);
 	}
 
 	@Override
 	public CloudEntityManager createCloudEntityManager() {
-		return new AzureEntityManager((jpa4azure.impl.AzureEntityManager)factory.createEntityManager());
+		return new AzureEntityManager(/*(jpa4azure.impl.AzureEntityManager)*/factory.createEntityManager());
 	}
 
 	@Override

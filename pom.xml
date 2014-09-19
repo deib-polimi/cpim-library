@@ -54,9 +54,57 @@
         	<name>project</name>
         	<url>file:${project.basedir}/repo</url>
     	</repository>
+    	<!-- Kundera -->
+    	<repository>
+			<id>sonatype-nexus</id>
+		    <name>Kundera Public Repository</name>
+		    <url>https://oss.sonatype.org/content/repositories/releases</url>
+		    <releases>
+		        <enabled>true</enabled>
+		    </releases>
+		    <snapshots>
+		        <enabled>false</enabled>
+		    </snapshots>
+		</repository>
+		<repository>
+		    <id>kundera-missing</id>
+		    <name>Kundera Public Missing Resources Repository</name>
+		    <url>http://kundera.googlecode.com/svn/maven2/maven-missing-resources</url>
+		    <releases>
+		        <enabled>true</enabled>
+		    </releases>
+		    <snapshots>
+		        <enabled>true</enabled>
+		    </snapshots>
+		</repository>
 	</repositories>
 
 	<dependencies>
+		<!-- Kundera Dependency -->
+		 <dependency>
+			<groupId>com.impetus.kundera.client</groupId>
+			<artifactId>kundera-mongo</artifactId>
+			<version>2.13</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.impetus.kundera.client</groupId>
+			<artifactId>kundera-rdbms</artifactId>
+			<version>2.13</version>
+		</dependency>
+		
+		<!--<dependency>
+			<groupId>com.impetus.kundera.client</groupId>
+			<artifactId>kundera-hbase</artifactId>
+			<version>2.13</version>
+		</dependency>-->
+		
+		<dependency>
+			<groupId>com.impetus.kundera.core</groupId>
+			<artifactId>kundera-core</artifactId>
+			<version>2.13</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>spy</groupId>
 			<artifactId>spymemcached</artifactId>
@@ -117,7 +165,7 @@
     		<artifactId>jpa4azure-extended</artifactId>
     		<version>1.0</version>
 		</dependency>
-		
+		 
 		<dependency>
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
@@ -159,7 +207,6 @@
     		<artifactId>commons-fileupload</artifactId>
     		<version>1.2.2</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>

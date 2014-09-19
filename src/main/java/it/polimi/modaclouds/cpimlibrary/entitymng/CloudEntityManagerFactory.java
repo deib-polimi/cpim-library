@@ -62,9 +62,10 @@ public abstract class CloudEntityManagerFactory {
 			return map.get(persistenceUnit);
 
 		if (vendor.equals("Azure")) {
-			AzurePersistenceProvider cp = new AzurePersistenceProvider();
-			emf = (AzureEntityManagerFactory) cp
-					.createCloudEntityManagerFactory(persistenceUnit, null);
+			//AzurePersistenceProvider cp = new AzurePersistenceProvider();
+			//emf = (AzureEntityManagerFactory) cp
+			//		.createCloudEntityManagerFactory(persistenceUnit, null);
+			emf = new AzureEntityManagerFactory(persistenceUnit);
 			map.put(persistenceUnit, emf);
 		} else if (vendor.equals("Google")) {
 			emf = new GoogleEntityManagerFactory(persistenceUnit);
@@ -125,10 +126,11 @@ public abstract class CloudEntityManagerFactory {
 			return map.get(persistenceUnit);
 
 		if (vendor.equals("Azure")) {
-			AzurePersistenceProvider cp = new AzurePersistenceProvider();
-			emf = (AzureEntityManagerFactory) cp
-					.createCloudEntityManagerFactory(persistenceUnit,
-							properties);
+//			AzurePersistenceProvider cp = new AzurePersistenceProvider();
+//			emf = (AzureEntityManagerFactory) cp
+//					.createCloudEntityManagerFactory(persistenceUnit,
+//							properties);
+			emf = new AzureEntityManagerFactory(persistenceUnit);
 			map.put(persistenceUnit, emf);
 		} else if (vendor.equals("Google")) {
 			emf = new GoogleEntityManagerFactory(persistenceUnit);
@@ -173,11 +175,12 @@ public abstract class CloudEntityManagerFactory {
 			return map.get(metadata.getPersistenceUnit());
 
 		if (metadata.getTypeCloud().equals("Azure")) {
-			AzurePersistenceProvider cp = new AzurePersistenceProvider();
-			emf = (AzureEntityManagerFactory) cp
-					.createCloudEntityManagerFactory(
-							metadata.getPersistenceUnit(),
-							metadata.getPersistenceInfo());
+			//AzurePersistenceProvider cp = new AzurePersistenceProvider();
+			//emf = (AzureEntityManagerFactory) cp
+			//		.createCloudEntityManagerFactory(
+			//				metadata.getPersistenceUnit(),
+			//				metadata.getPersistenceInfo());
+			emf = new AzureEntityManagerFactory(metadata.getPersistenceUnit());
 			map.put(metadata.getPersistenceUnit(), emf);
 		} else if (metadata.getTypeCloud().equals("Google")) {
 			emf = new GoogleEntityManagerFactory(metadata.getPersistenceUnit());

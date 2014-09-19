@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
@@ -42,13 +43,14 @@ import javax.persistence.Query;
  */
 class AzureEntityManager implements CloudEntityManager {
 
-	jpa4azure.impl.AzureEntityManager aem = null;
-
+	//jpa4azure.impl.AzureEntityManager aem = null;
+	EntityManager aem = null;
+	
 	public AzureEntityManager() {
-		aem = new jpa4azure.impl.AzureEntityManager(null, null, null);
+		//aem = new jpa4azure.impl.AzureEntityManager(null, null, null);
 	}
 
-	public AzureEntityManager(jpa4azure.impl.AzureEntityManager em) {
+	public AzureEntityManager(/*jpa4azure.impl.Azure*/EntityManager em) {
 		aem = em;
 	}
 
