@@ -16,344 +16,109 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
-import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
-/**
- * Interface used to interact with the persistence context in the cloud, using
- * the NoSQL service in the independent-platform way.
- * 
- * <p>
- * The CloudEntityManager API is used to create and remove persistent entity
- * instances, to find entities by their primary key, and to query over entities.
- * </p>
- * <p>
- * The set of entities that can be managed by a given CloudEntityManager
- * instance is defined by a persistence unit. A persistence unit defines the set
- * of all classes that are related or grouped by the application, and which must
- * be colocated in their mapping to a single database.
- * </p>
- * 
- * @since Java Persistence API 1.0
- * 
- */
-public interface CloudEntityManager {
+public class CloudEntityManager {
 
-	/**
-	 * Clear the persistence context, causing all managed entities to become
-	 * detached. Changes made to entities that have not been flushed to the
-	 * database will not be persisted.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this CloudEntityManager has been closed.
-	 */
-	public void clear();
+	EntityManager em = null;
 
-	/**
-	 * Close an application-managed EntityManager. After the close method has
-	 * been invoked, all methods on the EntityManager instance and any Query
-	 * objects obtained from it will throw the IllegalStateException except for
-	 * getTransaction and isOpen (which will return false). If this method is
-	 * called when the EntityManager is associated with an active transaction,
-	 * the persistence context remains managed until the transaction completes.
-	 * 
-	 * @throws IllegalStateException
-	 *             if the EntityManager is container-managed or has been already
-	 *             closed.
-	 */
-	public void close();
+	public CloudEntityManager(EntityManager entityManager) {
+		this.em = entityManager;
+	}
 
-	/**
-	 * Check if the instance belongs to the current persistence context.
-	 * 
-	 * @param entity
-	 * @return {@code true} if the instance belongs to the current persistence
-	 *         context.
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity
-	 */
-	public boolean contains(Object entity);
+	public void clear() {
+		em.clear();
+	}
 
-	/**
-	 * Create an instance of Query for executing a named query (in the Java
-	 * Persistence query language or in native SQL). In this case the
-	 * aggregation operators and the join are not supported, for the nature of
-	 * the NoSQL service.
-	 * 
-	 * @param name
-	 *            - the name of a query defined in metadata
-	 * @return the new query instance
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if a query has not been defined with the given name
-	 */
-	public Query createNamedQuery(String name);
+	public void close() {
+		em.close();
+	}
 
-	/**
-	 * Create an instance of Query for executing a native SQL statement, e.g.,
-	 * for update or delete. In this case the aggregation operators and the join
-	 * are not supported, for the nature of the NoSQL service.
-	 * 
-	 * @param sqlString
-	 *            - a native SQL query string
-	 * @return the new query instance
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Query createNativeQuery(String sqlString);
+	public boolean contains(Object entity) {
+		return em.contains(entity);
+	}
 
-	/**
-	 * Create an instance of Query for executing a native SQL query. In this
-	 * case the aggregation operators and the join are not supported, for the
-	 * nature of the NoSQL service.
-	 * 
-	 * @param sqlString
-	 *            - a native SQL query string
-	 * @param resultClass
-	 *            - the class of the resulting instance(s)
-	 * @return the new query instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
+	public Query createNamedQuery(String name) {
+		return em.createNamedQuery(name);
+	}
+
+	public Query createNativeQuery(String sqlString) {
+		return em.createNativeQuery(sqlString);
+	}
+
 	public Query createNativeQuery(String sqlString,
-			@SuppressWarnings("rawtypes") Class resultClass);
+			@SuppressWarnings("rawtypes") Class resultClass) {
+		return em.createNativeQuery(sqlString, resultClass);
+	}
 
-	/**
-	 * Create an instance of Query for executing a native SQL query. In this
-	 * case the aggregation operators and the join are not supported, for the
-	 * nature of the NoSQL service.
-	 * 
-	 * @param sqlString
-	 *            - a native SQL query string
-	 * @param resultSetMapping
-	 *            - the name of the result set mapping
-	 * @return the new query instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Query createNativeQuery(String sqlString, String resultSetMapping);
+	public Query createNativeQuery(String sqlString, String resultSetMapping) {
+		return em.createNativeQuery(sqlString, resultSetMapping);
+	}
 
-	/**
-	 * Create an instance of Query for executing a Java Persistence query
-	 * language statement.
-	 * 
-	 * @param qlString
-	 *            - a Java Persistence query language query string
-	 * @return the new query instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if query string is not valid
-	 */
-	public Query createQuery(String qlString);
+	public Query createQuery(String qlString) {
 
-	/**
-	 * Find by primary key.
-	 * 
-	 * @param entityClass
-	 * @param primaryKey
-	 * @return the found entity instance or null if the entity does not exist
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if the first argument does not denote an entity type or the
-	 *             second argument is not a valid type for that entity's primary
-	 *             key
-	 */
-	public <T> T find(Class<T> entityClass, Object primaryKey);
+		return em.createQuery(qlString);
+	}
 
-	/**
-	 * Synchronize the persistence context to the underlying database.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws TransactionRequiredException
-	 *             if there is no transaction
-	 * @throws PersistenceException
-	 *             if the flush fails
-	 */
-	public void flush();
+	public <T> T find(Class<T> entityClass, Object primaryKey) {
+		return em.find(entityClass, primaryKey);
+	}
 
-	/**
-	 * Return the underlying provider object for the EntityManager, if
-	 * available.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Object getDelegate();
+	public void flush() {
+		em.flush();
+	}
 
-	/**
-	 * Get the flush mode that applies to all objects contained in the
-	 * persistence context.
-	 * 
-	 * @return flush mode
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public FlushModeType getFlushMode();
+	public Object getDelegate() {
+		return em.getDelegate();
+	}
 
-	/**
-	 * Get an instance, whose state may be lazily fetched. If the requested
-	 * instance does not exist in the database, throws
-	 * {@code EntityNotFoundException} when the instance state is first
-	 * accessed. (The persistence provider runtime is permitted to throw
-	 * {@code EntityNotFoundException} when {@code getReference(java.lang.Class,
-	 * java.lang.Object)} is called.) The application should not expect that the
-	 * instance state will be available upon detachment, unless it was accessed
-	 * by the application while the entity manager was open.
-	 * 
-	 * @param entityClass
-	 * @param primaryKey
-	 * @return the found entity instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if the first argument does not denote an entity type or the
-	 *             second argument is not a valid type for that entity's primary
-	 *             key
-	 * @throws EntityNotFoundException
-	 *             if the entity state cannot be accessed
-	 */
-	public <T> T getReference(Class<T> entityClass, Object primaryKey);
+	public FlushModeType getFlushMode() {
+		return em.getFlushMode();
+	}
 
-	/**
-	 * Returns the resource-level transaction object. The EntityTransaction
-	 * instance may be used serially to begin and commit multiple transactions.
-	 * 
-	 * @return EntityTransaction instance
-	 * @throws IllegalStateException
-	 *             if invoked on a JTA EntityManager.
-	 * 
-	 */
-	public EntityTransaction getTransaction();
+	public <T> T getReference(Class<T> entityClass, Object primaryKey) {
+		return em.getReference(entityClass, primaryKey);
+	}
 
-	/**
-	 * Determine whether the EntityManager is open.
-	 * 
-	 * @return {@code true} until the EntityManager has been closed.
-	 */
-	public boolean isOpen();
+	public EntityTransaction getTransaction() {
+		return em.getTransaction();
+	}
 
-	/**
-	 * Indicate to the EntityManager that a JTA transaction is active. This
-	 * method should be called on a JTA application managed EntityManager that
-	 * was created outside the scope of the active transaction to associate it
-	 * with the current JTA transaction.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws TransactionRequiredException
-	 *             if there is no transaction.
-	 */
-	public void joinTransaction();
+	public boolean isOpen() {
+		return em.isOpen();
+	}
 
-	/**
-	 * Set the lock mode for an entity object contained in the persistence
-	 * context.
-	 * 
-	 * @param entity
-	 * @param lockMode
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws PersistenceException
-	 *             if an unsupported lock call is made
-	 * @throws IllegalArgumentException
-	 *             if the instance is not an entity or is a detached entity
-	 * @throws TransactionRequiredException
-	 *             if there is no transaction
-	 */
-	public void lock(Object entity, LockModeType lockMode);
+	public void joinTransaction() {
+		em.joinTransaction();
+	}
 
-	/**
-	 * Merge the state of the given entity into the current persistence context.
-	 * Parameters: entity - Returns: Throws:
-	 * 
-	 * 
-	 * 
-	 * @param entity
-	 * @return the instance that the state was merged to
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if instance is not an entity or is a removed entity
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 */
-	public <T> T merge(T entity);
+	public void lock(Object entity, LockModeType lockMode) {
+		em.lock(entity, lockMode);
+	}
 
-	/**
-	 * Make an entity instance managed and persistent.
-	 * 
-	 * @param entity
-	 * @throws EntityExistsException
-	 *             if the entity already exists. (The EntityExistsException may
-	 *             be thrown when the persist operation is invoked, or the
-	 *             EntityExistsException or another PersistenceException may be
-	 *             thrown at flush or commit time.)
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 */
-	public void persist(Object entity);
+	public <T> T merge(T entity) {
+		return em.merge(entity);
+	}
 
-	/**
-	 * Refresh the state of the instance from the database, overwriting changes
-	 * made to the entity, if any.
-	 * 
-	 * @param entity
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity or entity is not managed
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 * @throws EntityNotFoundException
-	 *             if the entity no longer exists in the database.
-	 */
-	public void refresh(Object entity);
+	public void persist(Object entity) {
+		em.persist(entity);
+		close();
+	}
 
-	/**
-	 * Remove the entity instance.
-	 * 
-	 * @param entity
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity or if a detached entity
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 */
-	public void remove(Object entity);
+	public void refresh(Object entity) {
+		em.refresh(entity);
+	}
 
-	/**
-	 * Set the flush mode that applies to all objects contained in the
-	 * persistence context.
-	 * 
-	 * @param flushMode
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public void setFlushMode(FlushModeType flushMode);
+	public void remove(Object entity) {
+		em.remove(entity);
+	}
+
+	public void setFlushMode(FlushModeType flushMode) {
+		em.setFlushMode(flushMode);
+	}
 
 }

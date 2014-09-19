@@ -41,10 +41,10 @@ public class MF {
 	private CloudMessageQueueFactory mqfInstance = null;
 	private CloudTaskQueueFactory tqfInstance = null;
 
-	private MF(){
-		
+	private MF() {
+
 	}
-	
+
 	/**
 	 * This method is used to create a general ManagerFactory, with the
 	 * singleton technique. In the {@code MF} object are present all the methods
@@ -57,7 +57,7 @@ public class MF {
 		if (_instance == null) {
 			try {
 				metadata = CloudMetadata.getCloudMetadata();
-				_instance= new MF();
+				_instance = new MF();
 			} catch (ParserConfigurationFileException e) {
 				e.printStackTrace();
 			}
@@ -85,17 +85,17 @@ public class MF {
 	 * @see CloudEntityManagerFactory
 	 */
 	public CloudEntityManagerFactory getEntityManagerFactory() {
+		System.out.println("Requested MF getEntityManagerFactory");
 		if (emfInstance == null)
-			emfInstance = CloudEntityManagerFactory
-					.getCloudEntityManagerFactory(metadata.getTypeCloud(),
-							metadata.getPersistenceUnit(),
-							metadata.getPersistenceInfo());
+			emfInstance = new CloudEntityManagerFactory(
+					metadata.getTypeCloud(), metadata.getPersistenceUnit(),
+					metadata.getPersistenceInfo());
 		return emfInstance;
 	}
 
 	/**
-	 * Returns a {@code CloudTaskQueueFactory} object used to instantiate
-	 * a {@code CloudTaskQueue}. This factory is used to create a queue of the
+	 * Returns a {@code CloudTaskQueueFactory} object used to instantiate a
+	 * {@code CloudTaskQueue}. This factory is used to create a queue of the
 	 * TaskQueue service.
 	 * 
 	 * @return the factory of the {@code CloudTaskQueue}
@@ -110,8 +110,8 @@ public class MF {
 	}
 
 	/**
-	 * Returns a {@code CloudMessageQueueFactory} object used to
-	 * instantiate a {@code CloudMessageQueue}.
+	 * Returns a {@code CloudMessageQueueFactory} object used to instantiate a
+	 * {@code CloudMessageQueue}.
 	 * 
 	 * @return the factory of the CloudMessageQueue
 	 * @see CloudMessageQueueFactory
