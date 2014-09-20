@@ -54,13 +54,14 @@ public class CloudEntityManager {
 			@SuppressWarnings("rawtypes") Class resultClass) {
 		return em.createNativeQuery(sqlString, resultClass);
 	}
-
+	
+	// Kundera EntityManagerImpl throws NotImplementedException on this
 	public Query createNativeQuery(String sqlString, String resultSetMapping) {
 		return em.createNativeQuery(sqlString, resultSetMapping);
 	}
 
-	public Query createQuery(String qlString) {
 
+	public Query createQuery(String qlString) {
 		return em.createQuery(qlString);
 	}
 
@@ -80,6 +81,7 @@ public class CloudEntityManager {
 		return em.getFlushMode();
 	}
 
+	// Kundera EntityManagerImpl throws NotImplementedException on this
 	public <T> T getReference(Class<T> entityClass, Object primaryKey) {
 		return em.getReference(entityClass, primaryKey);
 	}
@@ -96,6 +98,7 @@ public class CloudEntityManager {
 		em.joinTransaction();
 	}
 
+	// Kundera EntityManagerImpl throws NotImplementedException on this
 	public void lock(Object entity, LockModeType lockMode) {
 		em.lock(entity, lockMode);
 	}
@@ -106,7 +109,7 @@ public class CloudEntityManager {
 
 	public void persist(Object entity) {
 		em.persist(entity);
-		close();
+		close(); // TODO why this?
 	}
 
 	public void refresh(Object entity) {
