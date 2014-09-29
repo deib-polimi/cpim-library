@@ -109,7 +109,6 @@ public class CloudEntityManager {
 
 	public void persist(Object entity) {
 		em.persist(entity);
-		close(); // TODO why this?
 	}
 
 	public void refresh(Object entity) {

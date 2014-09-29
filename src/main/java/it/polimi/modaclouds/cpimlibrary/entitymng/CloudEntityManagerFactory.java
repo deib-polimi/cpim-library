@@ -32,13 +32,11 @@ public class CloudEntityManagerFactory {
 		 * kundera as persistence provider so there's no more need to
 		 * instantiate different things at runtime
 		 */
-		System.out.println("CloudEntityManagerFactory instantiated");
 		factory = Persistence.createEntityManagerFactory(persistenceUnit);
 	}
 
 	// for legacy code
 	public CloudEntityManager createCloudEntityManager() {
-		System.out.println("createCloudEntityManager");
 		return new CloudEntityManager(factory.createEntityManager());
 	}
 

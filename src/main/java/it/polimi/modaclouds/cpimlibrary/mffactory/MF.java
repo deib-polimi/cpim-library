@@ -85,7 +85,6 @@ public class MF {
 	 * @see CloudEntityManagerFactory
 	 */
 	public CloudEntityManagerFactory getEntityManagerFactory() {
-		System.out.println("Requested MF getEntityManagerFactory");
 		if (emfInstance == null)
 			emfInstance = new CloudEntityManagerFactory(
 					metadata.getTypeCloud(), metadata.getPersistenceUnit(),
