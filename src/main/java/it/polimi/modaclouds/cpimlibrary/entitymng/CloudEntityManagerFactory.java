@@ -25,17 +25,17 @@ public class CloudEntityManagerFactory {
 
 	private EntityManagerFactory factory = null;
 
-	public CloudEntityManagerFactory(String typeCloud, String persistenceUnit,
+	public CloudEntityManagerFactory(String persistenceUnit,
 			HashMap<String, String> persistenceInfo) {
 		/*
-		 * typeCloud is not needed since every cloud implementation will use
-		 * kundera as persistence provider so there's no more need to
-		 * instantiate different things at runtime
+		 * typeCloud parameter is not needed anymore since every cloud
+		 * implementation will use Kundera as persistence provider, so there's
+		 * no more need to instantiate different things at runtime based on
+		 * cloud provider.
 		 */
 		factory = Persistence.createEntityManagerFactory(persistenceUnit);
 	}
 
-	// for legacy code
 	public CloudEntityManager createCloudEntityManager() {
 		return new CloudEntityManager(factory.createEntityManager());
 	}
