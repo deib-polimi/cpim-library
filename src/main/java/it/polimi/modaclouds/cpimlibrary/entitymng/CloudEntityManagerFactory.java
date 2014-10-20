@@ -25,13 +25,12 @@ public class CloudEntityManagerFactory {
 
 	private EntityManagerFactory factory = null;
 
-	public CloudEntityManagerFactory(String persistenceUnit,
+	public CloudEntityManagerFactory(String vendor, String persistenceUnit,
 			HashMap<String, String> persistenceInfo) {
 		/*
-		 * typeCloud parameter is not needed anymore since every cloud
-		 * implementation will use Kundera as persistence provider, so there's
-		 * no more need to instantiate different things at runtime based on
-		 * cloud provider.
+		 * TODO vendor not used, if we want to support also Amazon with legacy
+		 * implementation change the code to instantiate Amazon specific JPA
+		 * provider instead of using default (which uses Kundera)
 		 */
 		factory = Persistence.createEntityManagerFactory(persistenceUnit);
 	}

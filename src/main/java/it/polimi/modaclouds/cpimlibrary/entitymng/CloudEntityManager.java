@@ -43,15 +43,18 @@ public class CloudEntityManager {
 	}
 
 	public Query createNamedQuery(String name) {
+		// TODO send to commit log id sync ?
 		return em.createNamedQuery(name);
 	}
 
 	public Query createNativeQuery(String sqlString) {
+		// TODO send to commit log id sync ?
 		return em.createNativeQuery(sqlString);
 	}
 
 	public Query createNativeQuery(String sqlString,
 			@SuppressWarnings("rawtypes") Class resultClass) {
+		// TODO send to commit log id sync ?
 		return em.createNativeQuery(sqlString, resultClass);
 	}
 	
@@ -62,6 +65,7 @@ public class CloudEntityManager {
 
 
 	public Query createQuery(String qlString) {
+		// TODO send to commit log id sync
 		return em.createQuery(qlString);
 	}
 
