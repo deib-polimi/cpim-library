@@ -51,7 +51,7 @@ public abstract class CloudBlobManagerFactory {
 			}
 			//include il caso di glassfish
 			else if (metadata.getTypeCloud().equals("Glassfish")) {
-				instance = new GlassfishBlobManagerFactory(metadata.getBlobConnectionString(), metadata.getAccount(), metadata.getKey());
+				instance = new GlassfishBlobManagerFactory(metadata.getPersistenceInfo().get("blobDataSource"));
 			} 
 			else
 				try {

@@ -97,7 +97,7 @@ public abstract class CloudSqlService {
 		}
 		//aggiunto caso glassfish
 		else if (metadata.getTypeCloud().equals("Glassfish")) {
-			return new GlassfishSqlService(metadata.getConnectionString(),metadata.getPersistenceInfo().get("account.name"), metadata.getPersistenceInfo().get("account.key"));
+			return new GlassfishSqlService(metadata.getPersistenceInfo().get("dataSource"));
 		} else
 			try {
 				throw new NotSupportedVendorException("The vendor "
