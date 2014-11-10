@@ -16,115 +16,365 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.Query;
+import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.metamodel.Metamodel;
+import java.util.List;
+import java.util.Map;
 
-public class CloudEntityManager {
+/**
+ * @author Fabio Arcidiacono.
+ *         <p>Delegate every operation to the runtime persistence provider except for some methods:<p/>
+ *         <ul>
+ *         <li>
+ *         persist(Object entity).
+ *         <p>which in case of migration sends the persist to the migration system, otherwise execute the default implementation delegating to the persistence proviced<p/>
+ *         </li>
+ *         <li>
+ *         various createQuery(...) and createNamedQuery(...) in both versions that return TypedQuery or Query.
+ *         <p>In this cases delegates to the persistence provider the generation of the relative type of query then returns a wrapped
+ *         query type, in one case CloudTypedQuery, in the other CloudQuery</p>
+ *         </li>
+ *         </ul>
+ */
+public class CloudEntityManager implements EntityManager {
 
-	EntityManager em = null;
+    private MigrationManager migrator;
+    private EntityManager delegate;
 
-	public CloudEntityManager(EntityManager entityManager) {
-		this.em = entityManager;
-	}
+    public CloudEntityManager(EntityManager entityManager) {
+        this.migrator = MigrationManager.getInstance();
+        this.delegate = entityManager;
+    }
 
-	public void clear() {
-		em.clear();
-	}
+    @Override
+    public void persist(Object entity) {
+        if (migrator.isMigrating()) {
+            System.out.println("persist() MIGRATION");
+            String statement = migrator.generateInsertStatement(entity);
+            migrator.propagate(statement);
+        } else {
+            System.out.println("persist() DEFAULT implementation");
+            delegate.persist(entity);
+        }
+    }
 
-	public void close() {
-		em.close();
-	}
+    @Override
+    public <T> T merge(T entity) {
+        return delegate.merge(entity);
+    }
 
-	public boolean contains(Object entity) {
-		return em.contains(entity);
-	}
+    @Override
+    public void remove(Object entity) {
+        delegate.remove(entity);
+    }
 
-	public Query createNamedQuery(String name) {
-		// TODO send to commit log id sync ?
-		return em.createNamedQuery(name);
-	}
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey) {
+        return delegate.find(entityClass, primaryKey);
+    }
 
-	public Query createNativeQuery(String sqlString) {
-		// TODO send to commit log id sync ?
-		return em.createNativeQuery(sqlString);
-	}
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        return delegate.find(entityClass, primaryKey, properties);
+    }
 
-	public Query createNativeQuery(String sqlString,
-			@SuppressWarnings("rawtypes") Class resultClass) {
-		// TODO send to commit log id sync ?
-		return em.createNativeQuery(sqlString, resultClass);
-	}
-	
-	// Kundera EntityManagerImpl throws NotImplementedException on this
-	public Query createNativeQuery(String sqlString, String resultSetMapping) {
-		return em.createNativeQuery(sqlString, resultSetMapping);
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        return delegate.find(entityClass, primaryKey, lockMode);
+    }
 
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        return delegate.find(entityClass, primaryKey, lockMode, properties);
+    }
 
-	public Query createQuery(String qlString) {
-		// TODO send to commit log id sync
-		return em.createQuery(qlString);
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public <T> T getReference(Class<T> entityClass, Object primaryKey) {
+        return delegate.getReference(entityClass, primaryKey);
+    }
 
-	public <T> T find(Class<T> entityClass, Object primaryKey) {
-		return em.find(entityClass, primaryKey);
-	}
+    @Override
+    public void flush() {
+        delegate.flush();
+    }
 
-	public void flush() {
-		em.flush();
-	}
+    @Override
+    public void setFlushMode(FlushModeType flushMode) {
+        delegate.setFlushMode(flushMode);
+    }
 
-	public Object getDelegate() {
-		return em.getDelegate();
-	}
+    @Override
+    public FlushModeType getFlushMode() {
+        return delegate.getFlushMode();
+    }
 
-	public FlushModeType getFlushMode() {
-		return em.getFlushMode();
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public void lock(Object entity, LockModeType lockMode) {
+        delegate.lock(entity, lockMode);
+    }
 
-	// Kundera EntityManagerImpl throws NotImplementedException on this
-	public <T> T getReference(Class<T> entityClass, Object primaryKey) {
-		return em.getReference(entityClass, primaryKey);
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        delegate.lock(entity, lockMode, properties);
+    }
 
-	public EntityTransaction getTransaction() {
-		return em.getTransaction();
-	}
+    @Override
+    public void refresh(Object entity) {
+        delegate.refresh(entity);
+    }
 
-	public boolean isOpen() {
-		return em.isOpen();
-	}
+    @Override
+    public void refresh(Object entity, Map<String, Object> properties) {
+        delegate.refresh(entity, properties);
+    }
 
-	public void joinTransaction() {
-		em.joinTransaction();
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public void refresh(Object entity, LockModeType lockMode) {
+        delegate.refresh(entity, lockMode);
+    }
 
-	// Kundera EntityManagerImpl throws NotImplementedException on this
-	public void lock(Object entity, LockModeType lockMode) {
-		em.lock(entity, lockMode);
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        delegate.refresh(entity, lockMode, properties);
+    }
 
-	public <T> T merge(T entity) {
-		return em.merge(entity);
-	}
+    @Override
+    public void clear() {
+        delegate.clear();
+    }
 
-	public void persist(Object entity) {
-		em.persist(entity);
-	}
+    @Override
+    public void detach(Object entity) {
+        delegate.detach(entity);
+    }
 
-	public void refresh(Object entity) {
-		em.refresh(entity);
-	}
+    @Override
+    public boolean contains(Object entity) {
+        return delegate.contains(entity);
+    }
 
-	public void remove(Object entity) {
-		em.remove(entity);
-	}
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public LockModeType getLockMode(Object entity) {
+        return delegate.getLockMode(entity);
+    }
 
-	public void setFlushMode(FlushModeType flushMode) {
-		em.setFlushMode(flushMode);
-	}
+    @Override
+    public void setProperty(String propertyName, Object value) {
+        delegate.setProperty(propertyName, value);
+    }
 
+    @Override
+    public Map<String, Object> getProperties() {
+        return delegate.getProperties();
+    }
+
+    @Override
+    public Query createQuery(String qlString) {
+        return new CloudQuery(delegate.createQuery(qlString));
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
+    }
+
+    @Override
+    public Query createQuery(CriteriaUpdate updateQuery) {
+        return new CloudQuery(delegate.createQuery(updateQuery));
+    }
+
+    @Override
+    public Query createQuery(CriteriaDelete deleteQuery) {
+        return new CloudQuery(delegate.createQuery(deleteQuery));
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        return new TypedCloudQuery<>(delegate.createQuery(qlString, resultClass));
+    }
+
+    @Override
+    public Query createNamedQuery(String name) {
+        return new CloudQuery(delegate.createNamedQuery(name));
+    }
+
+    @Override
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));
+    }
+
+    /*
+     * TODO decide
+     * native query are expressed in underlying db native language
+     * throw UnsupportedOperationException? or something else?
+     */
+    @Override
+    public Query createNativeQuery(String sqlString) {
+        //return delegate.createNativeQuery(sqlString);
+        throw new UnsupportedOperationException("Native queries are currently not suppored");
+    }
+
+    @Override
+    public Query createNativeQuery(String sqlString, Class resultClass) {
+        //return delegate.createNativeQuery(sqlString, resultClass);
+        throw new UnsupportedOperationException("Native queries are currently not suppored");
+    }
+
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public Query createNativeQuery(String sqlString, String resultSetMapping) {
+        //return delegate.createNativeQuery(sqlString, resultSetMapping);
+        throw new UnsupportedOperationException("Native queries are currently not suppored");
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
+        return delegate.createStoredProcedureQuery(name);
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
+        return delegate.createStoredProcedureQuery(procedureName);
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
+        return delegate.createStoredProcedureQuery(procedureName, resultClasses);
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
+        return delegate.createStoredProcedureQuery(procedureName, resultSetMappings);
+    }
+
+    @Override
+    public void joinTransaction() {
+        delegate.joinTransaction();
+    }
+
+    /*
+     * Note: Kundera[2.14] just return false
+     */
+    @Override
+    public boolean isJoinedToTransaction() {
+        return delegate.isJoinedToTransaction();
+    }
+
+    /*
+     * Note: Kundera[2.14] will throw NotImplementedException()
+     */
+    @Override
+    public <T> T unwrap(Class<T> cls) {
+        return delegate.unwrap(cls);
+    }
+
+    @Override
+    public Object getDelegate() {
+        return delegate.getDelegate();
+    }
+
+    @Override
+    public void close() {
+        delegate.close();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return delegate.isOpen();
+    }
+
+    @Override
+    public EntityTransaction getTransaction() {
+        return delegate.getTransaction();
+    }
+
+    @Override
+    public EntityManagerFactory getEntityManagerFactory() {
+        // TODO return delegate.getEntityManagerFactory() or CloudEntityManagerFactory ?
+        return null;
+    }
+
+    @Override
+    public CriteriaBuilder getCriteriaBuilder() {
+        return delegate.getCriteriaBuilder();
+    }
+
+    @Override
+    public Metamodel getMetamodel() {
+        return delegate.getMetamodel();
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
+        return delegate.createEntityGraph(rootType);
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public EntityGraph<?> createEntityGraph(String graphName) {
+        return delegate.createEntityGraph(graphName);
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public EntityGraph<?> getEntityGraph(String graphName) {
+        return delegate.getEntityGraph(graphName);
+    }
+
+    /*
+     * Note: Kundera[2.14] just return null
+     */
+    @Override
+    public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
+        return delegate.getEntityGraphs(entityClass);
+    }
 }

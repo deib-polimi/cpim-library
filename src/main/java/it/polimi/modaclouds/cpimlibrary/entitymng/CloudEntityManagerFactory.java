@@ -16,31 +16,29 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
-import java.util.HashMap;
-
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+/**
+ * @author Fabio Arcidiacono.
+ */
 public class CloudEntityManagerFactory {
 
-	private EntityManagerFactory factory = null;
+    private EntityManagerFactory factory = null;
 
-	public CloudEntityManagerFactory(String vendor, String persistenceUnit,
-			HashMap<String, String> persistenceInfo) {
-		/*
-		 * TODO vendor not used, if we want to support also Amazon with legacy
-		 * implementation change the code to instantiate Amazon specific JPA
-		 * provider instead of using default (which uses Kundera)
-		 */
-		factory = Persistence.createEntityManagerFactory(persistenceUnit);
-	}
+    public CloudEntityManagerFactory(String persistenceUnit) {
+        /*
+         * TODO decide
+         * This way for Amazon AWS no NoSQL service is supported
+         */
+        factory = Persistence.createEntityManagerFactory(persistenceUnit);
+    }
 
-	public CloudEntityManager createCloudEntityManager() {
-		return new CloudEntityManager(factory.createEntityManager());
-	}
+    public CloudEntityManager createCloudEntityManager() {
+        return new CloudEntityManager(factory.createEntityManager());
+    }
 
-	public void close() {
-		factory.close();
-	}
-
+    public void close() {
+        factory.close();
+    }
 }

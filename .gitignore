@@ -1,6 +1,19 @@
-/target
+## MacOSX stuff ##
+.DS_Store
 
-/.settings
+## Eclipse stuff ##
 .classpath
 .project
-.DS_Store
+.settings/
+/bin
+*.jpage
+
+## IntelliJ stuff ## 
+*.iws
+*.iml
+.idea/
+*.ipr
+
+## Maven stuff ##
+target/
+test-output/
