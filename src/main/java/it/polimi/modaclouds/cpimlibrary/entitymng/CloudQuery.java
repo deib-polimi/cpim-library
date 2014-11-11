@@ -26,8 +26,12 @@ import java.util.*;
 /**
  * Delegate every operation to the {@link javax.persistence.Query} implementation
  * of the runtime provider except for executeUpdate method.
+ * <p/>
+ * Every method that should return {@link javax.persistence.Query}, returns
+ * <code>this</code> for chaining.
  *
  * @author Fabio Arcidiacono.
+ * @see javax.persistence.Query
  */
 public class CloudQuery implements Query {
 
@@ -59,19 +63,20 @@ public class CloudQuery implements Query {
     @Override
     public int executeUpdate() {
         if (migrator.isMigrating()) {
-            System.out.println("persist() CloudQuery.executeUpdate");
+            System.err.println("CloudQuery.executeUpdate MIGRATION");
             Statement statement = StatementBuilder.generateUpdateDeleteStatement(query);
             migrator.propagate(statement);
             return 0;
         } else {
-            System.out.println("CloudQuery.executeUpdate DEFAULT implementation");
+            System.err.println("TypedCloudQuery.executeUpdate DEFAULT");
             return query.executeUpdate();
         }
     }
 
     @Override
     public Query setMaxResults(int maxResult) {
-        return query.setMaxResults(maxResult);
+        query.setMaxResults(maxResult);
+        return this;
     }
 
     @Override
@@ -81,7 +86,8 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setFirstResult(int startPosition) {
-        return query.setFirstResult(startPosition);
+        query.setFirstResult(startPosition);
+        return this;
     }
 
     @Override
@@ -91,7 +97,8 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setHint(String hintName, Object value) {
-        return query.setHint(hintName, value);
+        query.setHint(hintName, value);
+        return this;
     }
 
     @Override
@@ -101,27 +108,32 @@ public class CloudQuery implements Query {
 
     @Override
     public <T> Query setParameter(Parameter<T> param, T value) {
-        return query.setParameter(param, value);
+        query.setParameter(param, value);
+        return this;
     }
 
     @Override
     public Query setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
-        return query.setParameter(param, value, temporalType);
+        query.setParameter(param, value, temporalType);
+        return this;
     }
 
     @Override
     public Query setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
-        return query.setParameter(param, value, temporalType);
+        query.setParameter(param, value, temporalType);
+        return this;
     }
 
     @Override
     public Query setParameter(String name, Object value) {
-        return query.setParameter(name, value);
+        query.setParameter(name, value);
+        return this;
     }
 
     @Override
     public Query setParameter(String name, Calendar value, TemporalType temporalType) {
-        return query.setParameter(name, value, temporalType);
+        query.setParameter(name, value, temporalType);
+        return this;
     }
 
     @Override
@@ -131,17 +143,20 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setParameter(int position, Object value) {
-        return query.setParameter(position, value);
+        query.setParameter(position, value);
+        return this;
     }
 
     @Override
     public Query setParameter(int position, Calendar value, TemporalType temporalType) {
-        return query.setParameter(position, value, temporalType);
+        query.setParameter(position, value, temporalType);
+        return this;
     }
 
     @Override
     public Query setParameter(int position, Date value, TemporalType temporalType) {
-        return query.setParameter(position, value, temporalType);
+        query.setParameter(position, value, temporalType);
+        return this;
     }
 
     @Override
@@ -191,7 +206,8 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setFlushMode(FlushModeType flushMode) {
-        return query.setFlushMode(flushMode);
+        query.setFlushMode(flushMode);
+        return this;
     }
 
     @Override
@@ -201,7 +217,8 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setLockMode(LockModeType lockMode) {
-        return query.setLockMode(lockMode);
+        query.setLockMode(lockMode);
+        return this;
     }
 
     @Override

@@ -31,9 +31,10 @@ import java.util.Map;
 
 /**
  * Delegate every operation to the {@link javax.persistence.EntityManager} implementation
- * of the runtime provider except for persist method and createQuery methods.
+ * of the runtime provider except for persist, merge, remove and all createQuery methods.
  *
  * @author Fabio Arcidiacono.
+ * @see javax.persistence.EntityManager
  */
 public class CloudEntityManager implements EntityManager {
 
@@ -55,23 +56,52 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
-            System.out.println("persist() MIGRATION");
+            System.err.println("CloudEntityManager.persist MIGRATION");
             Statement statement = StatementBuilder.generateInsertStatement(entity);
             migrator.propagate(statement);
         } else {
-            System.out.println("persist() DEFAULT implementation");
+            System.err.println("CloudEntityManager.persist DEFAULT");
             delegate.persist(entity);
         }
     }
 
+    /**
+     * In case of migration generates an UPDATE statements
+     * then sends it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.EntityManager#merge(Object)
+     */
     @Override
     public <T> T merge(T entity) {
-        return delegate.merge(entity);
+        if (migrator.isMigrating()) {
+            System.err.println("CloudEntityManager.merge MIGRATION");
+            Statement statement = StatementBuilder.generateUpdateStatement(entity);
+            migrator.propagate(statement);
+            return entity;
+        } else {
+            System.err.println("CloudEntityManager.merge DEFAULT");
+            return delegate.merge(entity);
+        }
     }
 
+    /**
+     * In case of migration generates an DELETE statements
+     * then sends it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.EntityManager#remove(Object)
+     */
     @Override
     public void remove(Object entity) {
-        delegate.remove(entity);
+        if (migrator.isMigrating()) {
+            System.err.println("CloudEntityManager.remove MIGRATION");
+            Statement statement = StatementBuilder.generateDeleteStatement(entity);
+            migrator.propagate(statement);
+        } else {
+            System.err.println("CloudEntityManager.remove DEFAULT");
+            delegate.persist(entity);
+        }
     }
 
     @Override
@@ -207,6 +237,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(String qlString) {
+        System.err.println("CloudEntityManager.createQuery WRAPPING");
         return new CloudQuery(delegate.createQuery(qlString));
     }
 
@@ -219,6 +250,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        System.err.println("CloudEntityManager.createQuery WRAPPING");
         return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
     }
 
@@ -231,6 +263,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(CriteriaUpdate updateQuery) {
+        System.err.println("CloudEntityManager.createQuery WRAPPING");
         return new CloudQuery(delegate.createQuery(updateQuery));
     }
 
@@ -243,6 +276,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(CriteriaDelete deleteQuery) {
+        System.err.println("CloudEntityManager.createQuery WRAPPING");
         return new CloudQuery(delegate.createQuery(deleteQuery));
     }
 
@@ -255,6 +289,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+        System.err.println("CloudEntityManager.createQuery WRAPPING");
         return new TypedCloudQuery<>(delegate.createQuery(qlString, resultClass));
     }
 
@@ -267,6 +302,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createNamedQuery(String name) {
+        System.err.println("CloudEntityManager.createNamedQuery WRAPPING");
         return new CloudQuery(delegate.createNamedQuery(name));
     }
 
@@ -279,6 +315,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        System.err.println("CloudEntityManager.createNamedQuery WRAPPING");
         return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));
     }
 

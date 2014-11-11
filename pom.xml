@@ -82,35 +82,29 @@
     </repositories>
 
     <dependencies>
-        <!-- Kundera dependencies -->
+        <!-- Kundera dependencies (for NoSQL service)  -->
         <dependency>
             <groupId>com.impetus.kundera.core</groupId>
             <artifactId>kundera-core</artifactId>
             <version>2.13</version>
         </dependency>
+        <!-- TODO add Kundera clients -->
 
-        <!--
-        <dependency>
-			<groupId>com.impetus.kundera.client</groupId>
-			<artifactId>kundera-mongo</artifactId>
-			<version>2.13</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.impetus.kundera.client</groupId>
-			<artifactId>kundera-rdbms</artifactId>
-			<version>2.13</version>
-		</dependency>
-		-->
-
-        <!-- JPA (still no artifact from Sun/Oracle) -->
+        <!-- JPA (still no artifact from Sun/Oracle) (for NoSQL service) -->
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
         </dependency>
 
-        <!-- memcached -->
+        <!-- mysql (for SQL service ? ) -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.6</version>
+        </dependency>
+
+        <!-- memcached (for memcache service)-->
         <dependency>
             <groupId>spy</groupId>
             <artifactId>spymemcached</artifactId>
@@ -150,24 +144,18 @@
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- ? seems to be unused -->
         <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.12.1.GA</version>
         </dependency>
 
-        <!-- EJB3 persistence -->
+        <!-- EJB3 persistence ? -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>ejb3-persistence</artifactId>
             <version>1.0.2.GA</version>
-        </dependency>
-
-        <!-- mysql -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.6</version>
         </dependency>
 
         <!-- local repository -->
@@ -231,6 +219,11 @@
                 <version>2.7</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.9</version>
+            </plugin>
+            <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>2.6</version>
@@ -253,8 +246,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>check-headers</id>
-                        <phase>verify</phase>
+                        <id>analyze</id>
+                        <phase>install</phase>
                         <goals>
                             <goal>format</goal>
                         </goals>
