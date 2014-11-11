@@ -16,6 +16,10 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.StatementBuilder;
+
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -26,19 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Delegate every operation to the {@link javax.persistence.EntityManager} implementation
+ * of the runtime provider except for persist method and createQuery methods.
+ *
  * @author Fabio Arcidiacono.
- *         <p>Delegate every operation to the runtime persistence provider except for some methods:<p/>
- *         <ul>
- *         <li>
- *         persist(Object entity).
- *         <p>which in case of migration sends the persist to the migration system, otherwise execute the default implementation delegating to the persistence proviced<p/>
- *         </li>
- *         <li>
- *         various createQuery(...) and createNamedQuery(...) in both versions that return TypedQuery or Query.
- *         <p>In this cases delegates to the persistence provider the generation of the relative type of query then returns a wrapped
- *         query type, in one case CloudTypedQuery, in the other CloudQuery</p>
- *         </li>
- *         </ul>
  */
 public class CloudEntityManager implements EntityManager {
 
@@ -50,11 +45,18 @@ public class CloudEntityManager implements EntityManager {
         this.delegate = entityManager;
     }
 
+    /**
+     * In case of migration generates a SELECT statements
+     * then sends it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.EntityManager#persist(Object)
+     */
     @Override
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
             System.out.println("persist() MIGRATION");
-            String statement = migrator.generateInsertStatement(entity);
+            Statement statement = StatementBuilder.generateInsertStatement(entity);
             migrator.propagate(statement);
         } else {
             System.out.println("persist() DEFAULT implementation");
@@ -196,36 +198,85 @@ public class CloudEntityManager implements EntityManager {
         return delegate.getProperties();
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(String)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
+     */
     @Override
     public Query createQuery(String qlString) {
         return new CloudQuery(delegate.createQuery(qlString));
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaQuery)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
+     */
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
         return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaUpdate)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
+     */
     @Override
     public Query createQuery(CriteriaUpdate updateQuery) {
         return new CloudQuery(delegate.createQuery(updateQuery));
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaDelete)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
+     */
     @Override
     public Query createQuery(CriteriaDelete deleteQuery) {
         return new CloudQuery(delegate.createQuery(deleteQuery));
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(String, Class)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
+     */
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
         return new TypedCloudQuery<>(delegate.createQuery(qlString, resultClass));
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createNamedQuery(String)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
+     */
     @Override
     public Query createNamedQuery(String name) {
         return new CloudQuery(delegate.createNamedQuery(name));
     }
 
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createNamedQuery(String, Class)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
+     */
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
         return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));

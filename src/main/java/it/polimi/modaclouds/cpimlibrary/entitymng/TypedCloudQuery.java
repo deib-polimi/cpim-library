@@ -16,19 +16,18 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.StatementBuilder;
+
 import javax.persistence.*;
 import java.util.*;
 
 /**
+ * Delegate every operation to the {@link javax.persistence.TypedQuery} implementation
+ * of the runtime provider except for executeUpdate method.
+ *
  * @author Fabio Arcidiacono.
- *         <p>Delegate every operation to the query implementation of the runtime provider except for a method:<p/>
- *         <ul>
- *         <li>
- *         executeUpdate().
- *         <p>which in case of migration generate an Update or Delete statement and send it to the migration system,
- *         otherwise execute the default implementation calling executeUpdate() on the  query implementation of the persitence provider<p/>
- *         </li>
- *         </ul>
  */
 public class TypedCloudQuery<X> implements TypedQuery<X> {
 
@@ -50,22 +49,19 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
         return query.getSingleResult();
     }
 
+    /**
+     * In case of migration generate an Update or Delete statement
+     * then send it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.TypedQuery#executeUpdate()
+     */
     @Override
     public int executeUpdate() {
         if (migrator.isMigrating()) {
-            System.out.println("persist() TypedCloudQuery.executeUpdate");
-            String statement;
-            if (migrator.isUpdate(query)) {
-                statement = migrator.generateUpdateStatement(query);
-            } else {
-                statement = migrator.generateDeleteStatement(query);
-            }
-            if (statement != null) {
-                migrator.propagate(statement);
-            } else {
-                // TODO handle problems
-                return 0;
-            }
+            System.out.println("persist() CloudQuery.executeUpdate");
+            Statement statement = StatementBuilder.generateUpdateDeleteStatement(query);
+            migrator.propagate(statement);
             return 0;
         } else {
             System.out.println("TypedCloudQuery.executeUpdate DEFAULT implementation");

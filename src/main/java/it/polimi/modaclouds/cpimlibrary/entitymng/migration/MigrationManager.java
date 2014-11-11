@@ -14,19 +14,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.cpimlibrary.entitymng;
-
-import javax.persistence.Query;
+package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 /**
+ * Manage interaction with migration system.
+ *
  * @author Fabio Arcidiacono.
  */
 public class MigrationManager {
 
     private static MigrationManager instance = null;
 
-    private MigrationManager() {
-    }
+    private MigrationManager() {}
 
     public static synchronized MigrationManager getInstance() {
         if (instance == null) {
@@ -36,34 +35,12 @@ public class MigrationManager {
     }
 
     public boolean isMigrating() {
-        // TODO
+        // TODO ask to some api ?
         return false;
     }
 
-    public void propagate(String statement) {
-        // TODO
-        // send statement to migration system
-    }
-
-    public String generateInsertStatement(Object entity) {
-        //TODO
-        // generate insert statement using reflections
-        // need to check also CascadeType and generate inner object INSERT statement accordingly
-        return null;
-    }
-
-    public boolean isUpdate(Query query) {
-        //TODO
-        return true;
-    }
-
-    public String generateUpdateStatement(Query query) {
-        //TODO
-        return null;
-    }
-
-    public String generateDeleteStatement(Query query) {
-        //TODO
-        return null;
+    public void propagate(Statement statement) {
+        // TODO send to migration system
+        System.out.println(statement.toString());
     }
 }
