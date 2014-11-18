@@ -16,14 +16,21 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Deque;
+
 /**
  * Manage interaction with migration system.
  *
  * @author Fabio Arcidiacono.
  */
+@Slf4j
 public class MigrationManager {
 
     private static MigrationManager instance = null;
+    private boolean isMigrating = false;
 
     private MigrationManager() {}
 
@@ -35,12 +42,26 @@ public class MigrationManager {
     }
 
     public boolean isMigrating() {
-        // TODO ask to some api ?
-        return false;
+        return this.isMigrating;
+    }
+
+    // TODO ask to some api
+    public void startMigration() {
+        this.isMigrating = true;
+    }
+
+    public void stopMigration() {
+        this.isMigrating = false;
+    }
+
+    public void propagate(Deque<Statement> statements) {
+        while (!statements.isEmpty()) {
+            propagate(statements.removeFirst());
+        }
     }
 
     public void propagate(Statement statement) {
         // TODO send to migration system
-        System.out.println(statement.toString());
+        log.info(statement.toString());
     }
 }

@@ -17,8 +17,11 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.migration.Statement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.migration.StatementBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -26,6 +29,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +40,7 @@ import java.util.Map;
  * @author Fabio Arcidiacono.
  * @see javax.persistence.EntityManager
  */
+@Slf4j
 public class CloudEntityManager implements EntityManager {
 
     private MigrationManager migrator;
@@ -56,11 +61,11 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
-            System.err.println("CloudEntityManager.persist MIGRATION");
-            Statement statement = StatementBuilder.generateInsertStatement(entity);
+            log.info("CloudEntityManager.persist MIGRATION");
+            Deque<Statement> statement = InsertStatement.build(entity);
             migrator.propagate(statement);
         } else {
-            System.err.println("CloudEntityManager.persist DEFAULT");
+            log.debug("CloudEntityManager.persist DEFAULT");
             delegate.persist(entity);
         }
     }
@@ -75,12 +80,12 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public <T> T merge(T entity) {
         if (migrator.isMigrating()) {
-            System.err.println("CloudEntityManager.merge MIGRATION");
-            Statement statement = StatementBuilder.generateUpdateStatement(entity);
+            log.info("CloudEntityManager.merge MIGRATION");
+            Deque<Statement> statement = UpdateStatement.build(entity);
             migrator.propagate(statement);
             return entity;
         } else {
-            System.err.println("CloudEntityManager.merge DEFAULT");
+            log.debug("CloudEntityManager.merge DEFAULT");
             return delegate.merge(entity);
         }
     }
@@ -95,11 +100,11 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
-            System.err.println("CloudEntityManager.remove MIGRATION");
-            Statement statement = StatementBuilder.generateDeleteStatement(entity);
+            log.info("CloudEntityManager.remove MIGRATION");
+            Deque<Statement> statement = DeleteStatement.build(entity);
             migrator.propagate(statement);
         } else {
-            System.err.println("CloudEntityManager.remove DEFAULT");
+            log.debug("CloudEntityManager.remove DEFAULT");
             delegate.persist(entity);
         }
     }
@@ -237,7 +242,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(String qlString) {
-        System.err.println("CloudEntityManager.createQuery WRAPPING");
+        log.debug("CloudEntityManager.createQuery WRAPPING");
         return new CloudQuery(delegate.createQuery(qlString));
     }
 
@@ -250,7 +255,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        System.err.println("CloudEntityManager.createQuery WRAPPING");
+        log.debug("CloudEntityManager.createQuery WRAPPING");
         return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
     }
 
@@ -263,7 +268,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(CriteriaUpdate updateQuery) {
-        System.err.println("CloudEntityManager.createQuery WRAPPING");
+        log.debug("CloudEntityManager.createQuery WRAPPING");
         return new CloudQuery(delegate.createQuery(updateQuery));
     }
 
@@ -276,7 +281,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(CriteriaDelete deleteQuery) {
-        System.err.println("CloudEntityManager.createQuery WRAPPING");
+        log.debug("CloudEntityManager.createQuery WRAPPING");
         return new CloudQuery(delegate.createQuery(deleteQuery));
     }
 
@@ -289,7 +294,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
-        System.err.println("CloudEntityManager.createQuery WRAPPING");
+        log.debug("CloudEntityManager.createQuery WRAPPING");
         return new TypedCloudQuery<>(delegate.createQuery(qlString, resultClass));
     }
 
@@ -302,7 +307,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createNamedQuery(String name) {
-        System.err.println("CloudEntityManager.createNamedQuery WRAPPING");
+        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
         return new CloudQuery(delegate.createNamedQuery(name));
     }
 
@@ -315,7 +320,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        System.err.println("CloudEntityManager.createNamedQuery WRAPPING");
+        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
         return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));
     }
 
