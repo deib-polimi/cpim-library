@@ -14,6 +14,38 @@ import java.util.List;
 @Slf4j
 public class ReflectionUtils {
 
+    public static boolean isFieldAnnotatedWith(Field field, Class<? extends Annotation> annotationType) {
+        return field.isAnnotationPresent(annotationType);
+    }
+
+    public static boolean isClassAnnotatedWith(Class clazz, Class<? extends Annotation> annotationType) {
+        return clazz.isAnnotationPresent(annotationType);
+    }
+
+    public static <T extends Annotation> T getAnnotation(Field field, Class<T> annotationClass) {
+        if (isFieldAnnotatedWith(field, annotationClass)) {
+            return field.getAnnotation(annotationClass);
+        }
+        throw new RuntimeException("Field " + field.getName() + " is not annotated with " + annotationClass.getSimpleName());
+    }
+
+    public static <T extends Annotation> T getAnnotation(Class<?> clazz, Class<T> annotationClass) {
+        if (isClassAnnotatedWith(clazz, annotationClass)) {
+            return clazz.getAnnotation(annotationClass);
+        }
+        throw new RuntimeException("Field " + clazz.getSimpleName() + " is not annotated with " + annotationClass.getSimpleName());
+    }
+
+    public static boolean isRelational(Field field) {
+        return isFieldAnnotatedWith(field, OneToOne.class) || isFieldAnnotatedWith(field, ManyToOne.class)
+                || isFieldAnnotatedWith(field, OneToMany.class) || isFieldAnnotatedWith(field, ManyToMany.class);
+    }
+
+    public static boolean ownRelation(Field field) {
+        return isRelational(field) &&
+                (isFieldAnnotatedWith(field, JoinColumn.class) || isFieldAnnotatedWith(field, JoinTable.class));
+    }
+
     public static Object getValue(Object object, Field field) {
         try {
             if (!field.isAccessible()) {
@@ -25,9 +57,18 @@ public class ReflectionUtils {
         }
     }
 
-    public static Field[] getJdoFields(Object entity) {
+    public static Field[] getFields(Object entity) {
+        try {
+            return getJdoFields(entity);
+        } catch (Exception e) {
+            return entity.getClass().getDeclaredFields();
+        }
+    }
+
+    private static Field[] getJdoFields(Object entity) {
         try {
             Field jdoField = entity.getClass().getDeclaredField("jdoFieldNames");
+            log.info("Class {} has been enhanced with JDO");
             jdoField.setAccessible(true);
             String[] jdoFieldNames = (String[]) getValue(entity, jdoField);
             List<Field> classFields = new ArrayList<>();
@@ -40,9 +81,20 @@ public class ReflectionUtils {
         }
     }
 
+    public static Field[] getFieldsAnnotatedWith(Object object, Class<? extends Annotation> annotationType) {
+        Field[] classFields = getFields(object);
+        List<Field> fields = new ArrayList<>();
+        for (Field field : classFields) {
+            if (isFieldAnnotatedWith(field, annotationType)) {
+                fields.add(field);
+            }
+        }
+        return fields.toArray(new Field[classFields.length]);
+    }
+
     public static String getTableName(Object entity) {
-        if (entity.getClass().isAnnotationPresent(Table.class)) {
-            Table table = entity.getClass().getAnnotation(Table.class);
+        if (isClassAnnotatedWith(entity.getClass(), Table.class)) {
+            Table table = getAnnotation(entity.getClass(), Table.class);
             return table.name();
         }
         throw new RuntimeException("Class " + entity.getClass() + " must be annotated with @Table");
@@ -50,8 +102,8 @@ public class ReflectionUtils {
 
     public static String getJPAColumnName(Field field) {
         String fieldName;
-        if (field.isAnnotationPresent(Column.class)) {
-            log.info("{} is annotated with @Column", field.getName());
+        if (isFieldAnnotatedWith(field, Column.class)) {
+            log.debug("{} is annotated with @Column", field.getName());
             Column column = field.getAnnotation(Column.class);
             fieldName = column.name();
         } else {
@@ -60,26 +112,14 @@ public class ReflectionUtils {
         return fieldName;
     }
 
-    public static boolean ownRelation(Field field) {
-        return isRelational(field) && field.isAnnotationPresent(JoinColumn.class);
-    }
-
-    public static boolean isRelational(Field field) {
-        return field.isAnnotationPresent(OneToOne.class) || field.isAnnotationPresent(ManyToOne.class)
-                || field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class);
-    }
-
     public static String getJoinColumnName(Field field) {
-        if (field.isAnnotationPresent(JoinColumn.class)) {
-            JoinColumn joinColumn = field.getAnnotation(JoinColumn.class);
-            return joinColumn.name();
-        }
-        throw new RuntimeException("Field " + field.getName() + " must be annotated with @JoinColumn");
+        JoinColumn joinColumn = getAnnotation(field, JoinColumn.class);
+        return joinColumn.name();
     }
 
     public static Object getJoinColumnValue(Object entity, String joinColumnName, Field field) {
         Object instance = getValue(entity, field);
-        log.info("instance is {}", instance);
+        log.debug("instance is {}", instance);
         Field joinColumnField;
         try {
             joinColumnField = instance.getClass().getDeclaredField(joinColumnName);
@@ -88,28 +128,19 @@ public class ReflectionUtils {
             Field[] possibleFields = getFieldsAnnotatedWith(instance, Column.class);
             joinColumnField = getJoinColumnField(joinColumnName, possibleFields);
         }
-        log.info("joinColumnField is {}", joinColumnField.getName());
+        log.debug("joinColumnField is {}", joinColumnField.getName());
         return getValue(instance, joinColumnField);
     }
 
-    public static Field[] getFieldsAnnotatedWith(Object object, Class<? extends Annotation> annotationType) {
-        Field[] classFields = getJdoFields(object);
-        List<Field> fields = new ArrayList<>();
-        for (Field field : classFields) {
-            if (field.isAnnotationPresent(annotationType)) {
-                fields.add(field);
-            }
-        }
-        return fields.toArray(new Field[classFields.length]);
+    public static Field getJoinColumnField(Object entity, String joinColumnName) {
+        return getJoinColumnField(joinColumnName, getFields(entity));
     }
 
     private static Field getJoinColumnField(String joinColumnName, Field[] possibleFields) {
         for (Field field : possibleFields) {
-            if (field.isAnnotationPresent(Column.class)) {
-                Column column = field.getAnnotation(Column.class);
-                if (column.name().equals(joinColumnName)) {
-                    return field;
-                }
+            Column column = getAnnotation(field, Column.class);
+            if (column.name().equals(joinColumnName)) {
+                return field;
             }
         }
         throw new RuntimeException("Field " + joinColumnName + " cannot be found.");
