@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import java.lang.reflect.Field;
@@ -33,7 +34,10 @@ public class InsertStatement extends Statement {
 
     public static Deque<Statement> build(Object entity) {
         Deque<Statement> stack = new ArrayDeque<>();
+        return build(entity, stack);
+    }
 
+    private static Deque<Statement> build(Object entity, Deque<Statement> stack) {
         InsertStatement statement = new InsertStatement();
         String tableName = ReflectionUtils.getTableName(entity);
         log.debug("Class {} have {} as JPA table name", entity.getClass().getSimpleName(), tableName);
@@ -47,6 +51,12 @@ public class InsertStatement extends Statement {
                 log.debug("{} is a relational field", field.getName());
                 if (ReflectionUtils.ownRelation(field)) {
                     log.debug("{} is the owning side of the relation", field.getName());
+                    if (followCascades) {
+                        CascadeType[] cascadeTypes = ReflectionUtils.getCascadeTypes(field);
+                        handleCascadeTypes(cascadeTypes, entity, field, stack);
+                    } else {
+                        log.warn("Ignore cascades");
+                    }
                     if (ReflectionUtils.isFieldAnnotatedWith(field, ManyToMany.class)) {
                         log.debug("{} holds a ManyToMany relationship, generate inserts for JoinTable", field.getName());
                         addJoinTableInserts(entity, field, stack);
@@ -67,8 +77,19 @@ public class InsertStatement extends Statement {
             statement.addFiled(fieldName, fieldValue);
         }
 
+        log.info(statement.toString());
         stack.addFirst(statement);
         return stack;
+    }
+
+    private static void handleCascadeTypes(CascadeType[] cascadeTypes, Object entity, Field field, Deque<Statement> stack) {
+        for (CascadeType cascadeType : cascadeTypes) {
+            if (cascadeType.equals(CascadeType.ALL) || cascadeType.equals(CascadeType.PERSIST)) {
+                Object cascadeEntity = ReflectionUtils.getValue(entity, field);
+                log.warn("Cascade insert on field {} with value {}", field.getName(), cascadeEntity);
+                build(cascadeEntity, stack);
+            }
+        }
     }
 
     private static void addJoinTableInserts(Object entity, Field field, Deque<Statement> stack) {
