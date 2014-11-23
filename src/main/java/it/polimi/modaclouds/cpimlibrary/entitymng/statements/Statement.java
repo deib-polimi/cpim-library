@@ -10,13 +10,11 @@ import javax.management.Query;
  */
 public abstract class Statement {
 
-    protected static final boolean followCascades = true;
-
-    protected static boolean isUpdate(Query query) {
+    public static boolean isUpdate(Query query) {
         return matchStringInQuery(query, "UPDATE");
     }
 
-    protected static boolean isDelete(Query query) {
+    public static boolean isDelete(Query query) {
         return matchStringInQuery(query, "DELETE");
     }
 

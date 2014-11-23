@@ -41,6 +41,10 @@ public class ReflectionUtils {
                 || field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class);
     }
 
+    public static boolean isId(Field field) {
+        return field.isAnnotationPresent(Id.class);
+    }
+
     public static boolean ownRelation(Field field) {
         return isRelational(field) &&
                 (field.isAnnotationPresent(JoinColumn.class) || field.isAnnotationPresent(JoinTable.class));
@@ -98,6 +102,15 @@ public class ReflectionUtils {
             return table.name();
         }
         throw new RuntimeException("Class " + entity.getClass() + " must be annotated with @Table");
+    }
+
+    public static Field getIdField(Object entity) {
+        Field[] fields = ReflectionUtils.getFieldsAnnotatedWith(entity, Id.class);
+        if (fields.length > 0) {
+            return fields[0]; /* just one Id per class */
+        } else {
+            throw new RuntimeException("Cannot find Id field for " + entity.getClass().getCanonicalName());
+        }
     }
 
     public static String getJPAColumnName(Field field) {

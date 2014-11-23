@@ -1,6 +1,5 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,11 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * Expose methods to build INSERT statements.
+ * Represents an INSERT statements.
  *
  * @author Fabio Arcidiacono.
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement
@@ -21,23 +21,55 @@ import java.util.*;
 @Data
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class InsertStatement extends Statement {
 
     private String tableName;
     private Map<String, Object> fields = new HashMap<>();
+    private static StatementBuilder builder = new InsertBuilder();
+
+    public static Deque<Statement> build(Object entity) {
+        return builder.build(entity);
+    }
 
     public void addFiled(String name, Object value) {
         this.fields.put(name, value);
     }
 
-    public static Deque<Statement> build(Object entity) {
-        Deque<Statement> stack = new ArrayDeque<>();
-        return build(entity, stack);
+    @Override
+    public String toString() {
+        String fieldList = "";
+        String fieldValueList = "";
+        Iterator entries = this.fields.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry entry = (Map.Entry) entries.next();
+            fieldList += entry.getKey();
+            fieldValueList += entry.getValue();
+            if (entries.hasNext()) {
+                fieldList += ", ";
+                fieldValueList += ", ";
+            }
+        }
+        return "INSERT INTO " + this.tableName + " (" + fieldList + ") VALUES (" + fieldValueList + ")";
+    }
+}
+
+/**
+ * Expose methods to build INSERT statements.
+ *
+ * @author Fabio Arcidiacono.
+ * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.StatementBuilder
+ */
+@Slf4j
+class InsertBuilder extends StatementBuilder {
+
+    @Override
+    protected List<CascadeType> setCascadeTypes() {
+        return Arrays.asList(CascadeType.ALL, CascadeType.PERSIST);
     }
 
-    private static Deque<Statement> build(Object entity, Deque<Statement> stack) {
+    @Override
+    protected Deque<Statement> build(Object entity) {
         InsertStatement statement = new InsertStatement();
         String tableName = ReflectionUtils.getTableName(entity);
         log.debug("Class {} have {} as JPA table name", entity.getClass().getSimpleName(), tableName);
@@ -53,7 +85,7 @@ public class InsertStatement extends Statement {
                     log.debug("{} is the owning side of the relation", field.getName());
                     if (followCascades) {
                         CascadeType[] cascadeTypes = ReflectionUtils.getCascadeTypes(field);
-                        handleCascadeTypes(cascadeTypes, entity, field, stack);
+                        handleCascadeTypes(cascadeTypes, entity, field);
                     } else {
                         log.warn("Ignore cascades");
                     }
@@ -82,17 +114,7 @@ public class InsertStatement extends Statement {
         return stack;
     }
 
-    private static void handleCascadeTypes(CascadeType[] cascadeTypes, Object entity, Field field, Deque<Statement> stack) {
-        for (CascadeType cascadeType : cascadeTypes) {
-            if (cascadeType.equals(CascadeType.ALL) || cascadeType.equals(CascadeType.PERSIST)) {
-                Object cascadeEntity = ReflectionUtils.getValue(entity, field);
-                log.warn("Cascade insert on field {} with value {}", field.getName(), cascadeEntity);
-                build(cascadeEntity, stack);
-            }
-        }
-    }
-
-    private static void addJoinTableInserts(Object entity, Field field, Deque<Statement> stack) {
+    private void addJoinTableInserts(Object entity, Field field, Deque<Statement> stack) {
         JoinTable joinTable = ReflectionUtils.getAnnotation(field, JoinTable.class);
         String joinTableName = joinTable.name();
         String joinColumnName = joinTable.joinColumns()[0].name();
@@ -117,19 +139,8 @@ public class InsertStatement extends Statement {
     }
 
     @Override
-    public String toString() {
-        String fieldList = "";
-        String fieldValueList = "";
-        Iterator entries = this.fields.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
-            fieldList += entry.getKey();
-            fieldValueList += entry.getValue();
-            if (entries.hasNext()) {
-                fieldList += ", ";
-                fieldValueList += ", ";
-            }
-        }
-        return "INSERT INTO " + this.tableName + " (" + fieldList + ") VALUES (" + fieldValueList + ")";
+    protected Deque<Statement> build(Query query) {
+        throw new UnsupportedOperationException("INSERT statements cannot be build from query, " +
+                "JPA does not have a specification for INSERT statements");
     }
 }
