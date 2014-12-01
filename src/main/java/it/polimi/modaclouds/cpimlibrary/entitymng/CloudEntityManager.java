@@ -35,7 +35,7 @@ import java.util.Map;
 
 /**
  * Delegate every operation to the {@link javax.persistence.EntityManager} implementation
- * of the runtime provider except for persist, merge, remove and all createQuery methods.
+ * of the runtime provider except for persist, merge, remove and createQuery methods.
  *
  * @author Fabio Arcidiacono.
  * @see javax.persistence.EntityManager
@@ -246,7 +246,7 @@ public class CloudEntityManager implements EntityManager {
         return new CloudQuery(delegate.createQuery(qlString));
     }
 
-    /**
+    /*
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -255,11 +255,12 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
+        // log.debug("CloudEntityManager.createQuery WRAPPING");
+        // return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
     }
 
-    /**
+    /*
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -268,11 +269,12 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(CriteriaUpdate updateQuery) {
-        log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new CloudQuery(delegate.createQuery(updateQuery));
+        // log.debug("CloudEntityManager.createQuery WRAPPING");
+        // return new CloudQuery(delegate.createQuery(updateQuery));
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
     }
 
-    /**
+    /*
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -281,8 +283,9 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createQuery(CriteriaDelete deleteQuery) {
-        log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new CloudQuery(delegate.createQuery(deleteQuery));
+        // log.debug("CloudEntityManager.createQuery WRAPPING");
+        // return new CloudQuery(delegate.createQuery(deleteQuery));
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
     }
 
     /**
@@ -298,7 +301,7 @@ public class CloudEntityManager implements EntityManager {
         return new TypedCloudQuery<>(delegate.createQuery(qlString, resultClass));
     }
 
-    /**
+    /*
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -307,11 +310,12 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createNamedQuery(String name) {
-        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
-        return new CloudQuery(delegate.createNamedQuery(name));
+        // log.debug("CloudEntityManager.createNamedQuery WRAPPING");
+        // return new CloudQuery(delegate.createNamedQuery(name));
+        throw new UnsupportedOperationException("Named queries are currently not supported");
     }
 
-    /**
+    /*
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -320,8 +324,9 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
-        return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));
+        // log.debug("CloudEntityManager.createNamedQuery WRAPPING");
+        // return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));
+        throw new UnsupportedOperationException("Named queries are currently not supported");
     }
 
     /*
@@ -332,13 +337,13 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public Query createNativeQuery(String sqlString) {
         //return delegate.createNativeQuery(sqlString);
-        throw new UnsupportedOperationException("Native queries are currently not suppored");
+        throw new UnsupportedOperationException("Native queries are currently not supported");
     }
 
     @Override
     public Query createNativeQuery(String sqlString, Class resultClass) {
         //return delegate.createNativeQuery(sqlString, resultClass);
-        throw new UnsupportedOperationException("Native queries are currently not suppored");
+        throw new UnsupportedOperationException("Native queries are currently not supported");
     }
 
     /*
@@ -347,7 +352,7 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public Query createNativeQuery(String sqlString, String resultSetMapping) {
         //return delegate.createNativeQuery(sqlString, resultSetMapping);
-        throw new UnsupportedOperationException("Native queries are currently not suppored");
+        throw new UnsupportedOperationException("Native queries are currently not supported");
     }
 
     /*

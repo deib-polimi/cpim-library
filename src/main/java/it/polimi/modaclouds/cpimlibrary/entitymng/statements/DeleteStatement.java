@@ -1,12 +1,12 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.CascadeType;
+import javax.persistence.ManyToMany;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -56,19 +56,6 @@ public class DeleteStatement extends Statement {
             return "DELETE FROM " + this.tableName + " WHERE " + filterList;
         }
     }
-
-    @Data
-    @AllArgsConstructor
-    private class Filter {
-        private String name;
-        private String operator;
-        private Object value;
-
-        @Override
-        public String toString() {
-            return this.name + " " + this.operator + " " + this.value;
-        }
-    }
 }
 
 /**
@@ -80,9 +67,8 @@ public class DeleteStatement extends Statement {
 @Slf4j
 class DeleteBuilder extends StatementBuilder {
 
-    @Override
-    protected List<CascadeType> setCascadeTypes() {
-        return Arrays.asList(CascadeType.ALL, CascadeType.REMOVE);
+    public DeleteBuilder() {
+        super(Arrays.asList(CascadeType.ALL, CascadeType.REMOVE));
     }
 
     @Override
@@ -108,6 +94,10 @@ class DeleteBuilder extends StatementBuilder {
                     } else {
                         log.warn("Ignore cascades");
                     }
+                    if (ReflectionUtils.isFieldAnnotatedWith(field, ManyToMany.class)) {
+                        log.debug("{} holds a ManyToMany relationship, generate deletes for JoinTable", field.getName());
+                        addJoinTableDeletes(entity, field, stack);
+                    }
                 }
             }
         }
@@ -115,6 +105,11 @@ class DeleteBuilder extends StatementBuilder {
         log.info(statement.toString());
         stack.addFirst(statement);
         return stack;
+    }
+
+    private void addJoinTableDeletes(Object entity, Field field, Deque<Statement> stack) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override

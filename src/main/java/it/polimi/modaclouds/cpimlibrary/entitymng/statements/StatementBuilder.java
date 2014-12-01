@@ -15,13 +15,11 @@ public abstract class StatementBuilder {
 
     public static final boolean followCascades = true;
     protected Deque<Statement> stack = new ArrayDeque<>();
-    protected List<CascadeType> types = new ArrayList<>();
+    protected List<CascadeType> cascadeTypes = new ArrayList<>();
 
-    public StatementBuilder() {
-        types = setCascadeTypes();
+    public StatementBuilder(List<CascadeType> cascadeTypes) {
+        this.cascadeTypes = cascadeTypes;
     }
-
-    protected abstract List<CascadeType> setCascadeTypes();
 
     protected abstract Deque<Statement> build(Object entity);
 
@@ -29,7 +27,7 @@ public abstract class StatementBuilder {
 
     protected void handleCascadeTypes(CascadeType[] cascadeTypes, Object entity, Field field) {
         for (CascadeType cascadeType : cascadeTypes) {
-            if (types.contains(cascadeType)) {
+            if (this.cascadeTypes.contains(cascadeType)) {
                 Object cascadeEntity = ReflectionUtils.getValue(entity, field);
                 if (cascadeEntity instanceof Collection) {
                     for (Object cascade : (Collection) cascadeEntity) {

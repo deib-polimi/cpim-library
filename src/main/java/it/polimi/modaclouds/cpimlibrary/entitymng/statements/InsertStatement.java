@@ -63,9 +63,8 @@ public class InsertStatement extends Statement {
 @Slf4j
 class InsertBuilder extends StatementBuilder {
 
-    @Override
-    protected List<CascadeType> setCascadeTypes() {
-        return Arrays.asList(CascadeType.ALL, CascadeType.PERSIST);
+    public InsertBuilder() {
+        super(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
     }
 
     @Override

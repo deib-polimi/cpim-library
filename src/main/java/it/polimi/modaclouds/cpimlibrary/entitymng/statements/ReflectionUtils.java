@@ -33,7 +33,7 @@ public class ReflectionUtils {
         if (isClassAnnotatedWith(clazz, annotationClass)) {
             return clazz.getAnnotation(annotationClass);
         }
-        throw new RuntimeException("Field " + clazz.getSimpleName() + " is not annotated with " + annotationClass.getSimpleName());
+        throw new RuntimeException("Class " + clazz.getSimpleName() + " is not annotated with " + annotationClass.getSimpleName());
     }
 
     public static boolean isRelational(Field field) {
@@ -97,11 +97,8 @@ public class ReflectionUtils {
     }
 
     public static String getTableName(Object entity) {
-        if (isClassAnnotatedWith(entity.getClass(), Table.class)) {
-            Table table = getAnnotation(entity.getClass(), Table.class);
-            return table.name();
-        }
-        throw new RuntimeException("Class " + entity.getClass() + " must be annotated with @Table");
+        Table table = getAnnotation(entity.getClass(), Table.class);
+        return table.name();
     }
 
     public static Field getIdField(Object entity) {
