@@ -17,10 +17,10 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -62,7 +62,7 @@ public class CloudEntityManager implements EntityManager {
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
             log.info("CloudEntityManager.persist MIGRATION");
-            Deque<Statement> statement = InsertStatement.build(entity);
+            Deque<Statement> statement = new InsertBuilder().build(entity);
             migrator.propagate(statement);
         } else {
             log.debug("CloudEntityManager.persist DEFAULT");
@@ -81,7 +81,7 @@ public class CloudEntityManager implements EntityManager {
     public <T> T merge(T entity) {
         if (migrator.isMigrating()) {
             log.info("CloudEntityManager.merge MIGRATION");
-            Deque<Statement> statement = UpdateStatement.build(entity);
+            Deque<Statement> statement = new UpdateBuilder().build(entity);
             migrator.propagate(statement);
             return entity;
         } else {
@@ -101,7 +101,7 @@ public class CloudEntityManager implements EntityManager {
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
             log.info("CloudEntityManager.remove MIGRATION");
-            Deque<Statement> statement = DeleteStatement.build(entity);
+            Deque<Statement> statement = new DeleteBuilder().build(entity);
             migrator.propagate(statement);
         } else {
             log.debug("CloudEntityManager.remove DEFAULT");

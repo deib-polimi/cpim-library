@@ -1,36 +1,55 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import javax.management.Query;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.LogicOperator;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * Represent a generic statement to be sent to the migration system.
- *
- * @author Fabio Arcidiacono.
- * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement
- */
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 public abstract class Statement {
 
-    public static boolean isUpdate(Query query) {
-        return matchStringInQuery(query, "UPDATE");
+    @Getter
+    @Setter
+    private String table;
+    private List<Filter> fields = new ArrayList<>();
+    private LinkedList<Object> conditions = new LinkedList<>();
+
+    public abstract StatementBuilder getBuilder();
+
+    public Iterator<Filter> getFieldsIterator() {
+        return fields.iterator();
     }
 
-    public static boolean isDelete(Query query) {
-        return matchStringInQuery(query, "DELETE");
+    public Iterator<Object> getConditionsIterator() {
+        return conditions.iterator();
     }
 
-    private static boolean matchStringInQuery(Query query, String toFind) {
-        String[] tokens = tokenize(query);
-        for (String token : tokens) {
-            if (token.equalsIgnoreCase(toFind)) {
-                return true;
-            }
-        }
-        return false;
+    public void addCondition(String name, String operator, Object value) {
+        this.conditions.add(new Filter(name, CompareOperator.fromString(operator), value));
     }
 
-    private static String[] tokenize(Query query) {
-        String stringQuery = query.toString();
-        System.out.println(stringQuery);
-        return stringQuery.split("\\s+");
+    public void addCondition(String name, CompareOperator operator, Object value) {
+        this.conditions.add(new Filter(name, operator, value));
+    }
+
+    public void addCondition(String operator) {
+        this.conditions.add(LogicOperator.valueOf(operator));
+    }
+
+    public void addField(String name, Object value) {
+        this.fields.add(new Filter(name, CompareOperator.EQUAL, value));
+    }
+
+    public void addField(String name, String operator, Object value) {
+        this.conditions.add(new Filter(name, CompareOperator.fromString(operator), value));
+    }
+
+    public boolean haveConditions() {
+        return !conditions.isEmpty();
     }
 }

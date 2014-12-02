@@ -1,4 +1,4 @@
-package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
+package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,6 +58,14 @@ public class ReflectionUtils {
             return field.get(object);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static Field getField(Class<?> entityClass, String fieldName) {
+        try {
+            return entityClass.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException("Cannot find field " + fieldName + " in class " + entityClass.getCanonicalName());
         }
     }
 
