@@ -13,9 +13,7 @@ import java.util.List;
 
 public abstract class Statement {
 
-    @Getter
-    @Setter
-    private String table;
+    @Getter @Setter private String table;
     private List<Filter> fields = new ArrayList<>();
     private LinkedList<Object> conditions = new LinkedList<>();
 

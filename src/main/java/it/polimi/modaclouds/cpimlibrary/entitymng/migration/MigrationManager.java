@@ -17,6 +17,8 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Deque;
@@ -30,9 +32,15 @@ import java.util.Deque;
 public class MigrationManager {
 
     private static MigrationManager instance = null;
-    private boolean isMigrating = false;
+    @Getter private State normalState;
+    @Getter private State migrationState;
+    @Setter private State state;
 
-    private MigrationManager() {}
+    private MigrationManager() {
+        this.normalState = new NormalState(this);
+        this.migrationState = new MigrationState(this);
+        this.state = normalState;
+    }
 
     public static synchronized MigrationManager getInstance() {
         if (instance == null) {
@@ -42,16 +50,15 @@ public class MigrationManager {
     }
 
     public boolean isMigrating() {
-        return this.isMigrating;
+        return this.state.equals(migrationState);
     }
 
-    // TODO ask to some api
     public void startMigration() {
-        this.isMigrating = true;
+        state.startMigration();
     }
 
     public void stopMigration() {
-        this.isMigrating = false;
+        state.stopMigration();
     }
 
     public void propagate(Deque<Statement> statements) {
