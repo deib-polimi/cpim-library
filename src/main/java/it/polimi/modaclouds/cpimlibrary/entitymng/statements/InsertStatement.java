@@ -2,6 +2,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,15 @@ public class InsertStatement extends Statement {
      * INSERT statements does not support WHERE clause
      */
     @Override
-    public void addCondition(String name, String operator, Object value) {
+    public void addCondition(Filter filter) {
+        throw new UnsupportedOperationException();
+    }
+
+    /*
+     * INSERT statements does not support WHERE clause
+     */
+    @Override
+    public void addCondition(String name, CompareOperator operator, Object value) {
         throw new UnsupportedOperationException();
     }
 

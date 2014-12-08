@@ -1,20 +1,22 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
+import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Filter;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
 import lombok.extern.slf4j.Slf4j;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import javax.persistence.CascadeType;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Fabio Arcidiacono.
@@ -158,7 +160,75 @@ public abstract class StatementBuilder {
     }
 
     public Deque<Statement> build(Query query) {
-        // TODO
-        throw new NotImplementedException();
+        String qlString = ((CloudQuery) query).getQlString();
+        System.err.println(qlString);
+        return stack;
+    }
+
+    public Deque<Statement> build(TypedQuery query) {
+        String qlString = ((TypedCloudQuery) query).getQlString();
+        log.info(qlString);
+        Statement statement = getStatementFromQuery(query, qlString);
+        log.info(statement.toString());
+        stack.addFirst(statement);
+        return stack;
+    }
+
+    private static Statement getStatementFromQuery(Query query, String qlString) {
+        ArrayList<Token> tokens = Lexer.lex(qlString);
+        Statement statement = null;
+        Filter filter = new Filter();
+        String objectParam = null;
+        boolean isUpdate = false;
+        boolean nextIsObjectPram = false;
+        boolean lookForParam = false;
+        boolean isWhereClause = false;
+        for (Token token : tokens) {
+            /* initialize statement based on query */
+            if (token.type.equals(TokenType.UPDATE)) {
+                isUpdate = true;
+                statement = new UpdateStatement();
+            } else if (token.type.equals(TokenType.DELETE)) {
+                statement = new DeleteStatement();
+            }
+            if (token.type.equals(TokenType.WHERE)) {
+                isWhereClause = true;
+            }
+            /* ignore white spaces */
+            if (token.type.equals(TokenType.WHITESPACE)) {
+                continue;
+            }
+            /* intercept object query param */
+            if (nextIsObjectPram && token.type.equals(TokenType.STRING)) {
+                objectParam = token.data;
+                continue;
+            }
+            if (token.type.equals(TokenType.COLUMN) && objectParam != null) {
+                lookForParam = true;
+                filter.setColumn(token.data.replaceAll(objectParam + ".", ""));
+                continue;
+            }
+            if (lookForParam && token.type.equals(TokenType.ASSIGNMENT)) {
+                filter.setOperator(CompareOperator.EQUAL);
+            }
+            if (lookForParam && token.type.equals(TokenType.PARAM)) {
+                Parameter p = query.getParameter(token.data.replaceFirst(":", ""));
+                Object paramValue = query.getParameterValue(p);
+                filter.setValue(paramValue);
+                if (!isWhereClause && isUpdate) {
+                    statement.addField(filter);
+                } else if (isWhereClause) {
+                    statement.addCondition(filter);
+                }
+                /* reset filter for next param */
+                filter = new Filter();
+            }
+            /* intercept table name, next one is query param */
+            if (token.type.equals(TokenType.STRING) && statement != null) {
+                statement.setTable(token.data);
+                nextIsObjectPram = true;
+            }
+        }
+        return statement;
     }
 }

@@ -38,7 +38,7 @@ public class DeleteStatement extends Statement {
      * DELETE statements does not support field lists
      */
     @Override
-    public void addField(String name, String operator, Object value) {
+    public void addField(Filter filter) {
         throw new UnsupportedOperationException();
     }
 

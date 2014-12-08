@@ -88,6 +88,11 @@
             <artifactId>kundera-core</artifactId>
             <version>2.14</version>
         </dependency>
+        <dependency>
+            <groupId>com.impetus.kundera.client</groupId>
+            <artifactId>kundera-rdbms</artifactId>
+            <version>2.14</version>
+        </dependency>
         <!-- TODO add Kundera clients -->
 
         <!-- JPA (still no artifact from Sun/Oracle) (for NoSQL service) -->

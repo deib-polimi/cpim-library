@@ -27,8 +27,8 @@ public abstract class Statement {
         return conditions.iterator();
     }
 
-    public void addCondition(String name, String operator, Object value) {
-        this.conditions.add(new Filter(name, CompareOperator.fromString(operator), value));
+    public void addCondition(Filter filter) {
+        this.conditions.add(filter);
     }
 
     public void addCondition(String name, CompareOperator operator, Object value) {
@@ -39,12 +39,12 @@ public abstract class Statement {
         this.conditions.add(LogicOperator.valueOf(operator));
     }
 
-    public void addField(String name, Object value) {
-        this.fields.add(new Filter(name, CompareOperator.EQUAL, value));
+    public void addField(Filter filter) {
+        this.fields.add(filter);
     }
 
-    public void addField(String name, String operator, Object value) {
-        this.conditions.add(new Filter(name, CompareOperator.fromString(operator), value));
+    public void addField(String name, Object value) {
+        this.fields.add(new Filter(name, CompareOperator.EQUAL, value));
     }
 
     public boolean haveConditions() {

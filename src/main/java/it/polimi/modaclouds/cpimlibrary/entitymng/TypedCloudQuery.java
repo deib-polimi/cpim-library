@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -37,10 +38,14 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
 
     private MigrationManager migrator;
     private final TypedQuery<X> query;
+    @Getter private final String qlString;
+    private Map<Parameter<?>, Object> parameters;
 
-    public TypedCloudQuery(TypedQuery<X> query) {
+    public TypedCloudQuery(String qlString, TypedQuery<X> query) {
         this.migrator = MigrationManager.getInstance();
         this.query = query;
+        this.qlString = qlString;
+        this.parameters = new HashMap<>();
     }
 
     @Override
@@ -90,6 +95,9 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public int getFirstResult() {
         return query.getFirstResult();
@@ -108,76 +116,121 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
 
     @Override
     public <T> TypedQuery<X> setParameter(Parameter<T> param, T value) {
+        if (param == null) {
+            throw new NullPointerException("parameter cannot be null");
+        }
+        parameters.put(param, value);
         query.setParameter(param, value);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
-        query.setParameter(param, value, temporalType);
-        return this;
+        // query.setParameter(param, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
-        query.setParameter(param, value, temporalType);
-        return this;
+        // query.setParameter(param, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
     @Override
     public TypedQuery<X> setParameter(String name, Object value) {
+        this.parameters.put(new CloudParameter<>(name, null, value.getClass()), value);
         query.setParameter(name, value);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setParameter(String name, Calendar value, TemporalType temporalType) {
-        query.setParameter(name, value, temporalType);
-        return this;
+        // query.setParameter(name, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setParameter(String name, Date value, TemporalType temporalType) {
-        query.setParameter(name, value, temporalType);
-        return this;
+        // query.setParameter(name, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Date parameters with temporal type are currently not supported");
     }
 
     @Override
     public TypedQuery<X> setParameter(int position, Object value) {
+        this.parameters.put(new CloudParameter<>(null, position, value.getClass()), value);
         query.setParameter(position, value);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setParameter(int position, Calendar value, TemporalType temporalType) {
-        query.setParameter(position, value, temporalType);
-        return this;
+        // query.setParameter(position, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setParameter(int position, Date value, TemporalType temporalType) {
-        query.setParameter(position, value, temporalType);
-        return this;
+        // query.setParameter(position, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Date parameters with temporal type are currently not supported");
     }
 
     @Override
     public Set<Parameter<?>> getParameters() {
-        return query.getParameters();
+        return this.parameters.keySet();
     }
 
     @Override
     public Parameter<?> getParameter(String name) {
-        return query.getParameter(name);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public <T> Parameter<T> getParameter(String name, Class<T> type) {
-        return query.getParameter(name, type);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getName().equals(name) && p.getParameterType().equals(type)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public Parameter<?> getParameter(int position) {
-        return query.getParameter(position);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getPosition().equals(position)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -192,36 +245,48 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
 
     @Override
     public <T> T getParameterValue(Parameter<T> param) {
-        return query.getParameterValue(param);
+        return (T) this.parameters.get(param);
     }
 
     @Override
     public Object getParameterValue(String name) {
-        return query.getParameterValue(name);
+        return this.parameters.get(getParameter(name));
     }
 
     @Override
     public Object getParameterValue(int position) {
-        return query.getParameterValue(position);
+        return this.parameters.get(getParameter(position));
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setFlushMode(FlushModeType flushMode) {
         query.setFlushMode(flushMode);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public FlushModeType getFlushMode() {
         return query.getFlushMode();
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public TypedQuery<X> setLockMode(LockModeType lockMode) {
         query.setLockMode(lockMode);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public LockModeType getLockMode() {
         return query.getLockMode();

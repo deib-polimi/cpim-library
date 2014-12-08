@@ -243,7 +243,7 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public Query createQuery(String qlString) {
         log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new CloudQuery(delegate.createQuery(qlString));
+        return new CloudQuery(qlString, delegate.createQuery(qlString));
     }
 
     /*
@@ -298,7 +298,7 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
         log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new TypedCloudQuery<>(delegate.createQuery(qlString, resultClass));
+        return new TypedCloudQuery<>(qlString, delegate.createQuery(qlString, resultClass));
     }
 
     /*
@@ -329,11 +329,6 @@ public class CloudEntityManager implements EntityManager {
         throw new UnsupportedOperationException("Named queries are currently not supported");
     }
 
-    /*
-     * TODO decide
-     * native query are expressed in underlying db native language
-     * throw UnsupportedOperationException? or something else?
-     */
     @Override
     public Query createNativeQuery(String sqlString) {
         //return delegate.createNativeQuery(sqlString);

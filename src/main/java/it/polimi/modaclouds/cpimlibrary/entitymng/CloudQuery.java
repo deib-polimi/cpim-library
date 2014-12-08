@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -37,9 +38,11 @@ public class CloudQuery implements Query {
 
     private MigrationManager migrator;
     private final Query query;
+    @Getter private final String qlString;
 
-    public CloudQuery(Query query) {
+    public CloudQuery(String qlString, Query query) {
         this.migrator = MigrationManager.getInstance();
+        this.qlString = qlString;
         this.query = query;
     }
 
@@ -90,6 +93,9 @@ public class CloudQuery implements Query {
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public int getFirstResult() {
         return query.getFirstResult();
@@ -112,16 +118,24 @@ public class CloudQuery implements Query {
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setParameter(Parameter<Calendar> param, Calendar value, TemporalType temporalType) {
-        query.setParameter(param, value, temporalType);
-        return this;
+        // query.setParameter(param, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setParameter(Parameter<Date> param, Date value, TemporalType temporalType) {
-        query.setParameter(param, value, temporalType);
-        return this;
+        // query.setParameter(param, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
     @Override
@@ -130,15 +144,24 @@ public class CloudQuery implements Query {
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setParameter(String name, Calendar value, TemporalType temporalType) {
-        query.setParameter(name, value, temporalType);
-        return this;
+        // query.setParameter(name, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setParameter(String name, Date value, TemporalType temporalType) {
-        return query.setParameter(name, value, temporalType);
+        // query.setParameter(name, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Date parameters with temporal type are currently not supported");
     }
 
     @Override
@@ -147,16 +170,24 @@ public class CloudQuery implements Query {
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setParameter(int position, Calendar value, TemporalType temporalType) {
-        query.setParameter(position, value, temporalType);
-        return this;
+        // query.setParameter(position, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Calendar parameters with temporal type are currently not supported");
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setParameter(int position, Date value, TemporalType temporalType) {
-        query.setParameter(position, value, temporalType);
-        return this;
+        // query.setParameter(position, value, temporalType);
+        // return this;
+        throw new UnsupportedOperationException("Date parameters with temporal type are currently not supported");
     }
 
     @Override
@@ -204,23 +235,35 @@ public class CloudQuery implements Query {
         return query.getParameterValue(position);
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setFlushMode(FlushModeType flushMode) {
         query.setFlushMode(flushMode);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public FlushModeType getFlushMode() {
         return query.getFlushMode();
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public Query setLockMode(LockModeType lockMode) {
         query.setLockMode(lockMode);
         return this;
     }
 
+    /*
+     * Note: Kundera[2.14] will throw UnsupportedOperationException()
+     */
     @Override
     public LockModeType getLockMode() {
         return query.getLockMode();
