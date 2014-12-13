@@ -2,8 +2,8 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
 
 public class Token {
 
-    public TokenType type;
-    public String data;
+    public final TokenType type;
+    public final String data;
 
     public Token(TokenType type, String data) {
         this.type = type;

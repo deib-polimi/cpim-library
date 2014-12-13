@@ -4,13 +4,13 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Filter;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -24,15 +24,58 @@ import java.util.*;
 @Slf4j
 public abstract class StatementBuilder {
 
-    public static final boolean FOLLOW_CASCADES = false;
+    @Setter public static boolean followCascades = false;
     private final List<CascadeType> relevantCascadeTypes;
     private Deque<Statement> stack = new ArrayDeque<>();
+    private Map<String, String> persistedClasses = new HashMap<>();
 
     public StatementBuilder(List<CascadeType> relevantCascadeTypes) {
         this.relevantCascadeTypes = relevantCascadeTypes;
     }
 
+    public boolean isFollowingCascades() {
+        return followCascades;
+    }
+
+    private void populatePersistedClasses() {
+        if (!persistedClasses.isEmpty()) {
+            return;
+        }
+        log.info("Fill class name to table name map");
+        Map<String, String> puInfo = MF.getFactory().getPersisteceUnitInfo();
+        String[] classes = puInfo.get("classes").replace("[", "").replace("]", "").split(",");
+        for (String className : classes) {
+            className = className.trim();
+            try {
+                Class<?> clazz = Class.forName(className);
+                if (ReflectionUtils.isClassAnnotatedWith(clazz, Table.class)) {
+                    Table table = clazz.getAnnotation(Table.class);
+                    /* insert <tableName, fullClassName> */
+                    persistedClasses.put(table.name(), className);
+                } else {
+                    String[] elements = className.split("\\.");
+                    String simpleClassName = elements[elements.length - 1];
+                    /* insert <simpleClassName, fullClassName> */
+                    persistedClasses.put(simpleClassName, className);
+                }
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Class not found: " + className);
+            }
+        }
+    }
+
+    protected void addToStack(Statement statement) {
+        log.info(statement.toString());
+        stack.addFirst(statement);
+    }
+
+    /*---------------------------------------------------------------------------------*/
+    /*----------------------------- BUILD FROM OBJECT ---------------------------------*/
+    /*---------------------------------------------------------------------------------*/
+
     public Deque<Statement> build(Object entity) {
+        populatePersistedClasses();
+
         Statement statement = initStatement();
         setTableName(statement, entity);
 
@@ -42,7 +85,7 @@ public abstract class StatementBuilder {
                 log.debug("{} is a relational field", field.getName());
                 if (ReflectionUtils.ownRelation(field)) {
                     log.debug("{} is the owning side of the relation", field.getName());
-                    if (FOLLOW_CASCADES) {
+                    if (followCascades) {
                         CascadeType[] cascadeTypes = ReflectionUtils.getCascadeTypes(field);
                         handleCascade(cascadeTypes, entity, field);
                     } else {
@@ -154,81 +197,143 @@ public abstract class StatementBuilder {
         statement.addField(fieldName, fieldValue);
     }
 
-    protected void addToStack(Statement statement) {
-        log.info(statement.toString());
-        stack.addFirst(statement);
-    }
+    /*---------------------------------------------------------------------------------*/
+    /*----------------------------- BUILD FROM QUERY ----------------------------------*/
+    /*---------------------------------------------------------------------------------*/
 
+    /*
+     * no need to update join tables, update or delete by query is not possible through JPA.
+     *
+     * no need to handle cascade type for now since currently Kundera does not support
+     * dot notations in queries so is not possible to update through a query another entity
+     * beside the one explicitly stated in the query
+     */
     public Deque<Statement> build(Query query) {
-        String qlString = ((CloudQuery) query).getQlString();
-        System.err.println(qlString);
-        return stack;
-    }
+        populatePersistedClasses();
 
-    public Deque<Statement> build(TypedQuery query) {
-        String qlString = ((TypedCloudQuery) query).getQlString();
+        String qlString;
+        if (query instanceof CloudQuery) {
+            qlString = ((CloudQuery) query).getQlString();
+        } else if (query instanceof TypedCloudQuery) {
+            qlString = ((TypedCloudQuery) query).getQlString();
+        } else {
+            throw new RuntimeException("Query has not been wrapped by CPIM");
+        }
         log.info(qlString);
-        Statement statement = getStatementFromQuery(query, qlString);
-        log.info(statement.toString());
-        stack.addFirst(statement);
+        Statement statement;
+        ArrayList<Token> tokens = Lexer.lex(qlString);
+
+        Token first = tokens.get(0);
+        if (first.type.equals(TokenType.UPDATE)) {
+            statement = handleUpdate(query, tokens);
+        } else if (first.type.equals(TokenType.DELETE)) {
+            statement = handleDelete(query, tokens);
+        } else {
+            throw new RuntimeException("Query is neither UPDATE nor DELETE");
+        }
+
+        addToStack(statement);
         return stack;
     }
 
-    private static Statement getStatementFromQuery(Query query, String qlString) {
-        ArrayList<Token> tokens = Lexer.lex(qlString);
-        Statement statement = null;
-        Filter filter = new Filter();
-        String objectParam = null;
-        boolean isUpdate = false;
-        boolean nextIsObjectPram = false;
-        boolean lookForParam = false;
-        boolean isWhereClause = false;
-        for (Token token : tokens) {
-            /* initialize statement based on query */
-            if (token.type.equals(TokenType.UPDATE)) {
-                isUpdate = true;
-                statement = new UpdateStatement();
-            } else if (token.type.equals(TokenType.DELETE)) {
-                statement = new DeleteStatement();
-            }
-            if (token.type.equals(TokenType.WHERE)) {
-                isWhereClause = true;
-            }
-            /* ignore white spaces */
-            if (token.type.equals(TokenType.WHITESPACE)) {
-                continue;
-            }
-            /* intercept object query param */
-            if (nextIsObjectPram && token.type.equals(TokenType.STRING)) {
-                objectParam = token.data;
-                continue;
-            }
-            if (token.type.equals(TokenType.COLUMN) && objectParam != null) {
-                lookForParam = true;
-                filter.setColumn(token.data.replaceAll(objectParam + ".", ""));
-                continue;
-            }
-            if (lookForParam && token.type.equals(TokenType.ASSIGNMENT)) {
-                filter.setOperator(CompareOperator.EQUAL);
-            }
-            if (lookForParam && token.type.equals(TokenType.PARAM)) {
-                Parameter p = query.getParameter(token.data.replaceFirst(":", ""));
-                Object paramValue = query.getParameterValue(p);
-                filter.setValue(paramValue);
-                if (!isWhereClause && isUpdate) {
-                    statement.addField(filter);
-                } else if (isWhereClause) {
-                    statement.addCondition(filter);
-                }
-                /* reset filter for next param */
-                filter = new Filter();
-            }
-            /* intercept table name, next one is query param */
-            if (token.type.equals(TokenType.STRING) && statement != null) {
-                statement.setTable(token.data);
-                nextIsObjectPram = true;
+    private Statement handleDelete(Query query, ArrayList<Token> tokens) {
+        Iterator<Token> itr = tokens.iterator();
+        String tableName = "";
+        String objectParam = "";
+        Statement statement = new DeleteStatement();
+        while (itr.hasNext()) {
+            Token current = itr.next();
+            switch (current.type) {
+                case DELETE:
+                case WHERE:
+                case WHITESPACE:
+                    /* fall through */
+                    break;
+                case FROM:
+                    tableName = nextTokenOfType(TokenType.STRING, itr);
+                    statement.setTable(tableName);
+                    objectParam = nextTokenOfType(TokenType.STRING, itr);
+                    break;
+                case COLUMN:
+                    String name = current.data.replaceAll(objectParam + ".", "");
+                    String column = getJPAColumnName(name, tableName);
+                    String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
+                    String param = nextTokenOfType(TokenType.PARAM, itr).replaceFirst(":", "");
+                    Object value = query.getParameterValue(query.getParameter(param));
+                    statement.addCondition(column, operator, value);
+                    break;
+                case LOGICOP:
+                    statement.addCondition(current.data);
             }
         }
         return statement;
+    }
+
+    private Statement handleUpdate(Query query, ArrayList<Token> tokens) {
+        Iterator<Token> itr = tokens.iterator();
+        String tableName = "";
+        String objectParam = "";
+        boolean wherePart = false;
+        Statement statement = new UpdateStatement();
+        while (itr.hasNext()) {
+            Token current = itr.next();
+            switch (current.type) {
+                case SET:
+                case WHITESPACE:
+                    /* fall through */
+                    break;
+                case UPDATE:
+                    tableName = nextTokenOfType(TokenType.STRING, itr);
+                    statement.setTable(tableName);
+                    objectParam = nextTokenOfType(TokenType.STRING, itr);
+                    break;
+                case WHERE:
+                    wherePart = true;
+                    break;
+                case COLUMN:
+                    String name = current.data.replaceAll(objectParam + ".", "");
+                    String column = getJPAColumnName(name, tableName);
+                    String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
+                    String param = nextTokenOfType(TokenType.PARAM, itr).replaceFirst(":", "");
+                    Object value = query.getParameterValue(query.getParameter(param));
+                    if (wherePart) {
+                        statement.addCondition(column, operator, value);
+                    } else {
+                        /* is in the SET part */
+                        statement.addField(column, value);
+                    }
+                    break;
+                case LOGICOP:
+                    statement.addCondition(current.data);
+            }
+        }
+        return statement;
+    }
+
+    private String getJPAColumnName(String name, String tableName) {
+        if (this.persistedClasses.isEmpty()) {
+            throw new RuntimeException("Persistence xml has not been parsed by CPIM");
+        }
+
+        String fullClassName = this.persistedClasses.get(tableName);
+        if (fullClassName == null) {
+            throw new RuntimeException(tableName + " is unknown");
+        }
+
+        try {
+            Class<?> clazz = Class.forName(fullClassName);
+            Field field = ReflectionUtils.getField(clazz, name);
+            return ReflectionUtils.getJPAColumnName(field);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Class not found: " + fullClassName);
+        }
+    }
+
+    protected String nextTokenOfType(TokenType type, Iterator<Token> itr) {
+        Token current = itr.next();
+        if (current.type.equals(type)) {
+            return current.data;
+        }
+        return nextTokenOfType(type, itr);
     }
 }

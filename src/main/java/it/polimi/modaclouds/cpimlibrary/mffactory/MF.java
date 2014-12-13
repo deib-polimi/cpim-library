@@ -27,6 +27,7 @@ import it.polimi.modaclouds.cpimlibrary.sqlservice.CloudSqlService;
 import it.polimi.modaclouds.cpimlibrary.taskqueuemng.CloudTaskQueueFactory;
 
 import java.sql.Connection;
+import java.util.Map;
 
 /**
  * This class allows to invoke all the services in a platform-independent way.
@@ -89,6 +90,16 @@ public class MF {
 			emfInstance = new CloudEntityManagerFactory(metadata.getPersistenceUnit());
 		return emfInstance;
 	}
+
+    /**
+     * Returns a Map containing the information saved into persistence.xml
+     *
+     * @return the Map<String, String> containing the info
+     * @see it.polimi.modaclouds.cpimlibrary.CloudMetadata
+     */
+    public Map<String, String> getPersisteceUnitInfo() {
+        return metadata.getPersistenceInfo();
+    }
 
 	/**
 	 * Returns a {@code CloudTaskQueueFactory} object used to instantiate a

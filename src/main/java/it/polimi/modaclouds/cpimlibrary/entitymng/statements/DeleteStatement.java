@@ -34,14 +34,6 @@ public class DeleteStatement extends Statement {
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * DELETE statements does not support field lists
-     */
-    @Override
-    public void addField(Filter filter) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public String toString() {
         if (!haveConditions()) {

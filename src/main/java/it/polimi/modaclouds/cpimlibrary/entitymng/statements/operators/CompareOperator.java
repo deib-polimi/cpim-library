@@ -13,7 +13,7 @@ public enum CompareOperator {
 
     private String string;
 
-    CompareOperator(String string) {
+    private CompareOperator(String string) {
         this.string = string;
     }
 

@@ -18,7 +18,7 @@ public class ReflectionUtils {
         return field.isAnnotationPresent(annotationType);
     }
 
-    public static boolean isClassAnnotatedWith(Class clazz, Class<? extends Annotation> annotationType) {
+    public static boolean isClassAnnotatedWith(Class<?> clazz, Class<? extends Annotation> annotationType) {
         return clazz.isAnnotationPresent(annotationType);
     }
 

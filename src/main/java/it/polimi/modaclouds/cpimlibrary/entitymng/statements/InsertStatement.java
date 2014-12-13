@@ -31,7 +31,7 @@ public class InsertStatement extends Statement {
      * INSERT statements does not support WHERE clause
      */
     @Override
-    public void addCondition(Filter filter) {
+    public void addCondition(String name, String operator, Object value) {
         throw new UnsupportedOperationException();
     }
 

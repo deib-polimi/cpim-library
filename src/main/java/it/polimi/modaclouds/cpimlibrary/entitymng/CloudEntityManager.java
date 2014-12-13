@@ -267,7 +267,6 @@ public class CloudEntityManager implements EntityManager {
      * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaUpdate)
      * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
      */
-    @Override
     public Query createQuery(CriteriaUpdate updateQuery) {
         // log.debug("CloudEntityManager.createQuery WRAPPING");
         // return new CloudQuery(delegate.createQuery(updateQuery));
@@ -281,7 +280,6 @@ public class CloudEntityManager implements EntityManager {
      * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaDelete)
      * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
      */
-    @Override
     public Query createQuery(CriteriaDelete deleteQuery) {
         // log.debug("CloudEntityManager.createQuery WRAPPING");
         // return new CloudQuery(delegate.createQuery(deleteQuery));
@@ -353,33 +351,37 @@ public class CloudEntityManager implements EntityManager {
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
-        return delegate.createStoredProcedureQuery(name);
+        return null;
+        // return delegate.createStoredProcedureQuery(name);
     }
 
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
-        return delegate.createStoredProcedureQuery(procedureName);
+        return null;
+        // return delegate.createStoredProcedureQuery(procedureName);
     }
 
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
-        return delegate.createStoredProcedureQuery(procedureName, resultClasses);
+        return null;
+        // return delegate.createStoredProcedureQuery(procedureName, resultClasses);
     }
 
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
-        return delegate.createStoredProcedureQuery(procedureName, resultSetMappings);
+        return null;
+        // return delegate.createStoredProcedureQuery(procedureName, resultSetMappings);
     }
 
     @Override
@@ -390,9 +392,10 @@ public class CloudEntityManager implements EntityManager {
     /*
      * Note: Kundera[2.14] just return false
      */
-    @Override
+    // @Override
     public boolean isJoinedToTransaction() {
-        return delegate.isJoinedToTransaction();
+        return false;
+        // return delegate.isJoinedToTransaction();
     }
 
     /*
@@ -442,32 +445,36 @@ public class CloudEntityManager implements EntityManager {
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
-        return delegate.createEntityGraph(rootType);
+        return null;
+        // return delegate.createEntityGraph(rootType);
     }
 
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public EntityGraph<?> createEntityGraph(String graphName) {
-        return delegate.createEntityGraph(graphName);
+        return null;
+        // return delegate.createEntityGraph(graphName);
     }
 
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public EntityGraph<?> getEntityGraph(String graphName) {
-        return delegate.getEntityGraph(graphName);
+        return null;
+        // return delegate.getEntityGraph(graphName);
     }
 
     /*
      * Note: Kundera[2.14] just return null
      */
-    @Override
+    // @Override
     public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
-        return delegate.getEntityGraphs(entityClass);
+        return null;
+        // return delegate.getEntityGraphs(entityClass);
     }
 }

@@ -20,7 +20,10 @@ import it.polimi.modaclouds.cpimlibrary.exception.ParserConfigurationFileExcepti
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,12 +38,12 @@ import org.xml.sax.SAXException;
 /**
  * This class parses the <u>configuration.xml</u>, the <u>persistence.xml</u>
  * and the <u>queue.xml</u> files that are contained in the META-INF folder.
- * 
+ *
  */
 public class CloudMetadata {
 
 	private static CloudMetadata instance = null;
-	
+
 	private String typeCloud = null;
 	private String hostServerSmtp = null;
 	private String portServerSmtp = null;
@@ -55,7 +58,7 @@ public class CloudMetadata {
 	private String blob_connection_string = null;
 	private String memcacheAddr = null;
 	private HashMap<String, QueueInfo> queueInfo = null;
-	private HashMap<String, String> persistenceInfo = null;
+    private HashMap<String, String> persistenceInfo = null;
 	private String backend_name = null;
 
 	public String getBackend_name() {
@@ -69,10 +72,10 @@ public class CloudMetadata {
 	/**
 	 * Returns the value of the <i>account.name</i> property that is contained in the
 	 * <u>persistence.xml</u> file.
-	 * 
+	 *
 	 * @return a String representing the value of the <i>account.name</i> property in
 	 *         the <u>persistence.xml</u> file if it exist, <b>null</b> otherwise.
-	 * 
+	 *
 	 */
 	public String getAccount() {
 		return account;
@@ -81,10 +84,10 @@ public class CloudMetadata {
 	/**
 	 * Returns the value of the <i>account.key</i> property that is contained in the
 	 * <u>persistence.xml</u> file.
-	 * 
+	 *
 	 * @return a String representing the value of the <i>account.key</i> property in
 	 *         the <u>persistence.xml</u> file if it exists, <b>null</b> otherwise.
-	 * 
+	 *
 	 */
 	public String getKey() {
 		return key;
@@ -92,11 +95,11 @@ public class CloudMetadata {
 
 	/**
 	 * Returns the instance of the CloudMetadata object with the singleton
-	 * technique. Calling this method for the first time, the <u>configuration.xml</u>, 
+	 * technique. Calling this method for the first time, the <u>configuration.xml</u>,
 	 * the <u>persistence.xml</u> and the <u>queue.xml</u> files are parsed.
-	 * 
+	 *
 	 * @return the instance of the CloudMetadata object.
-	 * 
+	 *
 	 * @throws ParserConfigurationFileException
 	 *             if in the <u>configuration.xml</u> or in the <u>persistence.xml</u>
 	 *             occurs an error.
@@ -111,10 +114,10 @@ public class CloudMetadata {
 	/**
 	 * Returns the name of the <i>persistence-unit</i> that is contained in the
 	 * <u>persistence.xml</u> file.
-	 * 
+	 *
 	 * @return a String representing the name of the <i>persistence-unit</i> in the
 	 *         <u>persistence.xml</u> file if it exists, <b>null</b> otherwise.
-	 * 
+	 *
 	 */
 	public String getPersistenceUnit() {
 		return persistenceUnit;
@@ -123,10 +126,10 @@ public class CloudMetadata {
 	/**
 	 * Returns the value of the <i>vendor</i> tag that is contained in the
 	 * <u>configuration.xml</u> file.
-	 * 
+	 *
 	 * @return a String representing the value of the <i>vendor</i> tag in the
 	 *         <u>configuration.xml</u> file.
-	 * 
+	 *
 	 */
 	public String getTypeCloud() {
 		return typeCloud;
@@ -136,11 +139,11 @@ public class CloudMetadata {
 	 * Returns the value of the <i>host</i> attribute in the <i>server_smtp</i> tag that is
 	 * contained in the <u>configuration.xml</u> file. This String represent the host
 	 * address of the SMTP server used to the mail service.
-	 * 
+	 *
 	 * @return a String representing the host address of the SMTP server used to
 	 *         the mail service if it exists, <b>null</b> otherwise.
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public String getHostServerSmtp() {
 		return hostServerSmtp;
@@ -150,11 +153,11 @@ public class CloudMetadata {
 	 * Returns the value of the <i>port</i> attribute in the <i>server_smtp</i> tag that is
 	 * contained in the <u>configuration.xml</u> file. This String represent the port
 	 * of the SMTP server.
-	 * 
+	 *
 	 * @return a String representing the port number of the SMTP server used to
 	 *         the mail service
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public String getPortServerSmtp() {
 		return portServerSmtp;
@@ -164,9 +167,9 @@ public class CloudMetadata {
 	 * Returns the value of the <i>username</i> attribute in the <i>account_info</i> tag that
 	 * is contained in the <u>configuration.xml</u> file. This String represent the
 	 * mail address used to send the mail.
-	 * 
+	 *
 	 * @return a String representing the mail address used to send the mail
-	 * 
+	 *
 	 */
 	public String getUsernameMail() {
 		return usernameMail;
@@ -175,11 +178,11 @@ public class CloudMetadata {
 	/**
 	 * Returns an HashMap that contains all the information about the
 	 * configuration of the <u>queue.xml</u> file used to configure the queues.
-	 * 
+	 *
 	 * @return an HashMap that contains all the info of the queues setting by
 	 *         the <u>queue.xml</u> file.
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public HashMap<String, QueueInfo> getQueueMedatada() {
 		return queueInfo;
@@ -188,15 +191,15 @@ public class CloudMetadata {
 	/**
 	 * Returns the value of the <i>password</i> attribute in the <i>account_info</i> tag that
 	 * is contained in the <u>configuration.xml</u> file.
-	 * 
+	 *
 	 * @return a String representing the password related to the mail address
 	 *         used to access to the SMTP server
-	 * 
+	 *
 	 */
 	public String getPswMail() {
 		return pswMail;
 	}
-	
+
 	//metodo che ritorna la stringa di connessione al db per i blob nel caso di glassfish
 	public String getBlobConnectionString() {
 		return this.blob_connection_string;
@@ -206,22 +209,23 @@ public class CloudMetadata {
 	 * Returns the address of the Memcache server that is contained in the
 	 * <i>memcache</i> tag in the <u>configuartion.xml</u> by the <i>address</i> and
 	 * the <i>port</i> attribute of the <i>host</i> tag.
-	 * 
+	 *
 	 * @return a String representing the host of the Memcache service
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public String getMemcacheAddr() {
 		return memcacheAddr;
 	}
 
+
 	/**
 	 * Returns all the value of the properties that are contained in the
 	 * <i>persistence-unit</i> tag.
-	 * 
+	 *
 	 * @return an HashMap that contains the value of the <i>property</i> tag in the
 	 *         <i>persistence-unit</i> tag in the <u>persistence.xml</u> file.
-	 * 
+	 *
 	 */
 	public HashMap<String, String> getPersistenceInfo() {
 		return persistenceInfo;
@@ -301,7 +305,7 @@ public class CloudMetadata {
 								// this.database = n3.getAttributes()
 								// .getNamedItem("database").getNodeValue();
 							}
-							
+
 							//aggiunto per includere nel caso di glassfish il parsing della stringa di connessione al secondo database per i file blob
 							else if (n3.getNodeName().equals("blobconnection")) {
 								this.blob_connection_string = n3.getAttributes()
@@ -369,6 +373,7 @@ public class CloudMetadata {
 			throw new ParserConfigurationFileException(
 					"THERE IS NO PERSISTENCE UNIT");
 		}
+        List<String> persistedClasses = new ArrayList<String>();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
 			if (n.getNodeName().equals("persistence-unit")) {
@@ -377,7 +382,11 @@ public class CloudMetadata {
 				NodeList perstChildren = n.getChildNodes();
 				for (int w = 0; w < perstChildren.getLength(); w++) {
 					Node n2 = perstChildren.item(w);
-					if (n2.getNodeName().equals("properties")) {
+                    if (n2.getNodeName().equals("provider")) {
+                        persistenceInfo.put(n2.getNodeName(), n2.getTextContent());
+                    } else if (n2.getNodeName().equals("class")) {
+                         persistedClasses.add(n2.getTextContent());
+                    } else if (n2.getNodeName().equals("properties")) {
 						NodeList propChild = n2.getChildNodes();
 						for (int j = 0; j < propChild.getLength(); j++) {
 							Node n3 = propChild.item(j);
@@ -394,8 +403,9 @@ public class CloudMetadata {
 
 			}
 		}
+        persistenceInfo.put("classes", Arrays.deepToString(persistedClasses.toArray()));
 		if (persistenceInfo.containsKey("account.name")) {
-		
+
 			this.account = persistenceInfo.get("account.name");
 
 		}
@@ -420,10 +430,10 @@ public class CloudMetadata {
 	/**
 	 * Returns the connection string that is contained in the <i>sql</i> tag in the
 	 * <u>configuration.xml</u> file.
-	 * 
+	 *
 	 * @return a String representing the connection string used to connecting to
 	 *         the SQL database if it exists, <b>null</b> otherwise.
-	 * 
+	 *
 	 */
 	public String getConnectionString() {
 		return this.connection_string;

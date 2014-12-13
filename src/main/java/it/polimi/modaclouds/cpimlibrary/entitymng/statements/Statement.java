@@ -27,20 +27,16 @@ public abstract class Statement {
         return conditions.iterator();
     }
 
-    public void addCondition(Filter filter) {
-        this.conditions.add(filter);
-    }
-
     public void addCondition(String name, CompareOperator operator, Object value) {
         this.conditions.add(new Filter(name, operator, value));
     }
 
-    public void addCondition(String operator) {
-        this.conditions.add(LogicOperator.valueOf(operator));
+    public void addCondition(String name, String operator, Object value) {
+        this.conditions.add(new Filter(name, CompareOperator.fromString(operator), value));
     }
 
-    public void addField(Filter filter) {
-        this.fields.add(filter);
+    public void addCondition(String operator) {
+        this.conditions.add(LogicOperator.valueOf(operator));
     }
 
     public void addField(String name, Object value) {
