@@ -65,7 +65,6 @@ public abstract class StatementBuilder {
     }
 
     protected void addToStack(Statement statement) {
-        log.info(statement.toString());
         stack.addFirst(statement);
     }
 
@@ -236,9 +235,8 @@ public abstract class StatementBuilder {
         return stack;
     }
 
-    private Statement handleDelete(Query query, ArrayList<Token> tokens) {
+    protected Statement handleDelete(Query query, ArrayList<Token> tokens) {
         Iterator<Token> itr = tokens.iterator();
-        String tableName = "";
         String objectParam = "";
         Statement statement = new DeleteStatement();
         while (itr.hasNext()) {
@@ -250,13 +248,13 @@ public abstract class StatementBuilder {
                     /* fall through */
                     break;
                 case FROM:
-                    tableName = nextTokenOfType(TokenType.STRING, itr);
+                    String tableName = nextTokenOfType(TokenType.STRING, itr);
                     statement.setTable(tableName);
                     objectParam = nextTokenOfType(TokenType.STRING, itr);
                     break;
                 case COLUMN:
                     String name = current.data.replaceAll(objectParam + ".", "");
-                    String column = getJPAColumnName(name, tableName);
+                    String column = getJPAColumnName(name, statement.getTable());
                     String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
                     String param = nextTokenOfType(TokenType.PARAM, itr).replaceFirst(":", "");
                     Object value = query.getParameterValue(query.getParameter(param));
@@ -269,9 +267,8 @@ public abstract class StatementBuilder {
         return statement;
     }
 
-    private Statement handleUpdate(Query query, ArrayList<Token> tokens) {
+    protected Statement handleUpdate(Query query, ArrayList<Token> tokens) {
         Iterator<Token> itr = tokens.iterator();
-        String tableName = "";
         String objectParam = "";
         boolean wherePart = false;
         Statement statement = new UpdateStatement();
@@ -283,7 +280,7 @@ public abstract class StatementBuilder {
                     /* fall through */
                     break;
                 case UPDATE:
-                    tableName = nextTokenOfType(TokenType.STRING, itr);
+                    String tableName = nextTokenOfType(TokenType.STRING, itr);
                     statement.setTable(tableName);
                     objectParam = nextTokenOfType(TokenType.STRING, itr);
                     break;
@@ -292,9 +289,9 @@ public abstract class StatementBuilder {
                     break;
                 case COLUMN:
                     String name = current.data.replaceAll(objectParam + ".", "");
-                    String column = getJPAColumnName(name, tableName);
+                    String column = getJPAColumnName(name, statement.getTable());
                     String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
-                    String param = nextTokenOfType(TokenType.PARAM, itr).replaceFirst(":", "");
+                    String param = nextTokenOfType(TokenType.PARAM, itr).replaceAll(":|,", "");
                     Object value = query.getParameterValue(query.getParameter(param));
                     if (wherePart) {
                         statement.addCondition(column, operator, value);
@@ -310,9 +307,9 @@ public abstract class StatementBuilder {
         return statement;
     }
 
-    private String getJPAColumnName(String name, String tableName) {
+    protected String getJPAColumnName(String name, String tableName) {
         if (this.persistedClasses.isEmpty()) {
-            throw new RuntimeException("Persistence xml has not been parsed by CPIM");
+            throw new RuntimeException("persistence.xml has not been parsed by CPIM");
         }
 
         String fullClassName = this.persistedClasses.get(tableName);

@@ -52,7 +52,7 @@ public class CloudEntityManager implements EntityManager {
     }
 
     /**
-     * In case of migration generates a SELECT statements
+     * In case of migration generates a SELECT statement
      * then sends it to the migration system.
      * Otherwise delegates to the persistence provider implementation.
      *
@@ -61,11 +61,10 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
-            log.info("CloudEntityManager.persist MIGRATION");
-            Deque<Statement> statement = new InsertBuilder().build(entity);
-            migrator.propagate(statement);
+            log.info("is MIGRATION state");
+            Deque<Statement> statements = new InsertBuilder().build(entity);
+            migrator.propagate(statements);
         } else {
-            log.debug("CloudEntityManager.persist DEFAULT");
             delegate.persist(entity);
         }
     }
@@ -80,12 +79,11 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public <T> T merge(T entity) {
         if (migrator.isMigrating()) {
-            log.info("CloudEntityManager.merge MIGRATION");
-            Deque<Statement> statement = new UpdateBuilder().build(entity);
-            migrator.propagate(statement);
+            log.info("is MIGRATION state");
+            Deque<Statement> statements = new UpdateBuilder().build(entity);
+            migrator.propagate(statements);
             return entity;
         } else {
-            log.debug("CloudEntityManager.merge DEFAULT");
             return delegate.merge(entity);
         }
     }
@@ -100,11 +98,10 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
-            log.info("CloudEntityManager.remove MIGRATION");
-            Deque<Statement> statement = new DeleteBuilder().build(entity);
-            migrator.propagate(statement);
+            log.info("is MIGRATION state");
+            Deque<Statement> statements = new DeleteBuilder().build(entity);
+            migrator.propagate(statements);
         } else {
-            log.debug("CloudEntityManager.remove DEFAULT");
             delegate.persist(entity);
         }
     }

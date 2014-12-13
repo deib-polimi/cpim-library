@@ -164,6 +164,17 @@ public class ReflectionUtils {
         throw new RuntimeException("Field " + joinColumnName + " cannot be found.");
     }
 
+    public static void setIdBackToEntity(Object entity, Field field, String generatedId) {
+        if (!field.isAccessible()) {
+            field.setAccessible(true);
+        }
+        try {
+            field.set(entity, generatedId);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Some error occurred setting back Id", e);
+        }
+    }
+
     public static CascadeType[] getCascadeTypes(Field field) {
         if (field.isAnnotationPresent(OneToOne.class)) {
             return field.getAnnotation(OneToOne.class).cascade();

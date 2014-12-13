@@ -17,6 +17,8 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,12 +68,11 @@ public class CloudQuery implements Query {
     @Override
     public int executeUpdate() {
         if (migrator.isMigrating()) {
-            log.info("CloudQuery.executeUpdate MIGRATION");
-            // Deque<Statement>  statement = StatementBuilder.buildUpdateDeleteStatement(query);
-            // migrator.propagate(statement);
+            log.info("is MIGRATION state");
+            Deque<Statement> statements = new DeleteBuilder().build(this);
+            migrator.propagate(statements);
             return 0;
         } else {
-            log.debug("TypedCloudQuery.executeUpdate DEFAULT");
             return query.executeUpdate();
         }
     }
