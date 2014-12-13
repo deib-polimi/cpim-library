@@ -14,6 +14,9 @@
 .idea/
 *.ipr
 
+## Java file ##
+*.class
+
 ## Maven stuff ##
 target/
 test-output/
