@@ -221,10 +221,12 @@ public class CloudMetadata {
 
 	/**
 	 * Returns all the value of the properties that are contained in the
-	 * <i>persistence-unit</i> tag.
+	 * <i>persistence-unit</i> tag of the <u>persistence.xml</u> file.
 	 *
-	 * @return an HashMap that contains the value of the <i>property</i> tag in the
-	 *         <i>persistence-unit</i> tag in the <u>persistence.xml</u> file.
+	 * @return an HashMap that contains the value of:
+	 * 	the <i>property</i> tag;
+	 * 	the mapped class, identified by the key <i>classes</i>;
+	 * 	the persistence provider, identified by the key <i>provider</i>.
 	 *
 	 */
 	public HashMap<String, String> getPersistenceInfo() {

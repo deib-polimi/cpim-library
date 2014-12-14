@@ -92,12 +92,12 @@ public class MF {
 	}
 
     /**
-     * Returns a Map containing the information saved into persistence.xml
+     * Returns a Map<String, String> containing the information saved into <i>persistence.xml</i>.
      *
-     * @return the Map<String, String> containing the info
+     * @return the map returned by {@link it.polimi.modaclouds.cpimlibrary.CloudMetadata#getPersistenceInfo()}
      * @see it.polimi.modaclouds.cpimlibrary.CloudMetadata
      */
-    public Map<String, String> getPersisteceUnitInfo() {
+    public Map<String, String> getPersistenceUnitInfo() {
         return metadata.getPersistenceInfo();
     }
 

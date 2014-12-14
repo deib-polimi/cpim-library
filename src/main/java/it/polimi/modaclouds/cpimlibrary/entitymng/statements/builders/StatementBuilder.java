@@ -42,7 +42,7 @@ public abstract class StatementBuilder {
             return;
         }
         log.info("Fill class name to table name map");
-        Map<String, String> puInfo = MF.getFactory().getPersisteceUnitInfo();
+        Map<String, String> puInfo = MF.getFactory().getPersistenceUnitInfo();
         String[] classes = puInfo.get("classes").replace("[", "").replace("]", "").split(",");
         for (String className : classes) {
             className = className.trim();
