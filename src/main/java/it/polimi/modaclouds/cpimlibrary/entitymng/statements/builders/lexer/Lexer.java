@@ -5,6 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Simple lexer based on java regex.
+ *
  * @author Fabio Arcidiacono.
  */
 public class Lexer {

@@ -9,7 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Utils method that uses reflection api.
+ * <p/>
+ * Contains JPA specific reflection utils methods and some useful method wrapper
+ * to isolate the scope of thrown exceptions.
+ *
  * @author Fabio Arcidiacono.
+ * @see java.lang.reflect.Field
+ * @see java.lang.Class
+ * @see java.lang.annotation.Annotation
  */
 @Slf4j
 public class ReflectionUtils {

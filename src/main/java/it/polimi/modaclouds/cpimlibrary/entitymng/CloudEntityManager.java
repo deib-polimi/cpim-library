@@ -423,10 +423,15 @@ public class CloudEntityManager implements EntityManager {
         return delegate.getTransaction();
     }
 
+    /**
+     * Use of this method is discouraged due to possibility of escaping from migration control.
+     *
+     * @return the entityManagerFactory of the current persistence provider
+     */
     @Override
     public EntityManagerFactory getEntityManagerFactory() {
-        // TODO return delegate.getEntityManagerFactory() or CloudEntityManagerFactory ?
-        return null;
+        log.warn("get EntityManagerFactory from CloudEntityManager");
+        return delegate.getEntityManagerFactory();
     }
 
     @Override

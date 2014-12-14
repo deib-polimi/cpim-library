@@ -29,7 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manage interaction with migration system.
+ * Manage interaction with migration system and information about currently persisted class.
+ * <p/>
+ * Follow a state pattern, states are handled as an FSA.
  *
  * @author Fabio Arcidiacono.
  */
