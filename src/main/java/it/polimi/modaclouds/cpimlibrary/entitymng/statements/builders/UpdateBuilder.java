@@ -3,7 +3,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.CascadeType;
@@ -28,7 +28,7 @@ public class UpdateBuilder extends StatementBuilder {
 
     @Override
     protected void onFiled(Statement statement, Object entity, Field field) {
-        super.addFiled(statement, entity, field);
+        super.addField(statement, entity, field);
     }
 
     @Override

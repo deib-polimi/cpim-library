@@ -3,17 +3,20 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType;
-import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -27,7 +30,6 @@ public abstract class StatementBuilder {
     @Setter public static boolean followCascades = false;
     private final List<CascadeType> relevantCascadeTypes;
     private Deque<Statement> stack = new ArrayDeque<>();
-    private Map<String, String> persistedClasses = new HashMap<>();
 
     public StatementBuilder(List<CascadeType> relevantCascadeTypes) {
         this.relevantCascadeTypes = relevantCascadeTypes;
@@ -35,33 +37,6 @@ public abstract class StatementBuilder {
 
     public boolean isFollowingCascades() {
         return followCascades;
-    }
-
-    private void populatePersistedClasses() {
-        if (!persistedClasses.isEmpty()) {
-            return;
-        }
-        log.info("Fill class name to table name map");
-        Map<String, String> puInfo = MF.getFactory().getPersistenceUnitInfo();
-        String[] classes = puInfo.get("classes").replace("[", "").replace("]", "").split(",");
-        for (String className : classes) {
-            className = className.trim();
-            try {
-                Class<?> clazz = Class.forName(className);
-                if (ReflectionUtils.isClassAnnotatedWith(clazz, Table.class)) {
-                    Table table = clazz.getAnnotation(Table.class);
-                    /* insert <tableName, fullClassName> */
-                    persistedClasses.put(table.name(), className);
-                } else {
-                    String[] elements = className.split("\\.");
-                    String simpleClassName = elements[elements.length - 1];
-                    /* insert <simpleClassName, fullClassName> */
-                    persistedClasses.put(simpleClassName, className);
-                }
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Class not found: " + className);
-            }
-        }
     }
 
     protected void addToStack(Statement statement) {
@@ -72,9 +47,16 @@ public abstract class StatementBuilder {
     /*----------------------------- BUILD FROM OBJECT ---------------------------------*/
     /*---------------------------------------------------------------------------------*/
 
+    /**
+     * Main abstract algorithm that build statements from object. Follows template pattern.
+     * Abstract methods are implemented in sub classes, is possible to modify the standard behavior
+     * of the algorithm overriding the hook methods (the protected ones).
+     *
+     * @param entity the object from which build statements
+     *
+     * @return a {@link java.util.Deque} used as stack containing the statements build from the given entity
+     */
     public Deque<Statement> build(Object entity) {
-        populatePersistedClasses();
-
         Statement statement = initStatement();
         setTableName(statement, entity);
 
@@ -85,10 +67,9 @@ public abstract class StatementBuilder {
                 if (ReflectionUtils.ownRelation(field)) {
                     log.debug("{} is the owning side of the relation", field.getName());
                     if (followCascades) {
-                        CascadeType[] cascadeTypes = ReflectionUtils.getCascadeTypes(field);
-                        handleCascade(cascadeTypes, entity, field);
+                        handleCascade(entity, field);
                     } else {
-                        log.warn("Ignore cascade on field {}", field.getName());
+                        log.info("Ignore cascade on field {}", field.getName());
                     }
                     if (ReflectionUtils.isFieldAnnotatedWith(field, ManyToMany.class)) {
                         log.debug("{} holds a ManyToMany relationship, handle JoinTable", field.getName());
@@ -116,20 +97,48 @@ public abstract class StatementBuilder {
 
     protected abstract Statement initStatement();
 
+    protected abstract Statement generateJoinTableStatement(Object entity, Object element, JoinTable joinTable);
+
+    protected abstract Statement generateInverseJoinTableStatement(Object entity, JoinTable joinTable);
+
+    protected abstract void onIdField(Statement statement, Object entity, Field idFiled);
+
+    protected abstract void onFiled(Statement statement, Object entity, Field field);
+
+    protected abstract void onRelationalField(Statement statement, Object entity, Field field);
+
+    /**
+     * Look for table name inside the entity and modifies the injected statements accordingly.
+     *
+     * @param statement injected statement to modify
+     * @param entity    entity to be parsed
+     */
     protected void setTableName(Statement statement, Object entity) {
         String tableName = ReflectionUtils.getTableName(entity);
         log.debug("Class {} have {} as JPA table name", entity.getClass().getSimpleName(), tableName);
         statement.setTable(tableName);
     }
 
+    /**
+     * Hook to the way the fields are retrieved from the entity.
+     *
+     * @param entity entity to be parsed
+     *
+     * @return an array of entity fields
+     */
     protected Field[] getFields(Object entity) {
         return ReflectionUtils.getFields(entity);
     }
 
-    protected abstract void onRelationalField(Statement statement, Object entity, Field field);
-
-    protected void handleCascade(CascadeType[] cascadeTypes, Object entity, Field field) {
-        for (CascadeType cascadeType : cascadeTypes) {
+    /**
+     * Gets cascade types declared on field and if necessary call a statement build on related entities.
+     *
+     * @param entity entity to be parsed
+     * @param field  a relational field
+     */
+    protected void handleCascade(Object entity, Field field) {
+        CascadeType[] declaredCascadeTypes = ReflectionUtils.getCascadeTypes(field);
+        for (CascadeType cascadeType : declaredCascadeTypes) {
             if (this.relevantCascadeTypes.contains(cascadeType)) {
                 Object cascadeEntity = ReflectionUtils.getValue(entity, field);
                 if (cascadeEntity instanceof Collection) {
@@ -145,6 +154,13 @@ public abstract class StatementBuilder {
         }
     }
 
+    /**
+     * From the owning side of the relationship, iterate through collection of related entities
+     * and for each one calls {@link #generateJoinTableStatement(Object, Object, javax.persistence.JoinTable)}.
+     *
+     * @param entity entity to be parsed
+     * @param field  the field owning the {@link javax.persistence.ManyToMany} relationship
+     */
     protected void handleJoinTable(Object entity, Field field) {
         JoinTable joinTable = ReflectionUtils.getAnnotation(field, JoinTable.class);
 
@@ -158,6 +174,13 @@ public abstract class StatementBuilder {
         }
     }
 
+    /**
+     * From the non-owning side of the relationship, prepare data to call
+     * {@link #generateInverseJoinTableStatement(Object, javax.persistence.JoinTable)}.
+     *
+     * @param entity entity to be parsed
+     * @param field  the field owning the inverse side of the {@link javax.persistence.ManyToMany} relationship
+     */
     protected void handleInverseJoinTable(Object entity, Field field) {
         ManyToMany mtm = ReflectionUtils.getAnnotation(field, ManyToMany.class);
         String mappedBy = mtm.mappedBy();
@@ -174,14 +197,14 @@ public abstract class StatementBuilder {
         }
     }
 
-    protected abstract Statement generateJoinTableStatement(Object entity, Object element, JoinTable joinTable);
-
-    protected abstract Statement generateInverseJoinTableStatement(Object entity, JoinTable joinTable);
-
-    protected abstract void onIdField(Statement statement, Object entity, Field idFiled);
-
-    protected abstract void onFiled(Statement statement, Object entity, Field field);
-
+    /**
+     * Add the field to statement with as value the Id of the related entity,
+     * taking into account the JPA name associated to the field.
+     *
+     * @param statement injected statement to modify
+     * @param entity    entity to be parsed
+     * @param field     relational field to add to statement
+     */
     protected void addRelationalFiled(Statement statement, Object entity, Field field) {
         String fieldName = ReflectionUtils.getJoinColumnName(field);
         Object fieldValue = ReflectionUtils.getJoinColumnValue(entity, fieldName, field);
@@ -189,7 +212,14 @@ public abstract class StatementBuilder {
         statement.addField(fieldName, fieldValue);
     }
 
-    protected void addFiled(Statement statement, Object entity, Field field) {
+    /**
+     * Add the field to statement taking into account the JPA name associated to the field.
+     *
+     * @param statement injected statement to modify
+     * @param entity    entity to be parsed
+     * @param field     field to add to statement
+     */
+    protected void addField(Statement statement, Object entity, Field field) {
         String fieldName = ReflectionUtils.getJPAColumnName(field);
         Object fieldValue = ReflectionUtils.getValue(entity, field);
         log.debug("{} will be {} = {}", field.getName(), fieldName, fieldValue);
@@ -208,7 +238,6 @@ public abstract class StatementBuilder {
      * beside the one explicitly stated in the query
      */
     public Deque<Statement> build(Query query) {
-        populatePersistedClasses();
 
         String qlString;
         if (query instanceof CloudQuery) {
@@ -308,22 +337,14 @@ public abstract class StatementBuilder {
     }
 
     protected String getJPAColumnName(String name, String tableName) {
-        if (this.persistedClasses.isEmpty()) {
-            throw new RuntimeException("persistence.xml has not been parsed by CPIM");
-        }
-
-        String fullClassName = this.persistedClasses.get(tableName);
+        String fullClassName = MigrationManager.getInstance().getMappedClass(tableName);
         if (fullClassName == null) {
             throw new RuntimeException(tableName + " is unknown");
         }
 
-        try {
-            Class<?> clazz = Class.forName(fullClassName);
-            Field field = ReflectionUtils.getField(clazz, name);
-            return ReflectionUtils.getJPAColumnName(field);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Class not found: " + fullClassName);
-        }
+        Class<?> clazz = ReflectionUtils.getClassInstance(fullClassName);
+        Field field = ReflectionUtils.getField(clazz, name);
+        return ReflectionUtils.getJPAColumnName(field);
     }
 
     protected String nextTokenOfType(TokenType type, Iterator<Token> itr) {

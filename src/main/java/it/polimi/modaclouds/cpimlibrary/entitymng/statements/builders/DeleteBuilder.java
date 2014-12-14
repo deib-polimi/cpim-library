@@ -3,7 +3,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.CascadeType;

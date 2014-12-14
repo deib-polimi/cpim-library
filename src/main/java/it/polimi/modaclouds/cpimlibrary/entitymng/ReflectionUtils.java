@@ -36,6 +36,14 @@ public class ReflectionUtils {
         throw new RuntimeException("Class " + clazz.getSimpleName() + " is not annotated with " + annotationClass.getSimpleName());
     }
 
+    public static Class<?> getClassInstance(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Class not found: " + className);
+        }
+    }
+
     public static boolean isRelational(Field field) {
         return field.isAnnotationPresent(OneToOne.class) || field.isAnnotationPresent(ManyToOne.class)
                 || field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class);

@@ -1,13 +1,12 @@
-package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
+package it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * Represents a filter in the form 'column operator value'
- * where operator is one from {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator}
+ * where operator is one from {@link CompareOperator}
  *
  * @author Fabio Arcidiacono.
  */

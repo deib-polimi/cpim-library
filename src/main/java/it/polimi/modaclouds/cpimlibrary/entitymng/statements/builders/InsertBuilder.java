@@ -28,7 +28,7 @@ public class InsertBuilder extends StatementBuilder {
 
     @Override
     protected void onFiled(Statement statement, Object entity, Field field) {
-        super.addFiled(statement, entity, field);
+        super.addField(statement, entity, field);
     }
 
     @Override

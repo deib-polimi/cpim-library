@@ -1,8 +1,9 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.CompareOperator;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators.LogicOperator;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.Filter;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.LogicOperator;
 import lombok.Getter;
 import lombok.Setter;
 

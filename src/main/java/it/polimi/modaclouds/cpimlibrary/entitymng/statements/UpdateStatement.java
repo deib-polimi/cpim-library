@@ -2,6 +2,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.Filter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

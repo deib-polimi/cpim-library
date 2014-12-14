@@ -1,4 +1,4 @@
-package it.polimi.modaclouds.cpimlibrary.entitymng.statements.operators;
+package it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils;
 
 /**
  * @author Fabio Arcidiacono.
