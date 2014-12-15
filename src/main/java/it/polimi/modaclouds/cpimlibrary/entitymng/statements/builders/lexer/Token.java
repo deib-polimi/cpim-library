@@ -5,7 +5,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
  * <p/>
  * Token are defined inside {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType}.
  *
- * @author Fabio Arcidicono
+ * @author Fabio Arcidicono.
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType
  */

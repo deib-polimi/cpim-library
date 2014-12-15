@@ -16,7 +16,10 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
+import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import java.util.Deque;
 
 /**
  * @author Fabio Arcidiacono.
+ * @see it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager
  */
 @Slf4j
 public class MigrationState implements State {
@@ -57,8 +61,23 @@ public class MigrationState implements State {
      */
     @Override
     public void propagate(Query query) {
-        // TODO move here the logic to choose Update or Delete
-        Deque<Statement> statements = new UpdateBuilder().build(query);
+        String queryString;
+        if (query instanceof CloudQuery) {
+            queryString = ((CloudQuery) query).getQlString();
+        } else if (query instanceof TypedCloudQuery) {
+            queryString = ((TypedCloudQuery) query).getQlString();
+        } else {
+            throw new RuntimeException("Query has not been wrapped by CPIM");
+        }
+        queryString = queryString.trim();
+        Deque<Statement> statements;
+        if (queryString.startsWith("UPDATE")) {
+            statements = new UpdateBuilder().build(query, queryString);
+        } else if (queryString.startsWith("DELETE")) {
+            statements = new DeleteBuilder().build(query, queryString);
+        } else {
+            throw new RuntimeException("Query is neither UPDATE nor DELETE");
+        }
         propagate(statements);
     }
 

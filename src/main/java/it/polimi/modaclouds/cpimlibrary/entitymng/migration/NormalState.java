@@ -23,6 +23,7 @@ import javax.persistence.Query;
 
 /**
  * @author Fabio Arcidiacono.
+ * @see it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager
  */
 public class NormalState implements State {
 

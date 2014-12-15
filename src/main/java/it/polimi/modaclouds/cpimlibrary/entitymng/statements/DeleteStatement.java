@@ -19,11 +19,13 @@ import java.util.Iterator;
 @EqualsAndHashCode(callSuper = false)
 public class DeleteStatement extends Statement {
 
-    /*
-     * DELETE statements does not support field lists
+    /* (non-Javadoc)
+     *
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement#addField(String, Object)
      */
     @Override
     public void addField(String name, Object value) {
+        // DELETE statements does not support field lists
         throw new UnsupportedOperationException();
     }
 

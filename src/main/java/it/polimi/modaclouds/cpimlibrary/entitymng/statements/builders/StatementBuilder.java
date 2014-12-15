@@ -1,16 +1,11 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
-import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.CascadeType;
@@ -22,21 +17,37 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 /**
+ * Contains abstract algorithms to build statements fro queries or objects.
+ *
  * @author Fabio Arcidiacono.
  */
 @Slf4j
 public abstract class StatementBuilder {
 
-    @Setter public static boolean followCascades = false;
+    private final boolean followCascades;
     private final List<CascadeType> relevantCascadeTypes;
     private Deque<Statement> stack = new ArrayDeque<>();
 
+    /**
+     * Instantiate a builder that follow cascade types.
+     *
+     * @param relevantCascadeTypes a list of cascade types that need to be handled
+     *
+     * @see javax.persistence.CascadeType
+     */
     public StatementBuilder(List<CascadeType> relevantCascadeTypes) {
+        this.followCascades = true;
         this.relevantCascadeTypes = relevantCascadeTypes;
     }
 
-    public boolean isFollowingCascades() {
-        return followCascades;
+    /**
+     * Instantiate a builder that does not follow cascade types.
+     *
+     * @see javax.persistence.CascadeType
+     */
+    public StatementBuilder() {
+        this.followCascades = false;
+        this.relevantCascadeTypes = null;
     }
 
     protected void addToStack(Statement statement) {
@@ -95,16 +106,61 @@ public abstract class StatementBuilder {
         return stack;
     }
 
+    /**
+     * Generate specific instance of statement.
+     *
+     * @return statement instance
+     *
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement
+     */
     protected abstract Statement initStatement();
 
+    /**
+     * Generate a join table statement from the owning side point of view.
+     *
+     * @param entity    the entity owning the relationship
+     * @param element   an element from the non-owning side of the relationship
+     * @param joinTable the join table annotation
+     *
+     * @return the generated join table statement
+     */
     protected abstract Statement generateJoinTableStatement(Object entity, Object element, JoinTable joinTable);
 
+    /**
+     * Generate a join table statement from the non-owning side point of view.
+     *
+     * @param entity    the entity owning the non-owning side the relationship
+     * @param joinTable the join table annotation
+     *
+     * @return the generated join table statement
+     */
     protected abstract Statement generateInverseJoinTableStatement(Object entity, JoinTable joinTable);
 
+    /**
+     * Hook to handle the processing of Id field.
+     *
+     * @param statement injected statement
+     * @param entity    the entity
+     * @param idFiled   the filed of the entity maintaining the id
+     */
     protected abstract void onIdField(Statement statement, Object entity, Field idFiled);
 
+    /**
+     * Hook to handle the processing of a field.
+     *
+     * @param statement injected statement
+     * @param entity    the entity
+     * @param field     the filed to process
+     */
     protected abstract void onFiled(Statement statement, Object entity, Field field);
 
+    /**
+     * Hook to handle the processing of a field that maintains a relationship with another entity.
+     *
+     * @param statement injected statement
+     * @param entity    the entity
+     * @param field     the filed maintaining a relationship
+     */
     protected abstract void onRelationalField(Statement statement, Object entity, Field field);
 
     /**
@@ -230,128 +286,65 @@ public abstract class StatementBuilder {
     /*----------------------------- BUILD FROM QUERY ----------------------------------*/
     /*---------------------------------------------------------------------------------*/
 
-    /*
-     * no need to update join tables, update or delete by query is not possible through JPA.
+    /**
+     * Main abstract algorithm that build statements from queries. Follows template pattern.
+     * Abstract methods are implemented in sub classes, is possible to modify the standard behavior
+     * of the algorithm overriding the hook methods (the protected ones).
      *
-     * no need to handle cascade type for now since currently Kundera does not support
-     * dot notations in queries so is not possible to update through a query another entity
-     * beside the one explicitly stated in the query
+     * @param query       a {@link javax.persistence.Query} instance
+     * @param queryString the JPQl string representation of the query
+     *
+     * @return a {@link java.util.Deque} used as stack containing the statements build from the given query
      */
-    public Deque<Statement> build(Query query) {
-
-        String qlString;
-        if (query instanceof CloudQuery) {
-            qlString = ((CloudQuery) query).getQlString();
-        } else if (query instanceof TypedCloudQuery) {
-            qlString = ((TypedCloudQuery) query).getQlString();
-        } else {
-            throw new RuntimeException("Query has not been wrapped by CPIM");
+    public Deque<Statement> build(Query query, String queryString) {
+        log.info(queryString);
+        ArrayList<Token> tokens = Lexer.lex(queryString);
+        Statement statement = handleQuery(query, tokens);
+        if (statement != null) {
+            addToStack(statement);
         }
-        log.info(qlString);
-        Statement statement;
-        ArrayList<Token> tokens = Lexer.lex(qlString);
-
-        Token first = tokens.get(0);
-        if (first.type.equals(TokenType.UPDATE)) {
-            statement = handleUpdate(query, tokens);
-        } else if (first.type.equals(TokenType.DELETE)) {
-            statement = handleDelete(query, tokens);
-        } else {
-            throw new RuntimeException("Query is neither UPDATE nor DELETE");
-        }
-
-        addToStack(statement);
         return stack;
     }
 
-    protected Statement handleDelete(Query query, ArrayList<Token> tokens) {
-        Iterator<Token> itr = tokens.iterator();
-        String objectParam = "";
-        Statement statement = new DeleteStatement();
-        while (itr.hasNext()) {
-            Token current = itr.next();
-            switch (current.type) {
-                case DELETE:
-                case WHERE:
-                case WHITESPACE:
-                    /* fall through */
-                    break;
-                case FROM:
-                    String tableName = getJPATableName(itr);
-                    statement.setTable(tableName);
-                    objectParam = nextTokenOfType(TokenType.STRING, itr);
-                    log.debug("JPQL object parameter is {}", objectParam);
-                    break;
-                case COLUMN:
-                    String column = getJPAColumnName(current, objectParam, statement.getTable());
-                    String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
-                    Object value = getParameterValue(itr, query);
-                    log.debug("found column will be {} {} {}", column, operator, value);
-                    statement.addCondition(column, operator, value);
-                    break;
-                case LOGICOP:
-                    log.debug("found logic operator {}", current.data);
-                    statement.addCondition(current.data);
-            }
-        }
-        return statement;
-    }
+    /**
+     * Translate query tokens into a specific statement.
+     * <p/>
+     * Algorithm does not handle join tables since update or delete by query is not possible through JPA.
+     * <p/>
+     * Algorithm does not handle cascade type for now since currently Kundera does not support
+     * dot notations in queries so is not possible to update through a query another entity
+     * beside the one explicitly stated in the query.
+     *
+     * @param query  a {@link javax.persistence.Query} instance
+     * @param tokens tokens obtained from lexer
+     *
+     * @return the generated {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement}
+     */
+    protected abstract Statement handleQuery(Query query, ArrayList<Token> tokens);
 
-    protected Statement handleUpdate(Query query, ArrayList<Token> tokens) {
-        Iterator<Token> itr = tokens.iterator();
-        String objectParam = "";
-        boolean wherePart = false;
-        Statement statement = new UpdateStatement();
-        while (itr.hasNext()) {
-            Token current = itr.next();
-            switch (current.type) {
-                case SET:
-                case WHITESPACE:
-                    /* fall through */
-                    break;
-                case UPDATE:
-                    String tableName = getJPATableName(itr);
-                    statement.setTable(tableName);
-                    objectParam = nextTokenOfType(TokenType.STRING, itr);
-                    log.debug("JPQL object parameter is {}", objectParam);
-                    break;
-                case WHERE:
-                    wherePart = true;
-                    break;
-                case COLUMN:
-                    String column = getJPAColumnName(current, objectParam, statement.getTable());
-                    String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
-                    Object value = getParameterValue(itr, query);
-                    log.debug("found column will be {} {} {}", column, operator, value);
-                    if (wherePart) {
-                        statement.addCondition(column, operator, value);
-                    } else {
-                        /* is in the SET part */
-                        statement.addField(column, value);
-                    }
-                    break;
-                case LOGICOP:
-                    log.debug("found logic operator {}", current.data);
-                    statement.addCondition(current.data);
-            }
-        }
-        return statement;
-    }
-
-    protected String getJPATableName(Iterator<Token> tokenIterator) {
+    /**
+     * Move the token iterator to find table name from where the iterator was left.
+     * Take care of finding the correct JPA table name and modify the injected statement accordingly.
+     *
+     * @param tokenIterator injected token iterator
+     * @param statement     injected statement to modify
+     */
+    protected void setTableName(Iterator<Token> tokenIterator, Statement statement) {
         String tableName = nextTokenOfType(TokenType.STRING, tokenIterator);
         log.debug("specified table name is {}", tableName);
         Class<?> clazz = getAssociatedClass(tableName);
-        return ReflectionUtils.getJPATableName(clazz);
+        tableName = ReflectionUtils.getJPATableName(clazz);
+        log.debug("JPA table name is {}", tableName);
+        statement.setTable(tableName);
     }
 
-    protected String getJPAColumnName(Token column, String objectParam, String tableName) {
-        String name = column.data.replaceAll(objectParam + ".", "");
-        Class<?> clazz = getAssociatedClass(tableName);
-        Field field = ReflectionUtils.getField(clazz, name);
-        return ReflectionUtils.getJPAColumnName(field);
-    }
-
+    /**
+     * Finds out the class that maps to the given tableName.
+     *
+     * @param tableName tableName
+     *
+     * @return the class instance
+     */
     protected Class<?> getAssociatedClass(String tableName) {
         String fullClassName = MigrationManager.getInstance().getMappedClass(tableName);
         if (fullClassName == null) {
@@ -360,11 +353,44 @@ public abstract class StatementBuilder {
         return ReflectionUtils.getClassInstance(fullClassName);
     }
 
-    protected Object getParameterValue(Iterator<Token> tokenIterator, Query query) {
+    /**
+     * Finds out the JPA name associated to the column name.
+     *
+     * @param column      a column token {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType#COLUMN}
+     * @param objectParam the JPQL object param to be removed from the column name
+     * @param tableName   the table involved in the query
+     *
+     * @return the JPA name associated to the column name
+     */
+    protected String getJPAColumnName(Token column, String objectParam, String tableName) {
+        String name = column.data.replaceAll(objectParam + ".", "");
+        Class<?> clazz = getAssociatedClass(tableName);
+        Field field = ReflectionUtils.getField(clazz, name);
+        return ReflectionUtils.getJPAColumnName(field);
+    }
+
+    /**
+     * Move the iterator to fund out the first param from where
+     * the iterator was left and search the param mapping in the given query.
+     *
+     * @param tokenIterator injected iterator
+     * @param query         a {@link javax.persistence.Query} instance containing param mappings
+     *
+     * @return the value associated to the parameter
+     */
+    protected Object getNextParameterValue(Iterator<Token> tokenIterator, Query query) {
         String param = nextTokenOfType(TokenType.PARAM, tokenIterator).replaceAll(":|,", "");
         return query.getParameterValue(query.getParameter(param));
     }
 
+    /**
+     * Move the iterator until a token matching the requested type is found.
+     *
+     * @param type token type to look for {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType}
+     * @param itr  injected iterator
+     *
+     * @return the first matching token
+     */
     protected String nextTokenOfType(TokenType type, Iterator<Token> itr) {
         Token current = itr.next();
         if (current.type.equals(type)) {

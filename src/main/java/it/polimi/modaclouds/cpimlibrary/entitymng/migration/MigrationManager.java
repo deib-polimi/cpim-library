@@ -35,6 +35,8 @@ import java.util.Map;
  * Follow a state pattern, states are handled as an FSA.
  *
  * @author Fabio Arcidiacono.
+ * @see it.polimi.modaclouds.cpimlibrary.mffactory.MF
+ * @see it.polimi.modaclouds.cpimlibrary.CloudMetadata
  */
 @Slf4j
 public class MigrationManager {

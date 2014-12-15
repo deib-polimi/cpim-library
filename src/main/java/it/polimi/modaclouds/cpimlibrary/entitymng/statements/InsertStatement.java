@@ -21,27 +21,33 @@ import java.util.Iterator;
 @EqualsAndHashCode(callSuper = false)
 public class InsertStatement extends Statement {
 
-    /*
-     * INSERT statements does not support WHERE clause
+    /* (non-Javadoc)
+     *
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement#addCondition(String, String, Object)
      */
     @Override
     public void addCondition(String name, String operator, Object value) {
+        // INSERT statements does not support WHERE clause
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * INSERT statements does not support WHERE clause
+    /* (non-Javadoc)
+     *
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement#addCondition(String, it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator, Object)
      */
     @Override
     public void addCondition(String name, CompareOperator operator, Object value) {
+        // INSERT statements does not support WHERE clause
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * INSERT statements does not support WHERE clause
+    /* (non-Javadoc)
+     *
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement#addCondition(String)
      */
     @Override
     public void addCondition(String operator) {
+        // INSERT statements does not support WHERE clause
         throw new UnsupportedOperationException();
     }
 

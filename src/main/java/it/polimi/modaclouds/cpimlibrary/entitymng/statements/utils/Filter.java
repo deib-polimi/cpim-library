@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Represents a filter in the form 'column operator value'
- * where operator is one from {@link CompareOperator}
+ * where operator is one from {@link CompareOperator}.
  *
  * @author Fabio Arcidiacono.
  */

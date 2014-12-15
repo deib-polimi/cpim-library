@@ -3,7 +3,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
 /**
  * Tokens for UPDATE and DELETE queries in JPQL.
  *
- * @author Fabio Arcidiacono
+ * @author Fabio Arcidiacono.
  */
 public enum TokenType {
     UPDATE("[uU]pdate|UPDATE"),

@@ -3,16 +3,22 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
+import javax.persistence.Query;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
 /**
+ * Builder for INSERT statements.
+ *
  * @author Fabio Arcidiacono.
+ * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder
  */
 @Slf4j
 public class InsertBuilder extends StatementBuilder {
@@ -21,21 +27,37 @@ public class InsertBuilder extends StatementBuilder {
         super(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
     }
 
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#initStatement()
+     */
     @Override
     protected Statement initStatement() {
         return new InsertStatement();
     }
 
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#onFiled(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement, Object, java.lang.reflect.Field)
+     */
     @Override
     protected void onFiled(Statement statement, Object entity, Field field) {
         super.addField(statement, entity, field);
     }
 
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#onRelationalField(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement, Object, java.lang.reflect.Field)
+     */
     @Override
     protected void onRelationalField(Statement statement, Object entity, Field field) {
         super.addRelationalFiled(statement, entity, field);
     }
 
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#onIdField(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement, Object, java.lang.reflect.Field)
+     */
     @Override
     protected void onIdField(Statement statement, Object entity, Field idFiled) {
         String fieldName = ReflectionUtils.getJPAColumnName(idFiled);
@@ -50,6 +72,12 @@ public class InsertBuilder extends StatementBuilder {
         statement.addField(fieldName, fieldValue);
     }
 
+    private String generateId() {return UUID.randomUUID().toString();}
+
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#generateJoinTableStatement(Object, Object, javax.persistence.JoinTable)
+     */
     @Override
     protected Statement generateJoinTableStatement(Object entity, Object element, JoinTable joinTable) {
         String joinTableName = joinTable.name();
@@ -70,11 +98,23 @@ public class InsertBuilder extends StatementBuilder {
         return statement;
     }
 
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#generateInverseJoinTableStatement(Object, javax.persistence.JoinTable)
+     */
     @Override
     protected Statement generateInverseJoinTableStatement(Object entity, JoinTable joinTable) {
         /* do nothing */
         return null;
     }
 
-    private String generateId() {return UUID.randomUUID().toString();}
+    /* (non-Javadoc)
+     *
+     * @see StatementBuilder#handleQuery(javax.persistence.Query, java.util.ArrayList)
+     */
+    @Override
+    protected Statement handleQuery(Query query, ArrayList<Token> tokens) {
+        /* do nothing, no need to handle this case */
+        return null;
+    }
 }
