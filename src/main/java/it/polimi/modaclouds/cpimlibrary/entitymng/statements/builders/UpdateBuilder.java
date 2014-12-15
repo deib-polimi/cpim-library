@@ -63,7 +63,7 @@ public class UpdateBuilder extends StatementBuilder {
     @Override
     protected void onIdField(Statement statement, Object entity, Field idFiled) {
         String jpaColumnName = ReflectionUtils.getJPAColumnName(idFiled);
-        Object idValue = ReflectionUtils.getValue(entity, idFiled);
+        Object idValue = ReflectionUtils.getFieldValue(entity, idFiled);
         log.debug("id filed is {}, will be {} = {}", idFiled.getName(), jpaColumnName, idValue);
         statement.addCondition(jpaColumnName, CompareOperator.EQUAL, idValue);
     }

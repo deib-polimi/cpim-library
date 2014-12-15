@@ -63,7 +63,7 @@ public class DeleteBuilder extends StatementBuilder {
     @Override
     protected void onIdField(Statement statement, Object entity, Field idFiled) {
         String jpaColumnName = ReflectionUtils.getJPAColumnName(idFiled);
-        Object idValue = ReflectionUtils.getValue(entity, idFiled);
+        Object idValue = ReflectionUtils.getFieldValue(entity, idFiled);
         log.debug("id filed is {}, will be {} = {}", idFiled.getName(), jpaColumnName, idValue);
         statement.addCondition(jpaColumnName, CompareOperator.EQUAL, idValue);
     }
@@ -77,7 +77,7 @@ public class DeleteBuilder extends StatementBuilder {
         String joinTableName = joinTable.name();
         String joinColumnName = joinTable.joinColumns()[0].name();
         Field joinColumnField = ReflectionUtils.getJoinColumnField(entity, joinColumnName);
-        Object joinColumnValue = ReflectionUtils.getValue(entity, joinColumnField);
+        Object joinColumnValue = ReflectionUtils.getFieldValue(entity, joinColumnField);
 
         Statement statement = initStatement();
         statement.setTable(joinTableName);
@@ -96,7 +96,7 @@ public class DeleteBuilder extends StatementBuilder {
         String joinTableName = joinTable.name();
         String inverseJoinColumnName = joinTable.inverseJoinColumns()[0].name();
         Field idField = ReflectionUtils.getIdField(entity);
-        Object entityId = ReflectionUtils.getValue(entity, idField);
+        Object entityId = ReflectionUtils.getFieldValue(entity, idField);
 
         Statement statement = initStatement();
         statement.setTable(joinTableName);

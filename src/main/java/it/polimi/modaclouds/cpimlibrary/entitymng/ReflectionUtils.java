@@ -52,13 +52,13 @@ public class ReflectionUtils {
         }
     }
 
+    public static boolean isId(Field field) {
+        return field.isAnnotationPresent(Id.class);
+    }
+
     public static boolean isRelational(Field field) {
         return field.isAnnotationPresent(OneToOne.class) || field.isAnnotationPresent(ManyToOne.class)
                 || field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class);
-    }
-
-    public static boolean isId(Field field) {
-        return field.isAnnotationPresent(Id.class);
     }
 
     public static boolean ownRelation(Field field) {
@@ -66,7 +66,7 @@ public class ReflectionUtils {
                 (field.isAnnotationPresent(JoinColumn.class) || field.isAnnotationPresent(JoinTable.class));
     }
 
-    public static Object getValue(Object object, Field field) {
+    public static Object getFieldValue(Object object, Field field) {
         try {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
@@ -77,7 +77,7 @@ public class ReflectionUtils {
         }
     }
 
-    public static Field getField(Class<?> entityClass, String fieldName) {
+    public static Field getFieldByName(Class<?> entityClass, String fieldName) {
         try {
             return entityClass.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
@@ -98,7 +98,7 @@ public class ReflectionUtils {
             Field jdoField = entity.getClass().getDeclaredField("jdoFieldNames");
             log.info("Class {} has been enhanced with JDO", entity.getClass().getCanonicalName());
             jdoField.setAccessible(true);
-            String[] jdoFieldNames = (String[]) getValue(entity, jdoField);
+            String[] jdoFieldNames = (String[]) getFieldValue(entity, jdoField);
             List<Field> classFields = new ArrayList<>();
             for (String fieldName : jdoFieldNames) {
                 classFields.add(entity.getClass().getDeclaredField(fieldName));
@@ -157,7 +157,7 @@ public class ReflectionUtils {
     }
 
     public static Object getJoinColumnValue(Object entity, String joinColumnName, Field field) {
-        Object instance = getValue(entity, field);
+        Object instance = getFieldValue(entity, field);
         log.debug("instance is {}", instance);
         Field joinColumnField;
         try {
@@ -168,7 +168,7 @@ public class ReflectionUtils {
             joinColumnField = getJoinColumnField(joinColumnName, possibleFields);
         }
         log.debug("joinColumnField is {}", joinColumnField.getName());
-        return getValue(instance, joinColumnField);
+        return getFieldValue(instance, joinColumnField);
     }
 
     public static Field getJoinColumnField(Object entity, String joinColumnName) {

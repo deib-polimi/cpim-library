@@ -61,7 +61,7 @@ public class InsertBuilder extends StatementBuilder {
     @Override
     protected void onIdField(Statement statement, Object entity, Field idFiled) {
         String fieldName = ReflectionUtils.getJPAColumnName(idFiled);
-        Object fieldValue = ReflectionUtils.getValue(entity, idFiled);
+        Object fieldValue = ReflectionUtils.getFieldValue(entity, idFiled);
         if (fieldValue == null) {
             String generatedId = generateId();
             log.info("generated Id for {} is {}", entity.getClass().getSimpleName(), generatedId);
@@ -84,14 +84,14 @@ public class InsertBuilder extends StatementBuilder {
         String joinColumnName = joinTable.joinColumns()[0].name();
         String inverseJoinColumnName = joinTable.inverseJoinColumns()[0].name();
         Field joinColumnField = ReflectionUtils.getJoinColumnField(entity, joinColumnName);
-        Object joinColumnValue = ReflectionUtils.getValue(entity, joinColumnField);
+        Object joinColumnValue = ReflectionUtils.getFieldValue(entity, joinColumnField);
 
         Statement statement = initStatement();
         statement.setTable(joinTableName);
         statement.addField(joinColumnName, joinColumnValue);
 
         Field inverseJoinColumnField = ReflectionUtils.getJoinColumnField(element, inverseJoinColumnName);
-        Object inverseJoinColumnValue = ReflectionUtils.getValue(element, inverseJoinColumnField);
+        Object inverseJoinColumnValue = ReflectionUtils.getFieldValue(element, inverseJoinColumnField);
         statement.addField(inverseJoinColumnName, inverseJoinColumnValue);
 
         log.debug("joinTable {}, joinColumn {} = {}, inverseJoinColumn {} = {}", joinTableName, joinColumnName, joinColumnValue, inverseJoinColumnName, inverseJoinColumnValue);

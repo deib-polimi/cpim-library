@@ -196,7 +196,7 @@ public abstract class StatementBuilder {
         CascadeType[] declaredCascadeTypes = ReflectionUtils.getCascadeTypes(field);
         for (CascadeType cascadeType : declaredCascadeTypes) {
             if (this.relevantCascadeTypes.contains(cascadeType)) {
-                Object cascadeEntity = ReflectionUtils.getValue(entity, field);
+                Object cascadeEntity = ReflectionUtils.getFieldValue(entity, field);
                 if (cascadeEntity instanceof Collection) {
                     for (Object cascade : (Collection) cascadeEntity) {
                         log.warn("Cascade operation on collection field {} with value {}", field.getName(), cascade);
@@ -220,7 +220,7 @@ public abstract class StatementBuilder {
     protected void handleJoinTable(Object entity, Field field) {
         JoinTable joinTable = ReflectionUtils.getAnnotation(field, JoinTable.class);
 
-        Collection collection = (Collection) ReflectionUtils.getValue(entity, field);
+        Collection collection = (Collection) ReflectionUtils.getFieldValue(entity, field);
         for (Object element : collection) {
             Statement statement = generateJoinTableStatement(entity, element, joinTable);
             if (statement != null) {
@@ -244,7 +244,7 @@ public abstract class StatementBuilder {
         Class<?> ownerClass = (Class<?>) collectionType.getActualTypeArguments()[0];
         log.debug("{} is mapped by {} in class {}", field.getName(), mappedBy, ownerClass.getCanonicalName());
 
-        Field ownerField = ReflectionUtils.getField(ownerClass, mappedBy);
+        Field ownerField = ReflectionUtils.getFieldByName(ownerClass, mappedBy);
         JoinTable joinTable = ReflectionUtils.getAnnotation(ownerField, JoinTable.class);
         Statement statement = generateInverseJoinTableStatement(entity, joinTable);
         if (statement != null) {
@@ -277,7 +277,7 @@ public abstract class StatementBuilder {
      */
     protected void addField(Statement statement, Object entity, Field field) {
         String fieldName = ReflectionUtils.getJPAColumnName(field);
-        Object fieldValue = ReflectionUtils.getValue(entity, field);
+        Object fieldValue = ReflectionUtils.getFieldValue(entity, field);
         log.debug("{} will be {} = {}", field.getName(), fieldName, fieldValue);
         statement.addField(fieldName, fieldValue);
     }
@@ -365,7 +365,7 @@ public abstract class StatementBuilder {
     protected String getJPAColumnName(Token column, String objectParam, String tableName) {
         String name = column.data.replaceAll(objectParam + ".", "");
         Class<?> clazz = getAssociatedClass(tableName);
-        Field field = ReflectionUtils.getField(clazz, name);
+        Field field = ReflectionUtils.getFieldByName(clazz, name);
         return ReflectionUtils.getJPAColumnName(field);
     }
 
