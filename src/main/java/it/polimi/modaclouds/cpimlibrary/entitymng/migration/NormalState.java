@@ -16,8 +16,6 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
-
 import javax.persistence.Query;
 
 /**
@@ -60,15 +58,7 @@ public class NormalState implements State {
      * @see State#propagate(Object, it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder)
      */
     @Override
-    public void propagate(Object entity, Operation operation) {
-        throw new IllegalStateException("Migration was not started yet");
-    }
-
-    /* (non-Javadoc)
-     * @see State#propagate(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement)
-     */
-    @Override
-    public void propagate(Statement statement) {
+    public void propagate(Object entity, OperationType operation) {
         throw new IllegalStateException("Migration was not started yet");
     }
 }

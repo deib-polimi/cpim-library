@@ -16,8 +16,6 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
-
 import javax.persistence.Query;
 
 /**
@@ -37,7 +35,8 @@ public interface State {
 
     /**
      * Parse the query to generate the corresponding {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement}
-     * or {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement}.
+     * or {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement},
+     * then send them to the migration system.
      *
      * @param query the query to be parsed
      */
@@ -47,14 +46,7 @@ public interface State {
      * Use the given builder to build statements from the entity, then send them to the migration system.
      *
      * @param entity    entity to be parsed
-     * @param operation one of {@link it.polimi.modaclouds.cpimlibrary.entitymng.migration.Operation}
+     * @param operation one of {@link OperationType}
      */
-    public void propagate(Object entity, Operation operation);
-
-    /**
-     * Send the statement string representation to the migration system.
-     *
-     * @param statement the statement to be sent
-     */
-    public void propagate(Statement statement);
+    public void propagate(Object entity, OperationType operation);
 }

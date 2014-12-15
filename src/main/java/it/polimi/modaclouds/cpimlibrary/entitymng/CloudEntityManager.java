@@ -17,7 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.migration.Operation;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -58,7 +58,7 @@ public class CloudEntityManager implements EntityManager {
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, Operation.INSERT);
+            migrator.propagate(entity, OperationType.INSERT);
         } else {
             delegate.persist(entity);
         }
@@ -75,7 +75,7 @@ public class CloudEntityManager implements EntityManager {
     public <T> T merge(T entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, Operation.UPDATE);
+            migrator.propagate(entity, OperationType.UPDATE);
             return entity;
         } else {
             return delegate.merge(entity);
@@ -93,7 +93,7 @@ public class CloudEntityManager implements EntityManager {
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, Operation.DELETE);
+            migrator.propagate(entity, OperationType.DELETE);
         } else {
             delegate.persist(entity);
         }
@@ -419,7 +419,7 @@ public class CloudEntityManager implements EntityManager {
     /**
      * Use of this method is discouraged due to possibility of escaping from migration control.
      *
-     * @return the entityManagerFactory of the current persistence provider
+     * @return the entityManagerFactory of the runtime persistence provider
      */
     @Override
     public EntityManagerFactory getEntityManagerFactory() {

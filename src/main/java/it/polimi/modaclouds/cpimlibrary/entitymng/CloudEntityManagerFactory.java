@@ -35,9 +35,7 @@ public class CloudEntityManagerFactory {
     }
 
     /**
-     * Creates and return a new instance of {@link it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager}.
-     *
-     * @return the entity manager instance
+     * @return a new instance of {@link it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager}
      */
     public CloudEntityManager createCloudEntityManager() {
         return new CloudEntityManager(factory.createEntityManager());

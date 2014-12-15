@@ -61,7 +61,6 @@ public abstract class StatementBuilder {
      *
      * @see javax.persistence.CascadeType
      */
-
     public void setFollowCascade(List<CascadeType> relevantCascadeTypes) {
         this.followCascades = true;
         this.relevantCascadeTypes = relevantCascadeTypes;

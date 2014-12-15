@@ -19,6 +19,6 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 /**
  * @author Fabio Arcidiacono.
  */
-public enum Operation {
+public enum OperationType {
     INSERT, UPDATE, DELETE
 }

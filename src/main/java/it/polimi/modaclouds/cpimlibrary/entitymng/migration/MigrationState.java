@@ -70,12 +70,11 @@ public class MigrationState implements State {
         } else {
             throw new RuntimeException("Query has not been wrapped by CPIM");
         }
-        queryString = queryString.trim();
         StatementBuilder builder;
         if (queryString.startsWith("UPDATE")) {
-            builder = new UpdateBuilder(manager.isFollowCascades());
+            builder = new UpdateBuilder(manager.getFollowCascades());
         } else if (queryString.startsWith("DELETE")) {
-            builder = new DeleteBuilder(manager.isFollowCascades());
+            builder = new DeleteBuilder(manager.getFollowCascades());
         } else {
             throw new RuntimeException("Query is neither UPDATE nor DELETE");
         }
@@ -87,20 +86,20 @@ public class MigrationState implements State {
      * @see State#propagate(Object, it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder)
      */
     @Override
-    public void propagate(Object entity, Operation operation) {
+    public void propagate(Object entity, OperationType operation) {
         StatementBuilder builder;
         switch (operation) {
             case INSERT:
-                builder = new InsertBuilder(manager.isFollowCascades());
+                builder = new InsertBuilder(manager.getFollowCascades());
                 break;
             case UPDATE:
-                builder = new UpdateBuilder(manager.isFollowCascades());
+                builder = new UpdateBuilder(manager.getFollowCascades());
                 break;
             case DELETE:
-                builder = new DeleteBuilder(manager.isFollowCascades());
+                builder = new DeleteBuilder(manager.getFollowCascades());
                 break;
             default:
-                throw new RuntimeException("Operation " + operation + " not recognized");
+                throw new RuntimeException("Operation type: " + operation + " not recognized");
         }
         Deque<Statement> statements = builder.build(entity);
         propagate(statements);
@@ -112,11 +111,7 @@ public class MigrationState implements State {
         }
     }
 
-    /* (non-Javadoc)
-     * @see State#propagate(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement)
-     */
-    @Override
-    public void propagate(Statement statement) {
+    private void propagate(Statement statement) {
         // TODO send to migration system
         log.info(statement.toString());
     }

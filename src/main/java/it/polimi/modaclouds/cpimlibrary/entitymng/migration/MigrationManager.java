@@ -17,7 +17,6 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,8 +43,8 @@ public class MigrationManager {
     @Getter private State normalState;
     @Getter private State migrationState;
     @Setter private State state;
-    @Getter @Setter private boolean followCascades;
     private Map<String, String> persistedClasses = new HashMap<>();
+    @Setter private boolean followCascades;
 
     private MigrationManager() {
         this.normalState = new NormalState(this);
@@ -60,6 +59,10 @@ public class MigrationManager {
             instance = new MigrationManager();
         }
         return instance;
+    }
+
+    public boolean getFollowCascades() {
+        return this.followCascades;
     }
 
     public boolean isMigrating() {
@@ -78,12 +81,8 @@ public class MigrationManager {
         state.propagate(query);
     }
 
-    public void propagate(Object entity, Operation operation) {
+    public void propagate(Object entity, OperationType operation) {
         state.propagate(entity, operation);
-    }
-
-    public void propagate(Statement statement) {
-        state.propagate(statement);
     }
 
     private void populatePersistedClasses() {
