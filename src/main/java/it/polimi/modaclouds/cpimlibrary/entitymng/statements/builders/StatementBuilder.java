@@ -61,16 +61,12 @@ public abstract class StatementBuilder {
      *
      * @see javax.persistence.CascadeType
      */
-    public void setRelevantCascadeTypes(List<CascadeType> relevantCascadeTypes) {
-        this.followCascades = true;
+
+    public void setFollowCascade(List<CascadeType> relevantCascadeTypes) {
+        this.followCascades = false;
         this.relevantCascadeTypes = relevantCascadeTypes;
     }
 
-    /**
-     * Add the statement (as fist) in the stack.
-     *
-     * @param statement statement to be added
-     */
     protected void addToStack(Statement statement) {
         stack.addFirst(statement);
     }

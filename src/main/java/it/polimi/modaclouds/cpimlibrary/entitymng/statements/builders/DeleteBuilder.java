@@ -41,10 +41,10 @@ import java.util.Iterator;
 @Slf4j
 public class DeleteBuilder extends StatementBuilder {
 
-    public DeleteBuilder(boolean followCascades) {
+    public DeleteBuilder(boolean followCascade) {
         super();
-        if (followCascades) {
-            super.setRelevantCascadeTypes(Arrays.asList(CascadeType.ALL, CascadeType.REMOVE));
+        if (followCascade) {
+            super.setFollowCascade(Arrays.asList(CascadeType.ALL, CascadeType.REMOVE));
         }
     }
 

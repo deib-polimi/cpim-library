@@ -71,7 +71,6 @@ public class MigrationState implements State {
             throw new RuntimeException("Query has not been wrapped by CPIM");
         }
         queryString = queryString.trim();
-        Deque<Statement> statements;
         StatementBuilder builder;
         if (queryString.startsWith("UPDATE")) {
             builder = new UpdateBuilder(manager.isFollowCascades());
@@ -80,7 +79,7 @@ public class MigrationState implements State {
         } else {
             throw new RuntimeException("Query is neither UPDATE nor DELETE");
         }
-        statements = builder.build(query, queryString);
+        Deque<Statement> statements = builder.build(query, queryString);
         propagate(statements);
     }
 
@@ -97,7 +96,7 @@ public class MigrationState implements State {
             case UPDATE:
                 builder = new UpdateBuilder(manager.isFollowCascades());
                 break;
-            case REMOVE:
+            case DELETE:
                 builder = new DeleteBuilder(manager.isFollowCascades());
                 break;
             default:

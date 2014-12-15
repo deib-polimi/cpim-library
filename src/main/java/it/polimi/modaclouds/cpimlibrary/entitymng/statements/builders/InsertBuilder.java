@@ -39,10 +39,10 @@ import java.util.UUID;
 @Slf4j
 public class InsertBuilder extends StatementBuilder {
 
-    public InsertBuilder(boolean followCascades) {
+    public InsertBuilder(boolean followCascade) {
         super();
-        if (followCascades) {
-            super.setRelevantCascadeTypes(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
+        if (followCascade) {
+            super.setFollowCascade(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
         }
     }
 

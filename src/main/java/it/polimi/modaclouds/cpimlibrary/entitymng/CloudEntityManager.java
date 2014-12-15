@@ -93,7 +93,7 @@ public class CloudEntityManager implements EntityManager {
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, Operation.REMOVE);
+            migrator.propagate(entity, Operation.DELETE);
         } else {
             delegate.persist(entity);
         }
@@ -233,7 +233,7 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public Query createQuery(String queryString) {
         log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new CloudQuery(delegate.createQuery(queryString), queryString);
+        return new CloudQuery(queryString, delegate.createQuery(queryString));
     }
 
     /*
@@ -286,7 +286,7 @@ public class CloudEntityManager implements EntityManager {
     @Override
     public <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass) {
         log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new TypedCloudQuery<>(delegate.createQuery(queryString, resultClass), queryString);
+        return new TypedCloudQuery<>(queryString, delegate.createQuery(queryString, resultClass));
     }
 
     /*

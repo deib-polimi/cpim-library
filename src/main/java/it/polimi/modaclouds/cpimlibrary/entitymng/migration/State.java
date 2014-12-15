@@ -47,7 +47,7 @@ public interface State {
      * Use the given builder to build statements from the entity, then send them to the migration system.
      *
      * @param entity    entity to be parsed
-     * @param operation one operation from {@link it.polimi.modaclouds.cpimlibrary.entitymng.migration.Operation}
+     * @param operation one of {@link it.polimi.modaclouds.cpimlibrary.entitymng.migration.Operation}
      */
     public void propagate(Object entity, Operation operation);
 
