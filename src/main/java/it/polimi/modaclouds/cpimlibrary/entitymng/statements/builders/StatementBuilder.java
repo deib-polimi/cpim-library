@@ -63,7 +63,7 @@ public abstract class StatementBuilder {
      */
 
     public void setFollowCascade(List<CascadeType> relevantCascadeTypes) {
-        this.followCascades = false;
+        this.followCascades = true;
         this.relevantCascadeTypes = relevantCascadeTypes;
     }
 
