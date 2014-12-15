@@ -23,7 +23,6 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuil
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Query;
@@ -37,11 +36,9 @@ import java.util.Deque;
 public class MigrationState implements State {
 
     private MigrationManager manager;
-    @Setter private boolean followCascades;
 
     public MigrationState(MigrationManager manager) {
         this.manager = manager;
-        this.followCascades = false;
     }
 
     /* (non-Javadoc)
@@ -77,9 +74,9 @@ public class MigrationState implements State {
         Deque<Statement> statements;
         StatementBuilder builder;
         if (queryString.startsWith("UPDATE")) {
-            builder = new UpdateBuilder(followCascades);
+            builder = new UpdateBuilder(manager.isFollowCascades());
         } else if (queryString.startsWith("DELETE")) {
-            builder = new DeleteBuilder(followCascades);
+            builder = new DeleteBuilder(manager.isFollowCascades());
         } else {
             throw new RuntimeException("Query is neither UPDATE nor DELETE");
         }
@@ -95,13 +92,13 @@ public class MigrationState implements State {
         StatementBuilder builder;
         switch (operation) {
             case INSERT:
-                builder = new InsertBuilder(followCascades);
+                builder = new InsertBuilder(manager.isFollowCascades());
                 break;
             case UPDATE:
-                builder = new UpdateBuilder(followCascades);
+                builder = new UpdateBuilder(manager.isFollowCascades());
                 break;
             case REMOVE:
-                builder = new DeleteBuilder(followCascades);
+                builder = new DeleteBuilder(manager.isFollowCascades());
                 break;
             default:
                 throw new RuntimeException("Operation " + operation + " not recognized");

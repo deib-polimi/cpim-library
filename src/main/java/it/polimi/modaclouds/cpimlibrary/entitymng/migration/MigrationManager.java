@@ -44,12 +44,14 @@ public class MigrationManager {
     @Getter private State normalState;
     @Getter private State migrationState;
     @Setter private State state;
+    @Getter @Setter private boolean followCascades;
     private Map<String, String> persistedClasses = new HashMap<>();
 
     private MigrationManager() {
         this.normalState = new NormalState(this);
         this.migrationState = new MigrationState(this);
         this.state = normalState;
+        this.followCascades = false;
         populatePersistedClasses();
     }
 
