@@ -120,8 +120,13 @@ public class ReflectionUtils {
         return fields.toArray(new Field[classFields.length]);
     }
 
-    public static String getTableName(Object entity) {
+    public static String getJPATableName(Object entity) {
         Table table = getAnnotation(entity.getClass(), Table.class);
+        return table.name();
+    }
+
+    public static String getJPATableName(Class<?> clazz) {
+        Table table = getAnnotation(clazz, Table.class);
         return table.name();
     }
 

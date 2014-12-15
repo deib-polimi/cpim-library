@@ -1,7 +1,5 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.Filter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,11 +19,6 @@ import java.util.Iterator;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class UpdateStatement extends Statement {
-
-    @Override
-    public StatementBuilder getBuilder() {
-        return new UpdateBuilder();
-    }
 
     @Override
     public String toString() {

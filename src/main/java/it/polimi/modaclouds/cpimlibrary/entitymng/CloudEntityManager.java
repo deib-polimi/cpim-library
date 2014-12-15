@@ -17,7 +17,6 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
@@ -29,7 +28,6 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
@@ -62,8 +60,7 @@ public class CloudEntityManager implements EntityManager {
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            Deque<Statement> statements = new InsertBuilder().build(entity);
-            migrator.propagate(statements);
+            migrator.propagate(entity, new InsertBuilder());
         } else {
             delegate.persist(entity);
         }
@@ -80,8 +77,7 @@ public class CloudEntityManager implements EntityManager {
     public <T> T merge(T entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            Deque<Statement> statements = new UpdateBuilder().build(entity);
-            migrator.propagate(statements);
+            migrator.propagate(entity, new UpdateBuilder());
             return entity;
         } else {
             return delegate.merge(entity);
@@ -99,8 +95,7 @@ public class CloudEntityManager implements EntityManager {
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            Deque<Statement> statements = new DeleteBuilder().build(entity);
-            migrator.propagate(statements);
+            migrator.propagate(entity, new DeleteBuilder());
         } else {
             delegate.persist(entity);
         }

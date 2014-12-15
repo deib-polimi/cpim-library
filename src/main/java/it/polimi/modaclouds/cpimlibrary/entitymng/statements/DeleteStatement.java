@@ -1,7 +1,5 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,11 +18,6 @@ import java.util.Iterator;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class DeleteStatement extends Statement {
-
-    @Override
-    public StatementBuilder getBuilder() {
-        return new DeleteBuilder();
-    }
 
     /*
      * DELETE statements does not support field lists

@@ -18,13 +18,14 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.Query;
 import javax.persistence.Table;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,36 +59,6 @@ public class MigrationManager {
         return instance;
     }
 
-    private void populatePersistedClasses() {
-        if (!persistedClasses.isEmpty()) {
-            return;
-        }
-        log.info("map persisted class names to table names");
-        Map<String, String> puInfo = MF.getFactory().getPersistenceUnitInfo();
-        String[] classes = puInfo.get("classes").replace("[", "").replace("]", "").split(",");
-        for (String className : classes) {
-            className = className.trim();
-            Class<?> clazz = ReflectionUtils.getClassInstance(className);
-            if (ReflectionUtils.isClassAnnotatedWith(clazz, Table.class)) {
-                Table table = clazz.getAnnotation(Table.class);
-                /* insert <tableName, fullClassName> */
-                persistedClasses.put(table.name(), className);
-            } else {
-                String[] elements = className.split("\\.");
-                String simpleClassName = elements[elements.length - 1];
-                /* insert <simpleClassName, fullClassName> */
-                persistedClasses.put(simpleClassName, className);
-            }
-        }
-    }
-
-    public String getMappedClass(String name) {
-        if (this.persistedClasses.isEmpty()) {
-            throw new IllegalStateException("persistence.xml has not yet been parsed by CPIM");
-        }
-        return this.persistedClasses.get(name);
-    }
-
     public boolean isMigrating() {
         return this.state.equals(migrationState);
     }
@@ -100,14 +71,41 @@ public class MigrationManager {
         state.stopMigration();
     }
 
-    public void propagate(Deque<Statement> statements) {
-        while (!statements.isEmpty()) {
-            propagate(statements.removeFirst());
+    public void propagate(Query query) {
+        state.propagate(query);
+    }
+
+    public void propagate(Object entity, StatementBuilder builder) {
+        state.propagate(entity, builder);
+    }
+
+    public void propagate(Statement statement) {
+        state.propagate(statement);
+    }
+
+    private void populatePersistedClasses() {
+        log.info("map persisted class names to table names");
+        Map<String, String> puInfo = MF.getFactory().getPersistenceUnitInfo();
+        String[] classes = puInfo.get("classes").replace("[", "").replace("]", "").split(",");
+        for (String className : classes) {
+            className = className.trim();
+            Class<?> clazz = ReflectionUtils.getClassInstance(className);
+            if (ReflectionUtils.isClassAnnotatedWith(clazz, Table.class)) {
+                Table table = clazz.getAnnotation(Table.class);
+                /* insert also <tableName, fullClassName> */
+                persistedClasses.put(table.name(), className);
+            }
+            String[] elements = className.split("\\.");
+            String simpleClassName = elements[elements.length - 1];
+            /* insert <simpleClassName, fullClassName> */
+            persistedClasses.put(simpleClassName, className);
         }
     }
 
-    private void propagate(Statement statement) {
-        // TODO send to migration system
-        log.info(statement.toString());
+    public String getMappedClass(String name) {
+        if (this.persistedClasses.isEmpty()) {
+            throw new IllegalStateException("persistence.xml has not yet been parsed by CPIM");
+        }
+        return this.persistedClasses.get(name);
     }
 }

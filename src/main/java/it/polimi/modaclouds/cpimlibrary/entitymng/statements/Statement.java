@@ -1,6 +1,5 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.Filter;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.LogicOperator;
@@ -17,8 +16,6 @@ public abstract class Statement {
     @Getter @Setter private String table;
     private List<Filter> fields = new ArrayList<>();
     private LinkedList<Object> conditions = new LinkedList<>();
-
-    public abstract StatementBuilder getBuilder();
 
     public Iterator<Filter> getFieldsIterator() {
         return fields.iterator();

@@ -1,7 +1,5 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.Filter;
 import lombok.Data;
@@ -22,11 +20,6 @@ import java.util.Iterator;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class InsertStatement extends Statement {
-
-    @Override
-    public StatementBuilder getBuilder() {
-        return new InsertBuilder();
-    }
 
     /*
      * INSERT statements does not support WHERE clause

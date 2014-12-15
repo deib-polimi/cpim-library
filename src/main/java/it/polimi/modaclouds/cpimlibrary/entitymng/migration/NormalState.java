@@ -16,6 +16,11 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
+
+import javax.persistence.Query;
+
 /**
  * @author Fabio Arcidiacono.
  */
@@ -27,13 +32,43 @@ public class NormalState implements State {
         this.manager = manager;
     }
 
+    /* (non-Javadoc)
+     * @see State#startMigration()
+     */
     @Override
     public void startMigration() {
         manager.setState(manager.getMigrationState());
     }
 
+    /* (non-Javadoc)
+     * @see State#stopMigration()
+     */
     @Override
     public void stopMigration() {
+        throw new IllegalStateException("Migration was not started yet");
+    }
+
+    /* (non-Javadoc)
+     * @see State#propagate(javax.management.Query)
+     */
+    @Override
+    public void propagate(Query query) {
+        throw new IllegalStateException("Migration was not started yet");
+    }
+
+    /* (non-Javadoc)
+     * @see State#propagate(Object, it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder)
+     */
+    @Override
+    public void propagate(Object entity, StatementBuilder builder) {
+        throw new IllegalStateException("Migration was not started yet");
+    }
+
+    /* (non-Javadoc)
+     * @see State#propagate(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement)
+     */
+    @Override
+    public void propagate(Statement statement) {
         throw new IllegalStateException("Migration was not started yet");
     }
 }

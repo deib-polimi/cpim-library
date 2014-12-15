@@ -29,7 +29,7 @@ public class CloudEntityManagerFactory {
     public CloudEntityManagerFactory(String persistenceUnit) {
         /*
          * TODO decide
-         * This way for Amazon AWS no NoSQL service is supported
+         * This way for AWS no NoSQL service is supported
          */
         factory = Persistence.createEntityManagerFactory(persistenceUnit);
     }

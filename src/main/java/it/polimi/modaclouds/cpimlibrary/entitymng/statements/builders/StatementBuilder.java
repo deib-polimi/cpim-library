@@ -114,7 +114,7 @@ public abstract class StatementBuilder {
      * @param entity    entity to be parsed
      */
     protected void setTableName(Statement statement, Object entity) {
-        String tableName = ReflectionUtils.getTableName(entity);
+        String tableName = ReflectionUtils.getJPATableName(entity);
         log.debug("Class {} have {} as JPA table name", entity.getClass().getSimpleName(), tableName);
         statement.setTable(tableName);
     }
@@ -277,19 +277,20 @@ public abstract class StatementBuilder {
                     /* fall through */
                     break;
                 case FROM:
-                    String tableName = nextTokenOfType(TokenType.STRING, itr);
+                    String tableName = getJPATableName(itr);
                     statement.setTable(tableName);
                     objectParam = nextTokenOfType(TokenType.STRING, itr);
+                    log.debug("JPQL object parameter is {}", objectParam);
                     break;
                 case COLUMN:
-                    String name = current.data.replaceAll(objectParam + ".", "");
-                    String column = getJPAColumnName(name, statement.getTable());
+                    String column = getJPAColumnName(current, objectParam, statement.getTable());
                     String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
-                    String param = nextTokenOfType(TokenType.PARAM, itr).replaceFirst(":", "");
-                    Object value = query.getParameterValue(query.getParameter(param));
+                    Object value = getParameterValue(itr, query);
+                    log.debug("found column will be {} {} {}", column, operator, value);
                     statement.addCondition(column, operator, value);
                     break;
                 case LOGICOP:
+                    log.debug("found logic operator {}", current.data);
                     statement.addCondition(current.data);
             }
         }
@@ -309,19 +310,19 @@ public abstract class StatementBuilder {
                     /* fall through */
                     break;
                 case UPDATE:
-                    String tableName = nextTokenOfType(TokenType.STRING, itr);
+                    String tableName = getJPATableName(itr);
                     statement.setTable(tableName);
                     objectParam = nextTokenOfType(TokenType.STRING, itr);
+                    log.debug("JPQL object parameter is {}", objectParam);
                     break;
                 case WHERE:
                     wherePart = true;
                     break;
                 case COLUMN:
-                    String name = current.data.replaceAll(objectParam + ".", "");
-                    String column = getJPAColumnName(name, statement.getTable());
+                    String column = getJPAColumnName(current, objectParam, statement.getTable());
                     String operator = nextTokenOfType(TokenType.COMPAREOP, itr);
-                    String param = nextTokenOfType(TokenType.PARAM, itr).replaceAll(":|,", "");
-                    Object value = query.getParameterValue(query.getParameter(param));
+                    Object value = getParameterValue(itr, query);
+                    log.debug("found column will be {} {} {}", column, operator, value);
                     if (wherePart) {
                         statement.addCondition(column, operator, value);
                     } else {
@@ -330,21 +331,38 @@ public abstract class StatementBuilder {
                     }
                     break;
                 case LOGICOP:
+                    log.debug("found logic operator {}", current.data);
                     statement.addCondition(current.data);
             }
         }
         return statement;
     }
 
-    protected String getJPAColumnName(String name, String tableName) {
+    protected String getJPATableName(Iterator<Token> tokenIterator) {
+        String tableName = nextTokenOfType(TokenType.STRING, tokenIterator);
+        log.debug("specified table name is {}", tableName);
+        Class<?> clazz = getAssociatedClass(tableName);
+        return ReflectionUtils.getJPATableName(clazz);
+    }
+
+    protected String getJPAColumnName(Token column, String objectParam, String tableName) {
+        String name = column.data.replaceAll(objectParam + ".", "");
+        Class<?> clazz = getAssociatedClass(tableName);
+        Field field = ReflectionUtils.getField(clazz, name);
+        return ReflectionUtils.getJPAColumnName(field);
+    }
+
+    protected Class<?> getAssociatedClass(String tableName) {
         String fullClassName = MigrationManager.getInstance().getMappedClass(tableName);
         if (fullClassName == null) {
             throw new RuntimeException(tableName + " is unknown");
         }
+        return ReflectionUtils.getClassInstance(fullClassName);
+    }
 
-        Class<?> clazz = ReflectionUtils.getClassInstance(fullClassName);
-        Field field = ReflectionUtils.getField(clazz, name);
-        return ReflectionUtils.getJPAColumnName(field);
+    protected Object getParameterValue(Iterator<Token> tokenIterator, Query query) {
+        String param = nextTokenOfType(TokenType.PARAM, tokenIterator).replaceAll(":|,", "");
+        return query.getParameterValue(query.getParameter(param));
     }
 
     protected String nextTokenOfType(TokenType type, Iterator<Token> itr) {

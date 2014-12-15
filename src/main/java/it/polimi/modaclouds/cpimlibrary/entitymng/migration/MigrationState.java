@@ -16,9 +16,18 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.persistence.Query;
+import java.util.Deque;
+
 /**
  * @author Fabio Arcidiacono.
  */
+@Slf4j
 public class MigrationState implements State {
 
     private MigrationManager manager;
@@ -27,13 +36,53 @@ public class MigrationState implements State {
         this.manager = manager;
     }
 
+    /* (non-Javadoc)
+     * @see State#startMigration()
+     */
     @Override
     public void startMigration() {
         throw new IllegalStateException("Migration already in progress");
     }
 
+    /* (non-Javadoc)
+     * @see State#stopMigration()
+     */
     @Override
     public void stopMigration() {
         manager.setState(manager.getNormalState());
+    }
+
+    /* (non-Javadoc)
+     * @see State#propagate(javax.management.Query)
+     */
+    @Override
+    public void propagate(Query query) {
+        // TODO move here the logic to choose Update or Delete
+        Deque<Statement> statements = new UpdateBuilder().build(query);
+        propagate(statements);
+    }
+
+    /* (non-Javadoc)
+     * @see State#propagate(Object, it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder)
+     */
+    @Override
+    public void propagate(Object entity, StatementBuilder builder) {
+        Deque<Statement> statements = builder.build(entity);
+        propagate(statements);
+    }
+
+    private void propagate(Deque<Statement> statements) {
+        while (!statements.isEmpty()) {
+            propagate(statements.removeFirst());
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see State#propagate(it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement)
+     */
+    @Override
+    public void propagate(Statement statement) {
+        // TODO send to migration system
+        log.info(statement.toString());
     }
 }
