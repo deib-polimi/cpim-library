@@ -40,21 +40,9 @@ import java.util.*;
 @Slf4j
 public abstract class StatementBuilder {
 
-    private final boolean followCascades;
-    private final List<CascadeType> relevantCascadeTypes;
+    private boolean followCascades;
+    private List<CascadeType> relevantCascadeTypes;
     private Deque<Statement> stack = new ArrayDeque<>();
-
-    /**
-     * Instantiate a builder that follow cascade types.
-     *
-     * @param relevantCascadeTypes a list of cascade types that need to be handled
-     *
-     * @see javax.persistence.CascadeType
-     */
-    public StatementBuilder(List<CascadeType> relevantCascadeTypes) {
-        this.followCascades = true;
-        this.relevantCascadeTypes = relevantCascadeTypes;
-    }
 
     /**
      * Instantiate a builder that does not follow cascade types.
@@ -66,6 +54,23 @@ public abstract class StatementBuilder {
         this.relevantCascadeTypes = null;
     }
 
+    /**
+     * Instruct the builder to follow cascade types.
+     *
+     * @param relevantCascadeTypes a list of cascade types that need to be handled
+     *
+     * @see javax.persistence.CascadeType
+     */
+    public void setRelevantCascadeTypes(List<CascadeType> relevantCascadeTypes) {
+        this.followCascades = true;
+        this.relevantCascadeTypes = relevantCascadeTypes;
+    }
+
+    /**
+     * Add the statement (as fist) in the stack.
+     *
+     * @param statement statement to be added
+     */
     protected void addToStack(Statement statement) {
         stack.addFirst(statement);
     }

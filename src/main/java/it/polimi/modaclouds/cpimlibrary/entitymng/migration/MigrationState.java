@@ -20,8 +20,10 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Query;
@@ -35,9 +37,11 @@ import java.util.Deque;
 public class MigrationState implements State {
 
     private MigrationManager manager;
+    @Setter private boolean followCascades;
 
     public MigrationState(MigrationManager manager) {
         this.manager = manager;
+        this.followCascades = false;
     }
 
     /* (non-Javadoc)
@@ -63,21 +67,23 @@ public class MigrationState implements State {
     public void propagate(Query query) {
         String queryString;
         if (query instanceof CloudQuery) {
-            queryString = ((CloudQuery) query).getQlString();
+            queryString = ((CloudQuery) query).getQueryString();
         } else if (query instanceof TypedCloudQuery) {
-            queryString = ((TypedCloudQuery) query).getQlString();
+            queryString = ((TypedCloudQuery) query).getQueryString();
         } else {
             throw new RuntimeException("Query has not been wrapped by CPIM");
         }
         queryString = queryString.trim();
         Deque<Statement> statements;
+        StatementBuilder builder;
         if (queryString.startsWith("UPDATE")) {
-            statements = new UpdateBuilder().build(query, queryString);
+            builder = new UpdateBuilder(followCascades);
         } else if (queryString.startsWith("DELETE")) {
-            statements = new DeleteBuilder().build(query, queryString);
+            builder = new DeleteBuilder(followCascades);
         } else {
             throw new RuntimeException("Query is neither UPDATE nor DELETE");
         }
+        statements = builder.build(query, queryString);
         propagate(statements);
     }
 
@@ -85,7 +91,21 @@ public class MigrationState implements State {
      * @see State#propagate(Object, it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder)
      */
     @Override
-    public void propagate(Object entity, StatementBuilder builder) {
+    public void propagate(Object entity, Operation operation) {
+        StatementBuilder builder;
+        switch (operation) {
+            case INSERT:
+                builder = new InsertBuilder(followCascades);
+                break;
+            case UPDATE:
+                builder = new UpdateBuilder(followCascades);
+                break;
+            case REMOVE:
+                builder = new DeleteBuilder(followCascades);
+                break;
+            default:
+                throw new RuntimeException("Operation " + operation + " not recognized");
+        }
         Deque<Statement> statements = builder.build(entity);
         propagate(statements);
     }

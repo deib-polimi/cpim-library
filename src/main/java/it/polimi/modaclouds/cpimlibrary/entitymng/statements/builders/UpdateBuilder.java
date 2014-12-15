@@ -41,8 +41,11 @@ import java.util.Iterator;
 @Slf4j
 public class UpdateBuilder extends StatementBuilder {
 
-    public UpdateBuilder() {
-        super(Arrays.asList(CascadeType.ALL, CascadeType.MERGE));
+    public UpdateBuilder(boolean followCascades) {
+        super();
+        if (followCascades) {
+            super.setRelevantCascadeTypes(Arrays.asList(CascadeType.ALL, CascadeType.MERGE));
+        }
     }
 
     /* (non-Javadoc)

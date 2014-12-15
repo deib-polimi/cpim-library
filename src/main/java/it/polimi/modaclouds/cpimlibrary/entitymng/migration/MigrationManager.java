@@ -18,7 +18,6 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,8 +76,8 @@ public class MigrationManager {
         state.propagate(query);
     }
 
-    public void propagate(Object entity, StatementBuilder builder) {
-        state.propagate(entity, builder);
+    public void propagate(Object entity, Operation operation) {
+        state.propagate(entity, operation);
     }
 
     public void propagate(Statement statement) {

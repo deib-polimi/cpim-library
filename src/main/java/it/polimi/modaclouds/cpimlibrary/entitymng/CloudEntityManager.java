@@ -17,9 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuilder;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
-import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.Operation;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -60,7 +58,7 @@ public class CloudEntityManager implements EntityManager {
     public void persist(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, new InsertBuilder());
+            migrator.propagate(entity, Operation.INSERT);
         } else {
             delegate.persist(entity);
         }
@@ -77,7 +75,7 @@ public class CloudEntityManager implements EntityManager {
     public <T> T merge(T entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, new UpdateBuilder());
+            migrator.propagate(entity, Operation.UPDATE);
             return entity;
         } else {
             return delegate.merge(entity);
@@ -95,7 +93,7 @@ public class CloudEntityManager implements EntityManager {
     public void remove(Object entity) {
         if (migrator.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, new DeleteBuilder());
+            migrator.propagate(entity, Operation.REMOVE);
         } else {
             delegate.persist(entity);
         }
@@ -233,9 +231,9 @@ public class CloudEntityManager implements EntityManager {
      * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
      */
     @Override
-    public Query createQuery(String qlString) {
+    public Query createQuery(String queryString) {
         log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new CloudQuery(qlString, delegate.createQuery(qlString));
+        return new CloudQuery(delegate.createQuery(queryString), queryString);
     }
 
     /*
@@ -286,9 +284,9 @@ public class CloudEntityManager implements EntityManager {
      * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
      */
     @Override
-    public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+    public <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass) {
         log.debug("CloudEntityManager.createQuery WRAPPING");
-        return new TypedCloudQuery<>(qlString, delegate.createQuery(qlString, resultClass));
+        return new TypedCloudQuery<>(delegate.createQuery(queryString, resultClass), queryString);
     }
 
     /*
@@ -320,14 +318,14 @@ public class CloudEntityManager implements EntityManager {
     }
 
     @Override
-    public Query createNativeQuery(String sqlString) {
-        //return delegate.createNativeQuery(sqlString);
+    public Query createNativeQuery(String queryString) {
+        //return delegate.createNativeQuery(queryString);
         throw new UnsupportedOperationException("Native queries are currently not supported");
     }
 
     @Override
-    public Query createNativeQuery(String sqlString, Class resultClass) {
-        //return delegate.createNativeQuery(sqlString, resultClass);
+    public Query createNativeQuery(String queryString, Class resultClass) {
+        //return delegate.createNativeQuery(queryString, resultClass);
         throw new UnsupportedOperationException("Native queries are currently not supported");
     }
 
@@ -335,8 +333,8 @@ public class CloudEntityManager implements EntityManager {
      * Note: Kundera[2.14] will throw NotImplementedException()
      */
     @Override
-    public Query createNativeQuery(String sqlString, String resultSetMapping) {
-        //return delegate.createNativeQuery(sqlString, resultSetMapping);
+    public Query createNativeQuery(String queryString, String resultSetMapping) {
+        //return delegate.createNativeQuery(queryString, resultSetMapping);
         throw new UnsupportedOperationException("Native queries are currently not supported");
     }
 

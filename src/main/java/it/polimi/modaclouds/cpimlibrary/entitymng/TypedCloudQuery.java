@@ -38,14 +38,14 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
 
     private MigrationManager migrator;
     private final TypedQuery<X> query;
-    @Getter private final String qlString;
+    @Getter private final String queryString;
     private Map<Parameter<?>, Object> parameters;
 
-    public TypedCloudQuery(String qlString, TypedQuery<X> query) {
+    public TypedCloudQuery(TypedQuery<X> query, String queryString) {
         this.migrator = MigrationManager.getInstance();
-        this.query = query;
-        this.qlString = qlString;
         this.parameters = new HashMap<>();
+        this.queryString = queryString;
+        this.query = query;
     }
 
     @Override
@@ -233,7 +233,12 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
 
     @Override
     public <T> Parameter<T> getParameter(int position, Class<T> type) {
-        return query.getParameter(position, type);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getPosition().equals(position) && p.getParameterType().equals(type)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override

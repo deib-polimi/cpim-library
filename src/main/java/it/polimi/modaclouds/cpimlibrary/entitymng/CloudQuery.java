@@ -38,11 +38,13 @@ public class CloudQuery implements Query {
 
     private MigrationManager migrator;
     private final Query query;
-    @Getter private final String qlString;
+    @Getter private final String queryString;
+    private Map<Parameter<?>, Object> parameters;
 
-    public CloudQuery(String qlString, Query query) {
+    public CloudQuery(Query query, String queryString) {
         this.migrator = MigrationManager.getInstance();
-        this.qlString = qlString;
+        this.parameters = new HashMap<>();
+        this.queryString = queryString;
         this.query = query;
     }
 
@@ -112,6 +114,10 @@ public class CloudQuery implements Query {
 
     @Override
     public <T> Query setParameter(Parameter<T> param, T value) {
+        if (param == null) {
+            throw new NullPointerException("parameter cannot be null");
+        }
+        parameters.put(param, value);
         query.setParameter(param, value);
         return this;
     }
@@ -138,6 +144,7 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setParameter(String name, Object value) {
+        this.parameters.put(new CloudParameter<>(name, null, value.getClass()), value);
         query.setParameter(name, value);
         return this;
     }
@@ -164,6 +171,7 @@ public class CloudQuery implements Query {
 
     @Override
     public Query setParameter(int position, Object value) {
+        this.parameters.put(new CloudParameter<>(null, position, value.getClass()), value);
         query.setParameter(position, value);
         return this;
     }
@@ -190,27 +198,47 @@ public class CloudQuery implements Query {
 
     @Override
     public Set<Parameter<?>> getParameters() {
-        return query.getParameters();
+        return this.parameters.keySet();
     }
 
     @Override
     public Parameter<?> getParameter(String name) {
-        return query.getParameter(name);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public <T> Parameter<T> getParameter(String name, Class<T> type) {
-        return query.getParameter(name, type);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getName().equals(name) && p.getParameterType().equals(type)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public Parameter<?> getParameter(int position) {
-        return query.getParameter(position);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getPosition().equals(position)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public <T> Parameter<T> getParameter(int position, Class<T> type) {
-        return query.getParameter(position, type);
+        for (Parameter p : this.parameters.keySet()) {
+            if (p.getPosition().equals(position) && p.getParameterType().equals(type)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -220,17 +248,17 @@ public class CloudQuery implements Query {
 
     @Override
     public <T> T getParameterValue(Parameter<T> param) {
-        return query.getParameterValue(param);
+        return (T) this.parameters.get(param);
     }
 
     @Override
     public Object getParameterValue(String name) {
-        return query.getParameterValue(name);
+        return this.parameters.get(getParameter(name));
     }
 
     @Override
     public Object getParameterValue(int position) {
-        return query.getParameterValue(position);
+        return this.parameters.get(getParameter(position));
     }
 
     /*
