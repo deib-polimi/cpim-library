@@ -112,7 +112,7 @@ public class ReflectionUtils {
     private static Field[] getJdoFields(Object entity) {
         try {
             Field jdoField = entity.getClass().getDeclaredField("jdoFieldNames");
-            log.info("Class {} has been enhanced with JDO", entity.getClass().getCanonicalName());
+            // log.info("Class {} has been enhanced with JDO", entity.getClass().getCanonicalName());
             jdoField.setAccessible(true);
             String[] jdoFieldNames = (String[]) getFieldValue(entity, jdoField);
             List<Field> classFields = new ArrayList<>();

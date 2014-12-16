@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
@@ -65,9 +66,24 @@ public abstract class StatementBuilder {
         this.relevantCascadeTypes = relevantCascadeTypes;
     }
 
-    protected void addToStack(Statement statement) {
-        stack.addFirst(statement);
+    /*
+     * In case a InsertStatement is added it must be first, before its dependencies,
+     * since entity must exists before referencing it from join table.
+     *
+     * For Update or Delete statements, vice versa, the join table must be handled first.
+     */
+    private void addToStack(Statement statement) {
+        if (statement instanceof InsertStatement) {
+            stack.addFirst(statement);
+        } else {
+            stack.addLast(statement);
+        }
     }
+
+    /*
+     * In adding a join table statement no particular order is required among them.
+     */
+    private void addJoinTableStatementToStack(Statement statement) {stack.addFirst(statement);}
 
     /*---------------------------------------------------------------------------------*/
     /*----------------------------- BUILD FROM OBJECT ---------------------------------*/
@@ -239,8 +255,8 @@ public abstract class StatementBuilder {
         for (Object element : collection) {
             Statement statement = generateJoinTableStatement(entity, element, joinTable);
             if (statement != null) {
-                log.info("joinTableStatement: {}", statement.toString());
-                stack.addLast(statement);
+                log.debug("joinTableStatement: {}", statement.toString());
+                addJoinTableStatementToStack(statement);
             }
         }
     }
@@ -263,8 +279,8 @@ public abstract class StatementBuilder {
         JoinTable joinTable = ReflectionUtils.getAnnotation(ownerField, JoinTable.class);
         Statement statement = generateInverseJoinTableStatement(entity, joinTable);
         if (statement != null) {
-            log.info("joinTableStatement: {}", statement.toString());
-            stack.addLast(statement);
+            log.debug("joinTableStatement: {}", statement.toString());
+            addJoinTableStatementToStack(statement);
         }
     }
 
@@ -316,7 +332,7 @@ public abstract class StatementBuilder {
         ArrayList<Token> tokens = Lexer.lex(queryString);
         Statement statement = handleQuery(query, tokens);
         if (statement != null) {
-            addToStack(statement);
+            stack.addLast(statement);
         }
         return stack;
     }
