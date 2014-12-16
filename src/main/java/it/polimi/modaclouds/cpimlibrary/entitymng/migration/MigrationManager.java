@@ -16,25 +16,19 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
-import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Query;
-import javax.persistence.Table;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Manage interaction with migration system and information about currently persisted class.
+ * Singleton instance that manage interaction with migration system.
  * <p/>
  * Follow a state pattern, states are handled as an FSA.
  *
  * @author Fabio Arcidiacono.
- * @see it.polimi.modaclouds.cpimlibrary.mffactory.MF
- * @see it.polimi.modaclouds.cpimlibrary.CloudMetadata
+ * @see it.polimi.modaclouds.cpimlibrary.entitymng.migration.State
  */
 @Slf4j
 public class MigrationManager {
@@ -43,15 +37,11 @@ public class MigrationManager {
     @Getter private State normalState;
     @Getter private State migrationState;
     @Setter private State state;
-    private Map<String, String> persistedClasses = new HashMap<>();
-    @Setter private boolean followCascades;
 
     private MigrationManager() {
         this.normalState = new NormalState(this);
         this.migrationState = new MigrationState(this);
         this.state = normalState;
-        this.followCascades = false;
-        populatePersistedClasses();
     }
 
     public static synchronized MigrationManager getInstance() {
@@ -59,10 +49,6 @@ public class MigrationManager {
             instance = new MigrationManager();
         }
         return instance;
-    }
-
-    public boolean getFollowCascades() {
-        return this.followCascades;
     }
 
     public boolean isMigrating() {
@@ -83,31 +69,5 @@ public class MigrationManager {
 
     public void propagate(Object entity, OperationType operation) {
         state.propagate(entity, operation);
-    }
-
-    private void populatePersistedClasses() {
-        log.info("map persisted class names to table names");
-        Map<String, String> puInfo = MF.getFactory().getPersistenceUnitInfo();
-        String[] classes = puInfo.get("classes").replace("[", "").replace("]", "").split(",");
-        for (String className : classes) {
-            className = className.trim();
-            Class<?> clazz = ReflectionUtils.getClassInstance(className);
-            if (ReflectionUtils.isClassAnnotatedWith(clazz, Table.class)) {
-                Table table = clazz.getAnnotation(Table.class);
-                /* insert also <tableName, fullClassName> */
-                persistedClasses.put(table.name(), className);
-            }
-            String[] elements = className.split("\\.");
-            String simpleClassName = elements[elements.length - 1];
-            /* insert <simpleClassName, fullClassName> */
-            persistedClasses.put(simpleClassName, className);
-        }
-    }
-
-    public String getMappedClass(String name) {
-        if (this.persistedClasses.isEmpty()) {
-            throw new IllegalStateException("persistence.xml has not yet been parsed by CPIM");
-        }
-        return this.persistedClasses.get(name);
     }
 }

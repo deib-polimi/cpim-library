@@ -72,9 +72,9 @@ public class MigrationState implements State {
         }
         StatementBuilder builder;
         if (queryString.startsWith("UPDATE")) {
-            builder = new UpdateBuilder(manager.getFollowCascades());
+            builder = new UpdateBuilder();
         } else if (queryString.startsWith("DELETE")) {
-            builder = new DeleteBuilder(manager.getFollowCascades());
+            builder = new DeleteBuilder();
         } else {
             throw new RuntimeException("Query is neither UPDATE nor DELETE");
         }
@@ -90,13 +90,13 @@ public class MigrationState implements State {
         StatementBuilder builder;
         switch (operation) {
             case INSERT:
-                builder = new InsertBuilder(manager.getFollowCascades());
+                builder = new InsertBuilder();
                 break;
             case UPDATE:
-                builder = new UpdateBuilder(manager.getFollowCascades());
+                builder = new UpdateBuilder();
                 break;
             case DELETE:
-                builder = new DeleteBuilder(manager.getFollowCascades());
+                builder = new DeleteBuilder();
                 break;
             default:
                 throw new RuntimeException("Operation type: " + operation + " not recognized");

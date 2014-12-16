@@ -43,7 +43,7 @@ public class NormalState implements State {
      */
     @Override
     public void stopMigration() {
-        throw new IllegalStateException("Migration was not started yet");
+        throw new IllegalStateException("Migration was not running");
     }
 
     /* (non-Javadoc)
@@ -51,7 +51,7 @@ public class NormalState implements State {
      */
     @Override
     public void propagate(Query query) {
-        throw new IllegalStateException("Migration was not started yet");
+        throw new IllegalStateException("Migration was not running");
     }
 
     /* (non-Javadoc)
@@ -59,6 +59,6 @@ public class NormalState implements State {
      */
     @Override
     public void propagate(Object entity, OperationType operation) {
-        throw new IllegalStateException("Migration was not started yet");
+        throw new IllegalStateException("Migration was not running");
     }
 }

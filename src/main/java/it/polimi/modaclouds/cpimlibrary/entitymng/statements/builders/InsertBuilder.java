@@ -39,10 +39,15 @@ import java.util.UUID;
 @Slf4j
 public class InsertBuilder extends StatementBuilder {
 
-    public InsertBuilder(boolean followCascade) {
+    /**
+     * Read the builder configuration and instantiate the builder accordingly.
+     *
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration
+     */
+    public InsertBuilder() {
         super();
-        if (followCascade) {
-            super.setFollowCascade(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
+        if (BuildersConfiguration.getInstance().followCascades()) {
+            super.followCascades(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
         }
     }
 

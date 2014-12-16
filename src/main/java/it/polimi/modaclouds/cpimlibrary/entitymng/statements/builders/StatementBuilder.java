@@ -17,7 +17,6 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
-import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
@@ -61,7 +60,7 @@ public abstract class StatementBuilder {
      *
      * @see javax.persistence.CascadeType
      */
-    public void setFollowCascade(List<CascadeType> relevantCascadeTypes) {
+    public void followCascades(List<CascadeType> relevantCascadeTypes) {
         this.followCascades = true;
         this.relevantCascadeTypes = relevantCascadeTypes;
     }
@@ -362,7 +361,7 @@ public abstract class StatementBuilder {
      * @return the class instance
      */
     protected Class<?> getAssociatedClass(String tableName) {
-        String fullClassName = MigrationManager.getInstance().getMappedClass(tableName);
+        String fullClassName = BuildersConfiguration.getInstance().getMappedClass(tableName);
         if (fullClassName == null) {
             throw new RuntimeException(tableName + " is unknown");
         }
