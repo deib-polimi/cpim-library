@@ -282,36 +282,36 @@ public class CloudEntityManager implements EntityManager {
         throw new UnsupportedOperationException("Criteria queries are currently not supported");
     }
 
-    // @Override
+    @Override
     public Query createQuery(CriteriaUpdate updateQuery) {
         throw new UnsupportedOperationException("Criteria queries are currently not supported");
     }
 
-    // @Override
+    @Override
     public Query createQuery(CriteriaDelete deleteQuery) {
         throw new UnsupportedOperationException("Criteria queries are currently not supported");
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
         throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
         throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
         throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
         throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
@@ -322,10 +322,9 @@ public class CloudEntityManager implements EntityManager {
     }
 
     // Note: Kundera[2.14] just return false
-    // @Override
+    @Override
     public boolean isJoinedToTransaction() {
-        return false;
-        // return delegate.isJoinedToTransaction();
+        return delegate.isJoinedToTransaction();
     }
 
     // Note: Kundera[2.14] will throw NotImplementedException()
@@ -376,30 +375,26 @@ public class CloudEntityManager implements EntityManager {
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
-        return null;
-        // return delegate.createEntityGraph(rootType);
+        return delegate.createEntityGraph(rootType);
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public EntityGraph<?> createEntityGraph(String graphName) {
-        return null;
-        // return delegate.createEntityGraph(graphName);
+        return delegate.createEntityGraph(graphName);
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public EntityGraph<?> getEntityGraph(String graphName) {
-        return null;
-        // return delegate.getEntityGraph(graphName);
+        return delegate.getEntityGraph(graphName);
     }
 
     // Note: Kundera[2.14] just return null
-    // @Override
+    @Override
     public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
-        return null;
-        // return delegate.getEntityGraphs(entityClass);
+        return delegate.getEntityGraphs(entityClass);
     }
 }
