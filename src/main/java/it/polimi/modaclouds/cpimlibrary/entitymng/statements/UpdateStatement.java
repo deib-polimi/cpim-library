@@ -38,17 +38,17 @@ public class UpdateStatement extends Statement {
 
     @Override
     public String toString() {
-        String setList = "";
+        StringBuilder setList = new StringBuilder();
         Iterator entries = getFieldsIterator();
         while (entries.hasNext()) {
             Filter filter = (Filter) entries.next();
-            setList += filter.toString();
+            setList.append(filter.toString());
             if (entries.hasNext()) {
-                setList += ", ";
+                setList.append(", ");
             }
         }
         if (!haveConditions()) {
-            return "UPDATE " + getTable() + " SET " + setList;
+            return String.format("UPDATE %s SET %s", this.getTable(), setList);
         } else {
             String conditions = "";
             entries = getConditionsIterator();
@@ -59,7 +59,7 @@ public class UpdateStatement extends Statement {
                     conditions += " ";
                 }
             }
-            return "UPDATE " + getTable() + " SET " + setList + " WHERE " + conditions;
+            return String.format("UPDATE %s SET %s WHERE %s", this.getTable(), setList, conditions);
         }
     }
 }

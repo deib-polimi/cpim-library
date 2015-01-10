@@ -36,6 +36,6 @@ public class Filter {
 
     @Override
     public String toString() {
-        return this.column + " " + this.operator.toString() + " '" + this.value + "'";
+        return String.format("%s %s '%s'", this.column, this.operator, this.value);
     }
 }

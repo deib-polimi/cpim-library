@@ -69,18 +69,18 @@ public class InsertStatement extends Statement {
 
     @Override
     public String toString() {
-        String columns = "";
-        String values = "";
+        StringBuilder columns = new StringBuilder();
+        StringBuilder values = new StringBuilder();
         Iterator<Filter> entries = getFieldsIterator();
         while (entries.hasNext()) {
             Filter filter = entries.next();
-            columns += filter.getColumn();
-            values += "'" + filter.getValue() + "'";
+            columns.append(filter.getColumn());
+            values.append(String.format("'%s'", filter.getValue()));
             if (entries.hasNext()) {
-                columns += ", ";
-                values += ", ";
+                columns.append(", ");
+                values.append(", ");
             }
         }
-        return "INSERT INTO " + getTable() + " (" + columns + ") VALUES (" + values + ")";
+        return String.format("INSERT INTO %s (%s) VALUES (%s)", this.getTable(), columns, values);
     }
 }

@@ -48,18 +48,18 @@ public class DeleteStatement extends Statement {
     @Override
     public String toString() {
         if (!haveConditions()) {
-            return "DELETE FROM " + getTable();
+            return String.format("DELETE FROM %s", this.getTable());
         } else {
-            String conditions = "";
+            StringBuilder conditions = new StringBuilder();
             Iterator entries = getConditionsIterator();
             while (entries.hasNext()) {
                 Object next = entries.next();
-                conditions += next.toString();
+                conditions.append(next.toString());
                 if (entries.hasNext()) {
-                    conditions += " ";
+                    conditions.append(" ");
                 }
             }
-            return "DELETE FROM " + getTable() + " WHERE " + conditions;
+            return String.format("DELETE FROM %s WHERE %s", this.getTable(), conditions);
         }
     }
 }

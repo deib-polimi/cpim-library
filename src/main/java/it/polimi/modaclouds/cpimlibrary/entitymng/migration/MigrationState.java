@@ -42,6 +42,7 @@ public class MigrationState implements State {
     }
 
     /* (non-Javadoc)
+     *
      * @see State#startMigration()
      */
     @Override
@@ -50,6 +51,7 @@ public class MigrationState implements State {
     }
 
     /* (non-Javadoc)
+     *
      * @see State#stopMigration()
      */
     @Override
@@ -58,6 +60,7 @@ public class MigrationState implements State {
     }
 
     /* (non-Javadoc)
+     *
      * @see State#propagate(javax.management.Query)
      */
     @Override
@@ -83,6 +86,7 @@ public class MigrationState implements State {
     }
 
     /* (non-Javadoc)
+     *
      * @see State#propagate(Object, it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder)
      */
     @Override

@@ -38,6 +38,8 @@ import java.util.List;
 @Slf4j
 public class ReflectionUtils {
 
+    private ReflectionUtils() {}
+
     /**
      * Return true if {@code field} is annotated with {@code annotationType}, false otherwise.
      *
@@ -58,7 +60,7 @@ public class ReflectionUtils {
      *
      * @return {@code boolean}
      */
-    public static boolean isClassAnnotatedWith(Class<?> clazz, Class<? extends Annotation> annotationType) {
+    public static boolean isClassAnnotatedWith(Class clazz, Class<? extends Annotation> annotationType) {
         return clazz.isAnnotationPresent(annotationType);
     }
 
@@ -283,7 +285,8 @@ public class ReflectionUtils {
     public static Field getIdField(Object entity) {
         Field[] fields = ReflectionUtils.getFieldsAnnotatedWith(entity, Id.class);
         if (fields.length > 0) {
-            return fields[0]; /* just one Id per class */
+             /* just one Id per class */
+            return fields[0];
         } else {
             throw new RuntimeException("Cannot find Id field for " + entity.getClass().getCanonicalName());
         }
