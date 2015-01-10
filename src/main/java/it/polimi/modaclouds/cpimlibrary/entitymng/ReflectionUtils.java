@@ -38,7 +38,8 @@ import java.util.List;
 @Slf4j
 public class ReflectionUtils {
 
-    private ReflectionUtils() {}
+    private ReflectionUtils() {
+    }
 
     /**
      * Return true if {@code field} is annotated with {@code annotationType}, false otherwise.
@@ -109,7 +110,7 @@ public class ReflectionUtils {
      *
      * @throws java.lang.RuntimeException if {@code className} cannot be found
      */
-    public static Class<?> getClassInstance(String className) {
+    public static Class getClassInstance(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {

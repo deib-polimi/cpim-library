@@ -109,25 +109,19 @@ public class CloudEntityManager implements EntityManager {
         return delegate.find(entityClass, primaryKey, properties);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
         return delegate.find(entityClass, primaryKey, lockMode);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
         return delegate.find(entityClass, primaryKey, lockMode, properties);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public <T> T getReference(Class<T> entityClass, Object primaryKey) {
         return delegate.getReference(entityClass, primaryKey);
@@ -148,17 +142,13 @@ public class CloudEntityManager implements EntityManager {
         return delegate.getFlushMode();
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public void lock(Object entity, LockModeType lockMode) {
         delegate.lock(entity, lockMode);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         delegate.lock(entity, lockMode, properties);
@@ -174,17 +164,13 @@ public class CloudEntityManager implements EntityManager {
         delegate.refresh(entity, properties);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public void refresh(Object entity, LockModeType lockMode) {
         delegate.refresh(entity, lockMode);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
         delegate.refresh(entity, lockMode, properties);
@@ -205,9 +191,7 @@ public class CloudEntityManager implements EntityManager {
         return delegate.contains(entity);
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public LockModeType getLockMode(Object entity) {
         return delegate.getLockMode(entity);
@@ -236,46 +220,6 @@ public class CloudEntityManager implements EntityManager {
         return new CloudQuery(queryString, delegate.createQuery(queryString));
     }
 
-    /*
-     * Delegates query generation to the persistence provider
-     * then returns a wrapped query type.
-     *
-     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaQuery)
-     * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
-     */
-    @Override
-    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
-        // log.debug("CloudEntityManager.createQuery WRAPPING");
-        // return new TypedCloudQuery<>(delegate.createQuery(criteriaQuery));
-        throw new UnsupportedOperationException("Criteria queries are currently not supported");
-    }
-
-    /*
-     * Delegates query generation to the persistence provider
-     * then returns a wrapped query type.
-     *
-     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaUpdate)
-     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
-     */
-    public Query createQuery(CriteriaUpdate updateQuery) {
-        // log.debug("CloudEntityManager.createQuery WRAPPING");
-        // return new CloudQuery(delegate.createQuery(updateQuery));
-        throw new UnsupportedOperationException("Criteria queries are currently not supported");
-    }
-
-    /*
-     * Delegates query generation to the persistence provider
-     * then returns a wrapped query type.
-     *
-     * @see javax.persistence.EntityManager#createQuery(javax.persistence.criteria.CriteriaDelete)
-     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
-     */
-    public Query createQuery(CriteriaDelete deleteQuery) {
-        // log.debug("CloudEntityManager.createQuery WRAPPING");
-        // return new CloudQuery(delegate.createQuery(deleteQuery));
-        throw new UnsupportedOperationException("Criteria queries are currently not supported");
-    }
-
     /**
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
@@ -289,7 +233,7 @@ public class CloudEntityManager implements EntityManager {
         return new TypedCloudQuery<>(queryString, delegate.createQuery(queryString, resultClass));
     }
 
-    /*
+    /**
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -298,12 +242,12 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public Query createNamedQuery(String name) {
-        // log.debug("CloudEntityManager.createNamedQuery WRAPPING");
-        // return new CloudQuery(delegate.createNamedQuery(name));
-        throw new UnsupportedOperationException("Named queries are currently not supported");
+        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
+        String queryString = PersistenceMetadata.getInstance().getNamedQuery(name);
+        return new CloudQuery(queryString, delegate.createNamedQuery(name));
     }
 
-    /*
+    /**
      * Delegates query generation to the persistence provider
      * then returns a wrapped query type.
      *
@@ -312,66 +256,64 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
-        // log.debug("CloudEntityManager.createNamedQuery WRAPPING");
-        // return new TypedCloudQuery<>(delegate.createNamedQuery(name, resultClass));
-        throw new UnsupportedOperationException("Named queries are currently not supported");
+        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
+        String queryString = PersistenceMetadata.getInstance().getNamedQuery(name);
+        return new TypedCloudQuery<>(queryString, delegate.createNamedQuery(name, resultClass));
     }
 
     @Override
     public Query createNativeQuery(String queryString) {
-        //return delegate.createNativeQuery(queryString);
-        throw new UnsupportedOperationException("Native queries are currently not supported");
+        throw new UnsupportedOperationException("Native queries are not supported");
     }
 
     @Override
     public Query createNativeQuery(String queryString, Class resultClass) {
-        //return delegate.createNativeQuery(queryString, resultClass);
-        throw new UnsupportedOperationException("Native queries are currently not supported");
+        throw new UnsupportedOperationException("Native queries are not supported");
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public Query createNativeQuery(String queryString, String resultSetMapping) {
-        //return delegate.createNativeQuery(queryString, resultSetMapping);
-        throw new UnsupportedOperationException("Native queries are currently not supported");
+        throw new UnsupportedOperationException("Native queries are not supported");
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    @Override
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
+    }
+
+    // @Override
+    public Query createQuery(CriteriaUpdate updateQuery) {
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
+    }
+
+    // @Override
+    public Query createQuery(CriteriaDelete deleteQuery) {
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
+    }
+
+    // Note: Kundera[2.14] just return null
     // @Override
     public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
-        return null;
-        // return delegate.createStoredProcedureQuery(name);
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
-        return null;
-        // return delegate.createStoredProcedureQuery(procedureName);
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
-        return null;
-        // return delegate.createStoredProcedureQuery(procedureName, resultClasses);
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
-        return null;
-        // return delegate.createStoredProcedureQuery(procedureName, resultSetMappings);
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
     }
 
     @Override
@@ -379,18 +321,14 @@ public class CloudEntityManager implements EntityManager {
         delegate.joinTransaction();
     }
 
-    /*
-     * Note: Kundera[2.14] just return false
-     */
+    // Note: Kundera[2.14] just return false
     // @Override
     public boolean isJoinedToTransaction() {
         return false;
         // return delegate.isJoinedToTransaction();
     }
 
-    /*
-     * Note: Kundera[2.14] will throw NotImplementedException()
-     */
+    // Note: Kundera[2.14] will throw NotImplementedException()
     @Override
     public <T> T unwrap(Class<T> cls) {
         return delegate.unwrap(cls);
@@ -437,36 +375,28 @@ public class CloudEntityManager implements EntityManager {
         return delegate.getMetamodel();
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
         return null;
         // return delegate.createEntityGraph(rootType);
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public EntityGraph<?> createEntityGraph(String graphName) {
         return null;
         // return delegate.createEntityGraph(graphName);
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public EntityGraph<?> getEntityGraph(String graphName) {
         return null;
         // return delegate.getEntityGraph(graphName);
     }
 
-    /*
-     * Note: Kundera[2.14] just return null
-     */
+    // Note: Kundera[2.14] just return null
     // @Override
     public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
         return null;

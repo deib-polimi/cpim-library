@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
@@ -397,7 +398,7 @@ public abstract class StatementBuilder {
      * @return the class instance
      */
     protected Class<?> getAssociatedClass(String tableName) {
-        String fullClassName = BuildersConfiguration.getInstance().getMappedClass(tableName);
+        String fullClassName = PersistenceMetadata.getInstance().getMappedClass(tableName);
         if (fullClassName == null) {
             throw new RuntimeException(tableName + " is unknown");
         }
