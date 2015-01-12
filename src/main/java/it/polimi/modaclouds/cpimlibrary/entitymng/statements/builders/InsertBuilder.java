@@ -28,7 +28,6 @@ import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * Builder for INSERT statements.
@@ -46,7 +45,7 @@ public class InsertBuilder extends StatementBuilder {
      */
     public InsertBuilder() {
         super();
-        if (BuildersConfiguration.getInstance().followCascades()) {
+        if (BuildersConfiguration.getInstance().isFollowingCascades()) {
             super.followCascades(Arrays.asList(CascadeType.ALL, CascadeType.PERSIST));
         }
     }
@@ -96,7 +95,10 @@ public class InsertBuilder extends StatementBuilder {
         statement.addField(fieldName, fieldValue);
     }
 
-    private String generateId() {return UUID.randomUUID().toString();}
+    private String generateId() {
+        return "1";
+        //return UUID.randomUUID().toString();
+    }
 
     /* (non-Javadoc)
      *

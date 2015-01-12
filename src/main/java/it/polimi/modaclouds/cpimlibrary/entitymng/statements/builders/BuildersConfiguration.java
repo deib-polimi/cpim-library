@@ -16,14 +16,14 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Maintains configurations for statement builders, provides methods to set and read configuration.
  * <p/>
  * By default cascade types are not followed, behavior can be changed at runtime by calling
- * {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration#setFollowCascades(boolean)}.
+ * {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration#followCascades()} or
+ * {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration#doNotFollowCascades()}.
  *
  * @author Fabio Arcidiacono.
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BuildersConfiguration {
 
     private static BuildersConfiguration instance = null;
-    @Setter private boolean followCascades;
+    private boolean followCascades;
 
     private BuildersConfiguration() {
         this.followCascades = false;
@@ -46,7 +46,15 @@ public class BuildersConfiguration {
         return instance;
     }
 
-    public boolean followCascades() {
+    public boolean isFollowingCascades() {
         return this.followCascades;
+    }
+
+    public void followCascades() {
+        this.followCascades = true;
+    }
+
+    public void doNotFollowCascades() {
+        this.followCascades = false;
     }
 }

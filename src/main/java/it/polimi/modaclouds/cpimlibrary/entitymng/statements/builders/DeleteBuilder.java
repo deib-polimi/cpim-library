@@ -48,7 +48,7 @@ public class DeleteBuilder extends StatementBuilder {
      */
     public DeleteBuilder() {
         super();
-        if (BuildersConfiguration.getInstance().followCascades()) {
+        if (BuildersConfiguration.getInstance().isFollowingCascades()) {
             super.followCascades(Arrays.asList(CascadeType.ALL, CascadeType.REMOVE));
         }
     }

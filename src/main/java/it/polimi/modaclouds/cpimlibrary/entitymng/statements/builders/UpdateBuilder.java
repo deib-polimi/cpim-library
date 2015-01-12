@@ -48,7 +48,7 @@ public class UpdateBuilder extends StatementBuilder {
      */
     public UpdateBuilder() {
         super();
-        if (BuildersConfiguration.getInstance().followCascades()) {
+        if (BuildersConfiguration.getInstance().isFollowingCascades()) {
             super.followCascades(Arrays.asList(CascadeType.ALL, CascadeType.MERGE));
         }
     }
