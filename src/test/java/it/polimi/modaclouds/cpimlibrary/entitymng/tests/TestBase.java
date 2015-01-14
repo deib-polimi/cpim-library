@@ -14,8 +14,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.cpimlibrary.entitymng;
+package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManagerFactory;
+import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
+import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;

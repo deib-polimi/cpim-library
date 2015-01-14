@@ -16,11 +16,7 @@
 #    limitations under the License.
 #
 
-cd ../kundera-gae-datastore
-mvn clean install -DskipTests
-cd ../modaclouds-cpim-library
-mvn install:install-file -DlocalRepositoryPath=repo -DcreateChecksum=true -Dpackaging=jar -DgroupId=com.impetus.kundera.client -DartifactId=kundera-gae-datastore -Dversion=1.0.0 -Dfile=../kundera-gae-datastore/target/kundera-gae-datastore-2.14.jar
-cd ../kundera-azure-tables
-mvn clean install -DskipTests
-cd ../modaclouds-cpim-library
-mvn install:install-file -DlocalRepositoryPath=repo -DcreateChecksum=true -Dpackaging=jar -DgroupId=com.impetus.kundera.client -DartifactId=kundera-azure-table -Dversion=1.0.0 -Dfile=../kundera-azure-table/target/kundera-azure-table-2.14.jar
+cd ../kundera-gae-datastore && mvn clean install -DskipTests
+cd ../modaclouds-cpim-library && mvn install:install-file -DlocalRepositoryPath=repo -DcreateChecksum=true -Dpackaging=jar -DgroupId=com.impetus.kundera.client -DartifactId=kundera-gae-datastore -Dversion=1.0.0 -Dfile=../kundera-gae-datastore/target/kundera-gae-datastore-2.14.jar
+cd ../kundera-azure-tables && mvn clean install -DskipTests
+cd ../modaclouds-cpim-library && mvn install:install-file -DlocalRepositoryPath=repo -DcreateChecksum=true -Dpackaging=jar -DgroupId=com.impetus.kundera.client -DartifactId=kundera-azure-table -Dversion=1.0.0 -Dfile=../kundera-azure-table/target/kundera-azure-table-2.14.jar
