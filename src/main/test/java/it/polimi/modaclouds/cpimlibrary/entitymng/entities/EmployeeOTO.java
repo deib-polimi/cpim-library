@@ -9,6 +9,10 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "EmployeeOTOne", schema = "gae-test@pu")
+@NamedQueries({
+        @NamedQuery(name = "allEmployees", query = "SELECT e FROM EmployeeOTOne e"),
+        @NamedQuery(name = "updateSalary", query = "UPDATE EmployeeOTOne e SET e.salary = :s WHERE e.name = :n")
+})
 public class EmployeeOTO {
 
     @Id

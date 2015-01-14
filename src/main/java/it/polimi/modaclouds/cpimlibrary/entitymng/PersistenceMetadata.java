@@ -45,6 +45,7 @@ public class PersistenceMetadata {
 
     private PersistenceMetadata() {
         this.persistedClasses = new HashMap<>();
+        this.namedQueries = new HashMap<>();
         populatePersistedClasses();
     }
 
@@ -94,17 +95,11 @@ public class PersistenceMetadata {
             /* multiple NamedQuery declared on the class */
             NamedQueries namedQueryList = clazz.getAnnotation(NamedQueries.class);
             for (NamedQuery namedQuery : namedQueryList.value()) {
-                addNamedQuery(namedQuery);
+                namedQueries.put(namedQuery.name(), namedQuery.query().trim());
             }
         } else if (ReflectionUtils.isClassAnnotatedWith(clazz, NamedQuery.class)) {
             /* single NamedQuery declared on the class */
             NamedQuery namedQuery = clazz.getAnnotation(NamedQuery.class);
-            addNamedQuery(namedQuery);
-        }
-    }
-
-    private void addNamedQuery(NamedQuery namedQuery) {
-        if (namedQuery.query().toUpperCase().startsWith("UPDATE") || namedQuery.query().toUpperCase().startsWith("DELETE")) {
             namedQueries.put(namedQuery.name(), namedQuery.query().trim());
         }
     }
