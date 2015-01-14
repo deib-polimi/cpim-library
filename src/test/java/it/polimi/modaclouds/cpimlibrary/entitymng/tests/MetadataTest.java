@@ -19,6 +19,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManagerFactory;
 import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
+import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Department;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeMTO;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeOTO;
@@ -27,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 /**
  * @author Fabio Arcidiacono.
@@ -35,14 +37,14 @@ public class MetadataTest {
 
     @Test
     public void testPersistedClass() {
-        Assert.assertEquals(Department.class.getCanonicalName(),PersistenceMetadata.getInstance().getMappedClass("Department"));
+        Assert.assertEquals(Department.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("Department"));
 
-        Assert.assertEquals(EmployeeMTO.class.getCanonicalName(),PersistenceMetadata.getInstance().getMappedClass("EmployeeMTO"));
+        Assert.assertEquals(EmployeeMTO.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeMTO"));
 
         Assert.assertEquals(EmployeeOTO.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeOTO"));
         Assert.assertEquals(EmployeeOTO.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeOTOne"));
 
-        Assert.assertEquals(Phone.class.getCanonicalName(),PersistenceMetadata.getInstance().getMappedClass("Phone"));
+        Assert.assertEquals(Phone.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("Phone"));
     }
 
     @Test
@@ -57,12 +59,5 @@ public class MetadataTest {
 
         query = PersistenceMetadata.getInstance().getNamedQuery("updateSalary");
         Assert.assertEquals("UPDATE EmployeeOTOne e SET e.salary = :s WHERE e.name = :n", query);
-
-        // verify entity manager wrapping is working
-        CloudEntityManagerFactory emf = new CloudEntityManagerFactory("pu");
-        Query jpaQuery = emf.createCloudEntityManager().createNamedQuery("allPhones");
-        Assert.assertTrue(jpaQuery instanceof CloudQuery);
-        String queryString = ((CloudQuery) jpaQuery).getQueryString();
-        Assert.assertEquals("SELECT p FROM Phone p", queryString);
     }
 }

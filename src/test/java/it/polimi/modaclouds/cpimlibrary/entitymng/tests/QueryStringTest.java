@@ -70,7 +70,9 @@ public class QueryStringTest {
         update.setTable("Test");
         update.addField("name", "Fabio");
         update.addCondition("salary", CompareOperator.GREATER_THAN_OR_EQUAL, 45L);
-        Assert.assertEquals("UPDATE Test SET name = 'Fabio' WHERE salary >= '45'", update.toString());
+        update.addCondition("OR");
+        update.addCondition("name", CompareOperator.NOT_EQUAL, "Fabio");
+        Assert.assertEquals("UPDATE Test SET name = 'Fabio' WHERE salary >= '45' OR name <> 'Fabio'", update.toString());
     }
 
     @Test
@@ -83,8 +85,8 @@ public class QueryStringTest {
         delete.setTable("Test");
         delete.addCondition("salary", CompareOperator.LOWER_THAN_OR_EQUAL, 45L);
         delete.addCondition("AND");
-        delete.addCondition("name", "=", "Fabio");
-        Assert.assertEquals("DELETE FROM Test WHERE salary <= '45' AND name = 'Fabio'", delete.toString());
+        delete.addCondition("name", "<>", "Fabio");
+        Assert.assertEquals("DELETE FROM Test WHERE salary <= '45' AND name <> 'Fabio'", delete.toString());
 
         thrown.expect(UnsupportedOperationException.class);
         delete.addField("name", "Fabio");
