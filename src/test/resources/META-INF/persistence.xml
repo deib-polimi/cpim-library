@@ -23,6 +23,8 @@
 
     <persistence-unit name="pu">
         <provider>com.impetus.kundera.KunderaPersistence</provider>
+        <class>it.polimi.modaclouds.cpimlibrary.entitymng.entities.Department</class>
+        <class>it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeMTO</class>
         <class>it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeOTO</class>
         <class>it.polimi.modaclouds.cpimlibrary.entitymng.entities.Phone</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
