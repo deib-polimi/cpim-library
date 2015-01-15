@@ -39,11 +39,11 @@ import java.util.Map;
 @Slf4j
 public class CloudEntityManager implements EntityManager {
 
-    private MigrationManager migrator;
+    private MigrationManager migrant;
     private EntityManager delegate;
 
     public CloudEntityManager(EntityManager entityManager) {
-        this.migrator = MigrationManager.getInstance();
+        this.migrant = MigrationManager.getInstance();
         this.delegate = entityManager;
     }
 
@@ -56,9 +56,9 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public void persist(Object entity) {
-        if (migrator.isMigrating()) {
+        if (migrant.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, OperationType.INSERT);
+            migrant.propagate(entity, OperationType.INSERT);
         } else {
             delegate.persist(entity);
         }
@@ -73,9 +73,9 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> T merge(T entity) {
-        if (migrator.isMigrating()) {
+        if (migrant.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, OperationType.UPDATE);
+            migrant.propagate(entity, OperationType.UPDATE);
             return entity;
         } else {
             return delegate.merge(entity);
@@ -91,9 +91,9 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public void remove(Object entity) {
-        if (migrator.isMigrating()) {
+        if (migrant.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(entity, OperationType.DELETE);
+            migrant.propagate(entity, OperationType.DELETE);
         } else {
             delegate.persist(entity);
         }

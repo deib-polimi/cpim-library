@@ -36,13 +36,13 @@ import java.util.*;
 @Slf4j
 public class CloudQuery implements Query {
 
-    private MigrationManager migrator;
+    private MigrationManager migrant;
     private final Query query;
     @Getter private final String queryString;
     private Map<Parameter<?>, Object> parameters;
 
     public CloudQuery(String queryString, Query query) {
-        this.migrator = MigrationManager.getInstance();
+        this.migrant = MigrationManager.getInstance();
         this.parameters = new HashMap<>();
         this.queryString = queryString.trim();
         this.query = query;
@@ -67,9 +67,9 @@ public class CloudQuery implements Query {
      */
     @Override
     public int executeUpdate() {
-        if (migrator.isMigrating()) {
+        if (migrant.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(this);
+            migrant.propagate(this);
             return 0;
         } else {
             return query.executeUpdate();

@@ -36,13 +36,13 @@ import java.util.*;
 @Slf4j
 public class TypedCloudQuery<X> implements TypedQuery<X> {
 
-    private MigrationManager migrator;
+    private MigrationManager migrant;
     private final TypedQuery<X> query;
     @Getter private final String queryString;
     private Map<Parameter<?>, Object> parameters;
 
     public TypedCloudQuery(String queryString, TypedQuery<X> query) {
-        this.migrator = MigrationManager.getInstance();
+        this.migrant = MigrationManager.getInstance();
         this.parameters = new HashMap<>();
         this.queryString = queryString.trim();
         this.query = query;
@@ -67,9 +67,9 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
      */
     @Override
     public int executeUpdate() {
-        if (migrator.isMigrating()) {
+        if (migrant.isMigrating()) {
             log.info("is MIGRATION state");
-            migrator.propagate(this);
+            migrant.propagate(this);
             return 0;
         } else {
             return query.executeUpdate();
