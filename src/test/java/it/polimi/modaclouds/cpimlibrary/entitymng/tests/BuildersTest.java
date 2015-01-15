@@ -16,9 +16,7 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Employee;
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeOTO;
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Phone;
+import it.polimi.modaclouds.cpimlibrary.entitymng.entities.*;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.DeleteStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
@@ -43,7 +41,190 @@ public class BuildersTest extends TestBase {
 
     @Test
     public void joinTableTest() {
-        // TODO
+        ProjectMTM project = new ProjectMTM();
+        project.setName("Project 1");
+
+        EmployeeMTM employee = new EmployeeMTM();
+        employee.setName("Fabio");
+        employee.setSalary(123L);
+        employee.addProjects(project);
+
+        Deque<Statement> statements;
+
+        print("insert project");
+        statements = buildStatements(project, OperationType.INSERT);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        Statement statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof InsertStatement);
+        Assert.assertEquals("ProjectMTM", statement.getTable());
+        Iterator<Filter> fieldsIterator = statement.getFieldsIterator();
+        Filter filter = fieldsIterator.next();
+        Assert.assertEquals("PROJECT_ID", filter.getColumn());
+        Object projId = filter.getValue();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Project 1", filter.getValue());
+        // Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getConditionsIterator().hasNext());
+
+        Assert.assertTrue(statements.isEmpty());
+
+        print("insert employee");
+        statements = buildStatements(employee, OperationType.INSERT);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(2, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof InsertStatement);
+        Assert.assertEquals("EmployeeMTM", statement.getTable());
+        fieldsIterator = statement.getFieldsIterator();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("EMPLOYEE_ID", filter.getColumn());
+        Object empId = filter.getValue();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Fabio", filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("SALARY", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(123L, filter.getValue());
+        // Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getConditionsIterator().hasNext());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof InsertStatement);
+        Assert.assertEquals("EMPLOYEE_PROJECT", statement.getTable());
+        fieldsIterator = statement.getFieldsIterator();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("EMPLOYEE_ID", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(empId, filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("PROJECT_ID", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(projId, filter.getValue());
+        Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getConditionsIterator().hasNext());
+
+        Assert.assertTrue(statements.isEmpty());
+
+        print("update project");
+        statements = buildStatements(project, OperationType.UPDATE);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof UpdateStatement);
+        Assert.assertEquals("ProjectMTM", statement.getTable());
+        fieldsIterator = statement.getFieldsIterator();
+        Assert.assertEquals("PROJECT_ID", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(projId, filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Project 1", filter.getValue());
+        // Assert.assertFalse(fieldsIterator.hasNext());
+        Iterator<Object> conditionsIterator = statement.getConditionsIterator();
+        Object condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("PROJECT_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(projId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+        Assert.assertTrue(statements.isEmpty());
+
+        print("update employee");
+        statements = buildStatements(employee, OperationType.UPDATE);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof UpdateStatement);
+        Assert.assertEquals("EmployeeMTM", statement.getTable());
+        fieldsIterator = statement.getFieldsIterator();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Fabio", filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("SALARY", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(123L, filter.getValue());
+        // Assert.assertFalse(fieldsIterator.hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(empId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
+        Assert.assertTrue(statements.isEmpty());
+
+        print("delete project");
+        statements = buildStatements(project, OperationType.DELETE);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(2, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof DeleteStatement);
+        Assert.assertEquals("EMPLOYEE_PROJECT", statement.getTable());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("PROJECT_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(projId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof DeleteStatement);
+        Assert.assertEquals("ProjectMTM", statement.getTable());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("PROJECT_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(projId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
+        print("delete employee");
+        statements = buildStatements(employee, OperationType.DELETE);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(2, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof DeleteStatement);
+        Assert.assertEquals("EMPLOYEE_PROJECT", statement.getTable());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(empId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof DeleteStatement);
+        Assert.assertEquals("EmployeeMTM", statement.getTable());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(empId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
+        Assert.assertTrue(statements.isEmpty());
     }
 
     @Test
@@ -61,7 +242,6 @@ public class BuildersTest extends TestBase {
         typedQuery.setParameter("n2", "Pippo");
         typedQuery.setParameter("n", "Fabio");
         statements = buildStatements(typedQuery);
-
         Assert.assertNotNull(statements);
         Assert.assertEquals(1, statements.size());
 
@@ -69,7 +249,6 @@ public class BuildersTest extends TestBase {
         Assert.assertTrue(statement instanceof UpdateStatement);
         Assert.assertEquals("EMPLOYEE", statement.getTable());
         Iterator<Filter> fieldsIterator = statement.getFieldsIterator();
-        Assert.assertTrue(fieldsIterator.hasNext());
         Filter filter = fieldsIterator.next();
         Assert.assertEquals("SALARY", filter.getColumn());
         Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
@@ -80,7 +259,6 @@ public class BuildersTest extends TestBase {
         Assert.assertEquals("Pippo", filter.getValue());
         Assert.assertFalse(fieldsIterator.hasNext());
         Iterator<Object> conditionsIterator = statement.getConditionsIterator();
-        Assert.assertTrue(conditionsIterator.hasNext());
         Object condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("NAME", ((Filter) condition).getColumn());
@@ -102,17 +280,14 @@ public class BuildersTest extends TestBase {
         query.setParameter("s", 123L);
         query.executeUpdate();
         statements = buildStatements(query);
-
         Assert.assertNotNull(statements);
         Assert.assertEquals(1, statements.size());
 
         statement = statements.removeFirst();
         Assert.assertTrue(statement instanceof DeleteStatement);
         Assert.assertEquals("EMPLOYEE", statement.getTable());
-        fieldsIterator = statement.getFieldsIterator();
-        Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
         conditionsIterator = statement.getConditionsIterator();
-        Assert.assertTrue(conditionsIterator.hasNext());
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("NAME", ((Filter) condition).getColumn());
@@ -126,6 +301,8 @@ public class BuildersTest extends TestBase {
         Assert.assertEquals("SALARY", ((Filter) condition).getColumn());
         Assert.assertEquals(CompareOperator.GREATER_THAN_OR_EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(123L, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
         Assert.assertTrue(statements.isEmpty());
     }
 
@@ -144,7 +321,6 @@ public class BuildersTest extends TestBase {
 
         print("insert following cascade");
         statements = buildStatements(employee, OperationType.INSERT);
-
         Assert.assertNotNull(statements);
         Assert.assertEquals(2, statements.size());
 
@@ -161,12 +337,12 @@ public class BuildersTest extends TestBase {
         Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
         Assert.assertEquals(123456789L, filter.getValue());
         // Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getConditionsIterator().hasNext());
 
         statement = statements.removeFirst();
         Assert.assertTrue(statement instanceof InsertStatement);
         Assert.assertEquals("EmployeeOTOne", statement.getTable());
         fieldsIterator = statement.getFieldsIterator();
-        Assert.assertTrue(fieldsIterator.hasNext());
         filter = fieldsIterator.next();
         Assert.assertEquals("EMPLOYEE_ID", filter.getColumn());
         Object empId = filter.getValue();
@@ -183,6 +359,7 @@ public class BuildersTest extends TestBase {
         Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
         Assert.assertEquals(phoneId, filter.getValue());
         // Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getConditionsIterator().hasNext());
 
         Assert.assertTrue(statements.isEmpty());
 
@@ -195,14 +372,12 @@ public class BuildersTest extends TestBase {
         Assert.assertTrue(statement instanceof UpdateStatement);
         Assert.assertEquals("Phone", statement.getTable());
         fieldsIterator = statement.getFieldsIterator();
-        Assert.assertTrue(fieldsIterator.hasNext());
         filter = fieldsIterator.next();
         Assert.assertEquals("NUMBER", filter.getColumn());
         Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
         Assert.assertEquals(123456789L, filter.getValue());
         // Assert.assertFalse(fieldsIterator.hasNext());
         Iterator<Object> conditionsIterator = statement.getConditionsIterator();
-        Assert.assertTrue(conditionsIterator.hasNext());
         Object condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("PHONE_ID", ((Filter) condition).getColumn());
@@ -213,7 +388,6 @@ public class BuildersTest extends TestBase {
         Assert.assertTrue(statement instanceof UpdateStatement);
         Assert.assertEquals("EmployeeOTOne", statement.getTable());
         fieldsIterator = statement.getFieldsIterator();
-        Assert.assertTrue(fieldsIterator.hasNext());
         filter = fieldsIterator.next();
         Assert.assertEquals("NAME", filter.getColumn());
         Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
@@ -228,13 +402,12 @@ public class BuildersTest extends TestBase {
         Assert.assertEquals(phoneId, filter.getValue());
         // Assert.assertFalse(fieldsIterator.hasNext());
         conditionsIterator = statement.getConditionsIterator();
-        Assert.assertTrue(conditionsIterator.hasNext());
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
         Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(empId, ((Filter) condition).getValue());
-        Assert.assertTrue(statements.isEmpty());
+        Assert.assertFalse(conditionsIterator.hasNext());
 
         Assert.assertTrue(statements.isEmpty());
 
@@ -246,29 +419,118 @@ public class BuildersTest extends TestBase {
         statement = statements.removeFirst();
         Assert.assertTrue(statement instanceof DeleteStatement);
         Assert.assertEquals("Phone", statement.getTable());
-        fieldsIterator = statement.getFieldsIterator();
-        Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
         conditionsIterator = statement.getConditionsIterator();
-        Assert.assertTrue(conditionsIterator.hasNext());
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("PHONE_ID", ((Filter) condition).getColumn());
         Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(phoneId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
 
         statement = statements.removeFirst();
         Assert.assertTrue(statement instanceof DeleteStatement);
         Assert.assertEquals("EmployeeOTOne", statement.getTable());
-        fieldsIterator = statement.getFieldsIterator();
-        Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
         conditionsIterator = statement.getConditionsIterator();
-        Assert.assertTrue(conditionsIterator.hasNext());
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
         Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(empId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
         Assert.assertTrue(statements.isEmpty());
+    }
+
+    @Test
+    public void noFollowCascadeTest() {
+        Phone phone = new Phone();
+        phone.setNumber(123456789L);
+
+        EmployeeOTO employee = new EmployeeOTO();
+        employee.setName("Fabio");
+        employee.setSalary(123L);
+        employee.setPhone(phone);
+
+        Deque<Statement> statements;
+        BuildersConfiguration.getInstance().doNotFollowCascades();
+
+        print("insert NO following cascade");
+        statements = buildStatements(employee, OperationType.INSERT);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        Statement statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof InsertStatement);
+        Assert.assertEquals("EmployeeOTOne", statement.getTable());
+        Iterator<Filter> fieldsIterator = statement.getFieldsIterator();
+        Filter filter = fieldsIterator.next();
+        Assert.assertEquals("EMPLOYEE_ID", filter.getColumn());
+        Object empId = filter.getValue();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Fabio", filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("SALARY", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(123L, filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("PHONE_ID", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        // Assert.assertFalse(fieldsIterator.hasNext());
+        Assert.assertFalse(statement.getConditionsIterator().hasNext());
+
+        Assert.assertTrue(statements.isEmpty());
+
+        print("update NO following cascade");
+        statements = buildStatements(employee, OperationType.UPDATE);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof UpdateStatement);
+        Assert.assertEquals("EmployeeOTOne", statement.getTable());
+        fieldsIterator = statement.getFieldsIterator();
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Fabio", filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("SALARY", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(123L, filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("PHONE_ID", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        // Assert.assertFalse(fieldsIterator.hasNext());
+        Iterator<Object> conditionsIterator = statement.getConditionsIterator();
+        Object condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
+        Assert.assertEquals(empId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
+
+        Assert.assertTrue(statements.isEmpty());
+
+        print("delete NO following cascade");
+        statements = buildStatements(employee, OperationType.DELETE);
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof DeleteStatement);
+        Assert.assertEquals("EmployeeOTOne", statement.getTable());
+        Assert.assertFalse(statement.getFieldsIterator().hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
+        Assert.assertEquals(empId, ((Filter) condition).getValue());
+        Assert.assertFalse(conditionsIterator.hasNext());
 
         Assert.assertTrue(statements.isEmpty());
     }
