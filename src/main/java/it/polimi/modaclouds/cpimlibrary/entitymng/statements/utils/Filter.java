@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
  * @author Fabio Arcidiacono.
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class Filter {
     private String column;

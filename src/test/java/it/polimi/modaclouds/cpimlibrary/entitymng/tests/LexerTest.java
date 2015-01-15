@@ -113,6 +113,7 @@ public class LexerTest {
         Assert.assertEquals(TokenType.COMPAREOP, itr.next().type);
         Assert.assertFalse(itr.hasNext());
     }
+
     @Test
     public void testUpdateLexer() {
         ArrayList<Token> tokens = Lexer.lex("UPDATE Employee e SET e.salary = :s, e.name = :n2 WHERE e.name = :n");
@@ -213,6 +214,4 @@ public class LexerTest {
         Assert.assertEquals(":n", token.data);
         Assert.assertFalse(itr.hasNext());
     }
-
-
 }

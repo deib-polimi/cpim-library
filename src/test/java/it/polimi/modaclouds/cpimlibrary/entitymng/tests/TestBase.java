@@ -46,7 +46,7 @@ public abstract class TestBase {
     // CPIM stuff
     protected CloudEntityManagerFactory emf;
     protected CloudEntityManager em;
-    protected MigrationManager migrator;
+    protected MigrationManager migrant;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -58,8 +58,8 @@ public abstract class TestBase {
             em.close();
         }
         em = emf.createCloudEntityManager();
-        migrator = MigrationManager.getInstance();
-        migrator.startMigration();
+        migrant = MigrationManager.getInstance();
+        migrant.startMigration();
     }
 
     @After
@@ -70,7 +70,7 @@ public abstract class TestBase {
         if (emf != null) {
             emf.close();
         }
-        migrator.stopMigration();
+        migrant.stopMigration();
     }
 
     protected Deque<Statement> buildStatements(Object entity, OperationType operation) {

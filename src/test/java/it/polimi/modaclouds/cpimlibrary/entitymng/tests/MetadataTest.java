@@ -16,19 +16,13 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManagerFactory;
-import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
-import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Department;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeMTO;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeOTO;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Phone;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 /**
  * @author Fabio Arcidiacono.

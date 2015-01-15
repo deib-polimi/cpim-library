@@ -16,12 +16,9 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
-import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager;
-import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManagerFactory;
 import it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Phone;
-import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,11 +28,7 @@ import javax.persistence.TypedQuery;
 /**
  * @author Fabio Arcidiacono.
  */
-public class QuerySupportTest {
-
-    // CPIM stuff
-    protected CloudEntityManagerFactory emf = MF.getFactory().getEntityManagerFactory();
-    protected CloudEntityManager em = emf.createCloudEntityManager();
+public class QuerySupportTest extends TestBase {
 
     @Test
     public void testNamedQueries() {

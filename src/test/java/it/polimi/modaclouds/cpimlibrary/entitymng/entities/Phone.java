@@ -25,7 +25,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "Phone", schema = "gae-test@pu")
-@NamedQuery(name="allPhones", query ="SELECT p FROM Phone p")
+@NamedQuery(name = "allPhones", query = "SELECT p FROM Phone p")
 public class Phone {
 
     @Id
