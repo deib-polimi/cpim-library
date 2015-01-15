@@ -28,9 +28,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Builder for DELETE statements.
@@ -135,13 +135,13 @@ public class DeleteBuilder extends StatementBuilder {
      * @see StatementBuilder#handleQuery(javax.persistence.Query, java.util.ArrayList)
      */
     @Override
-    protected Statement handleQuery(Query query, ArrayList<Token> tokens) {
+    protected Statement handleQuery(Query query, List<Token> tokens) {
         Iterator<Token> itr = tokens.iterator();
         String objectParam = "";
         Statement statement = new DeleteStatement();
         while (itr.hasNext()) {
             Token current = itr.next();
-            switch (current.type) {
+            switch (current.getType()) {
                 case DELETE:
                 case WHERE:
                 case WHITESPACE:
@@ -160,8 +160,8 @@ public class DeleteBuilder extends StatementBuilder {
                     statement.addCondition(column, operator, value);
                     break;
                 case LOGICOP:
-                    log.debug("found logic operator {}", current.data);
-                    statement.addCondition(current.data);
+                    log.debug("found logic operator {}", current.getData());
+                    statement.addCondition(current.getData());
             }
         }
         return statement;

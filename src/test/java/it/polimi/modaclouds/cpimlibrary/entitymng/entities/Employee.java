@@ -14,33 +14,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
+package it.polimi.modaclouds.cpimlibrary.entitymng.entities;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Tokens for UPDATE and DELETE queries in JPQL.
- *
- * @author Fabio Arcidiacono.
- */
-public enum TokenType {
-    UPDATE("[uU]pdate|UPDATE"),
-    SET("[sS]et|SET"),
-    DELETE("[dD]elete|DELETE"),
-    FROM("[fF]rom|FROM"),
-    WHERE("[wW]here|WHERE"),
-    COMPAREOP("<>|>=|<=|>|<|="),
-    LOGICOP("[Aa]nd|AND|[Oo]r|OR"),
-    COMMA(","),
-    PARAM(":\\S+"),
-    COLUMN("[\\S+]\\.\\S+"),
-    STRING("\\S+"),
-    WHITESPACE("\\s+");
+import javax.persistence.*;
 
-    @Getter private final String pattern;
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "EMPLOYEE", schema = "gae-test@pu")
+public class Employee {
 
-    private TokenType(String pattern) {
-        this.pattern = pattern;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "EMPLOYEE_ID")
+    private String id;
 
+    @Column(name = "NAME")
+    private String name;
+
+    @Column(name = "SALARY")
+    private Long salary;
 }

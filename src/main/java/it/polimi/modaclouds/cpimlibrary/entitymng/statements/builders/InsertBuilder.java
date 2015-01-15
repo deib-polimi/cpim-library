@@ -26,8 +26,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -139,7 +139,7 @@ public class InsertBuilder extends StatementBuilder {
      * @see StatementBuilder#handleQuery(javax.persistence.Query, java.util.ArrayList)
      */
     @Override
-    protected Statement handleQuery(Query query, ArrayList<Token> tokens) {
+    protected Statement handleQuery(Query query, List<Token> tokens) {
         /* do nothing, no need to handle this case */
         return null;
     }

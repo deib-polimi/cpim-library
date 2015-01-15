@@ -38,7 +38,7 @@ public abstract class Statement {
     /** maintains fields both for SET clause in UPDATE and for values in INSERT statement */
     private List<Filter> fields = new ArrayList<>();
     /** maintain conditions in the WHERE clause */
-    private LinkedList<Object> conditions = new LinkedList<>();
+    private List<Object> conditions = new LinkedList<>();
 
     public Iterator<Filter> getFieldsIterator() {
         return fields.iterator();

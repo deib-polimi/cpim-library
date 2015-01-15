@@ -16,6 +16,8 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
 
+import lombok.Getter;
+
 /**
  * Token used by {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer}.
  * <p/>
@@ -27,8 +29,8 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
  */
 public class Token {
 
-    public final TokenType type;
-    public final String data;
+    @Getter private final TokenType type;
+    @Getter private final String data;
 
     public Token(TokenType type, String data) {
         this.type = type;

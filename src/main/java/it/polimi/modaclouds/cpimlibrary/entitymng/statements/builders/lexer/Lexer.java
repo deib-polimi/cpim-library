@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,13 +28,16 @@ import java.util.regex.Pattern;
  */
 public class Lexer {
 
-    public static ArrayList<Token> lex(String input) {
-        ArrayList<Token> tokens = new ArrayList<>();
+    private Lexer() {
+    }
+
+    public static List<Token> lex(String input) {
+        List<Token> tokens = new ArrayList<>();
 
         // Build token patterns
         StringBuilder tokenPatternsBuffer = new StringBuilder();
         for (TokenType tokenType : TokenType.values()) {
-            tokenPatternsBuffer.append(String.format("|(?<%s>%s)", tokenType.name(), tokenType.pattern));
+            tokenPatternsBuffer.append(String.format("|(?<%s>%s)", tokenType.name(), tokenType.getPattern()));
         }
         Pattern tokenPatterns = Pattern.compile(tokenPatternsBuffer.substring(1));
 

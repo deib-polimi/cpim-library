@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Employee;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeOTO;
 import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Phone;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
@@ -26,9 +27,12 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.statements.UpdateStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.CompareOperator;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.Filter;
+import it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils.LogicOperator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.Deque;
 import java.util.Iterator;
 
@@ -44,7 +48,85 @@ public class BuildersTest extends TestBase {
 
     @Test
     public void queryTest() {
-        // TODO
+        Employee employee = new Employee();
+        employee.setName("Fabio");
+        employee.setSalary(123L);
+
+        Deque<Statement> statements;
+
+        print("update");
+        TypedQuery<Employee> typedQuery = em.createQuery("UPDATE Employee e SET e.salary = :s, e.name = :n2 WHERE e.name = :n OR e.salary <> :s2", Employee.class);
+        typedQuery.setParameter("s", 789L);
+        typedQuery.setParameter("s2", 123L);
+        typedQuery.setParameter("n2", "Pippo");
+        typedQuery.setParameter("n", "Fabio");
+        statements = buildStatements(typedQuery);
+
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        Statement statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof UpdateStatement);
+        Assert.assertEquals("EMPLOYEE", statement.getTable());
+        Iterator<Filter> fieldsIterator = statement.getFieldsIterator();
+        Assert.assertTrue(fieldsIterator.hasNext());
+        Filter filter = fieldsIterator.next();
+        Assert.assertEquals("SALARY", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(789L, filter.getValue());
+        filter = fieldsIterator.next();
+        Assert.assertEquals("NAME", filter.getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Pippo", filter.getValue());
+        Assert.assertFalse(fieldsIterator.hasNext());
+        Iterator<Object> conditionsIterator = statement.getConditionsIterator();
+        Assert.assertTrue(conditionsIterator.hasNext());
+        Object condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("NAME", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
+        Assert.assertEquals("Fabio", ((Filter) condition).getValue());
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof LogicOperator);
+        Assert.assertEquals(LogicOperator.OR, condition);
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("SALARY", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.NOT_EQUAL, ((Filter) condition).getOperator());
+        Assert.assertEquals(123L, ((Filter) condition).getValue());
+        Assert.assertTrue(statements.isEmpty());
+
+        print("delete");
+        Query query = em.createQuery("DELETE FROM Employee e WHERE e.name = :n AND e.salary >= :s", Employee.class);
+        query.setParameter("n", "Pippo");
+        query.setParameter("s", 123L);
+        query.executeUpdate();
+        statements = buildStatements(query);
+
+        Assert.assertNotNull(statements);
+        Assert.assertEquals(1, statements.size());
+
+        statement = statements.removeFirst();
+        Assert.assertTrue(statement instanceof DeleteStatement);
+        Assert.assertEquals("EMPLOYEE", statement.getTable());
+        fieldsIterator = statement.getFieldsIterator();
+        Assert.assertFalse(fieldsIterator.hasNext());
+        conditionsIterator = statement.getConditionsIterator();
+        Assert.assertTrue(conditionsIterator.hasNext());
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("NAME", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals("Pippo", ((Filter) condition).getValue());
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof LogicOperator);
+        Assert.assertEquals(LogicOperator.AND, condition);
+        condition = conditionsIterator.next();
+        Assert.assertTrue(condition instanceof Filter);
+        Assert.assertEquals("SALARY", ((Filter) condition).getColumn());
+        Assert.assertEquals(CompareOperator.GREATER_THAN_OR_EQUAL, ((Filter) condition).getOperator());
+        Assert.assertEquals(123L, ((Filter) condition).getValue());
+        Assert.assertTrue(statements.isEmpty());
     }
 
     @Test
@@ -124,7 +206,7 @@ public class BuildersTest extends TestBase {
         Object condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("PHONE_ID", ((Filter) condition).getColumn());
-        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(phoneId, ((Filter) condition).getValue());
 
         statement = statements.removeFirst();
@@ -150,7 +232,7 @@ public class BuildersTest extends TestBase {
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
-        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(empId, ((Filter) condition).getValue());
         Assert.assertTrue(statements.isEmpty());
 
@@ -171,7 +253,7 @@ public class BuildersTest extends TestBase {
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("PHONE_ID", ((Filter) condition).getColumn());
-        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(phoneId, ((Filter) condition).getValue());
 
         statement = statements.removeFirst();
@@ -184,7 +266,7 @@ public class BuildersTest extends TestBase {
         condition = conditionsIterator.next();
         Assert.assertTrue(condition instanceof Filter);
         Assert.assertEquals("EMPLOYEE_ID", ((Filter) condition).getColumn());
-        Assert.assertEquals(CompareOperator.EQUAL, filter.getOperator());
+        Assert.assertEquals(CompareOperator.EQUAL, ((Filter) condition).getOperator());
         Assert.assertEquals(empId, ((Filter) condition).getValue());
         Assert.assertTrue(statements.isEmpty());
 

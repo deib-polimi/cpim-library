@@ -17,8 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.utils;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 /**
  * Represents a filter in the form 'column operator value'
@@ -26,12 +25,11 @@ import lombok.NoArgsConstructor;
  *
  * @author Fabio Arcidiacono.
  */
-@Data
 @AllArgsConstructor
 public class Filter {
-    private String column;
-    private CompareOperator operator;
-    private Object value;
+    @Getter private String column;
+    @Getter private CompareOperator operator;
+    @Getter private Object value;
 
     @Override
     public String toString() {
