@@ -28,6 +28,7 @@ import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * Builder for INSERT statements.
@@ -96,8 +97,7 @@ public class InsertBuilder extends StatementBuilder {
     }
 
     private String generateId() {
-        return "1";
-        //return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     /* (non-Javadoc)

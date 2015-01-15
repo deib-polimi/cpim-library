@@ -25,23 +25,31 @@ import javax.persistence.Persistence;
 public class CloudEntityManagerFactory {
 
     private EntityManagerFactory factory = null;
+    private String persistenceUnit = null;
 
     public CloudEntityManagerFactory(String persistenceUnit) {
         /*
          * TODO decide
          * This way for AWS no NoSQL service is supported
          */
-        factory = Persistence.createEntityManagerFactory(persistenceUnit);
+        this.persistenceUnit = persistenceUnit;
     }
 
     /**
      * @return a new instance of {@link it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager}
      */
     public CloudEntityManager createCloudEntityManager() {
+        if (factory == null || !factory.isOpen()) {
+            initializeFactory(this.persistenceUnit);
+        }
         return new CloudEntityManager(factory.createEntityManager());
     }
 
     public void close() {
         factory.close();
+    }
+
+    private void initializeFactory(String persistenceUnit) {
+        this.factory = Persistence.createEntityManagerFactory(persistenceUnit);
     }
 }
