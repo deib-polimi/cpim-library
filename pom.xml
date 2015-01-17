@@ -49,6 +49,17 @@
             </snapshots>
         </repository>
 
+        <!-- deib repo -->
+        <repository>
+            <id>deib-polimi-releases</id>
+            <url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/releases</url>
+        </repository>
+        <repository>
+            <id>deib-polimi-snapshots</id>
+            <url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/snapshots</url>
+            <!-- <snapshots><enabled>true</enabled></snapshots> -->
+        </repository>
+
         <!-- local repository for maven dependencies: simplejpa e jpa4azure-->
         <repository>
             <id>project.local</id>
@@ -170,6 +181,13 @@
             <artifactId>lombok</artifactId>
             <version>1.14.8</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Hegira client -->
+        <dependency>
+            <groupId>it.polimi.hegira</groupId>
+            <artifactId>zkWrapper-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <!-- local repository -->
