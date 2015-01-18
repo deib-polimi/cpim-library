@@ -21,31 +21,47 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 public class GlassfishBlobManagerFactory extends CloudBlobManagerFactory {
 
-	String blobConnectionString=null;
-	String dbAccount=null;
-	String dbPwd=null;
+	//String blobConnectionString=null;
+	//String dbAccount=null;
+	//String dbPwd=null;
+    private DataSource dataSource;
+
 	
-	//questo metodo crea nel database identificato dalla stringa di connessione passata una tabella che andr� a contenere i blob
-	//istanzia quindi un nuovo glassfishblob manager passando la tringa di connessione in quanto necessaria per l inserimento dei blob
-	public GlassfishBlobManagerFactory(String blobConnectionString, String user, String password) {
+	
+	public GlassfishBlobManagerFactory(String blobDataSource) {
 		
 		Statement statement;
 		Connection c=null;
 		
-		this.blobConnectionString=blobConnectionString;
-		this.dbAccount=user;
-		this.dbPwd=password;
+		//this.blobConnectionString=blobConnectionString;
+		//this.dbAccount=user;
+		//this.dbPwd=password;
 		
 		try {
-			c = (Connection) DriverManager.getConnection(blobConnectionString,dbAccount, dbPwd);
+			Context ctx = new InitialContext();
+			this.dataSource= (DataSource)ctx.lookup(blobDataSource);
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			if (dataSource != null) {
+	            c=this.dataSource.getConnection();
+	        } 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
 		if(c==null)
-			System.out.println("CONNECTION TO DB FAILED");
+			System.out.println("CONNECTION TO BLOB_DB FAILED");
 		
 		String stm = "CREATE TABLE UserPicture (FileName VARCHAR(100) NOT NULL, Picture LONGBLOB NOT NULL, PRIMARY KEY(FileName))";
 
@@ -68,7 +84,14 @@ public class GlassfishBlobManagerFactory extends CloudBlobManagerFactory {
 
 	@Override
 	public CloudBlobManager createCloudBlobManager() {
-		return new GlassfishBlobManager(this.blobConnectionString, this.dbAccount, this.dbPwd);
+		try {
+			return new GlassfishBlobManager(this.dataSource.getConnection());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 
 }

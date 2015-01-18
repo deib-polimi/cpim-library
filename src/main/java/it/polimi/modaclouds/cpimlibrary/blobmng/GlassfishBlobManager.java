@@ -27,27 +27,21 @@ import java.sql.SQLException;
 
 public class GlassfishBlobManager implements CloudBlobManager {
 	
-	String blobConnectionString=null;
-	String user=null;
-	String pwd=null;
+	Connection conn;
 	
 	//il costruttore semplicemente registra la connessione da utilizzare per effettuare tutte le operazioni necessarie
-	public GlassfishBlobManager(String blobConnectionString, String userName, String password) {
-		this.blobConnectionString=blobConnectionString;
-		this.user=userName;
-		this.pwd=password;
+	public GlassfishBlobManager(Connection c) {
+		this.conn=c;
 	}
 
 	@Override
 	public void uploadBlob(byte[] file, String fileName) {
 		
-		Connection conn;
 		try {
 			
-		conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
-		Blob b1 = conn.createBlob();
+		Blob b1 = this.conn.createBlob();
 	    b1.setBytes(1, file);
-	    PreparedStatement ps = conn.prepareStatement("insert into UserPicture(FileName,Picture) value (?,?)");
+	    PreparedStatement ps = this.conn.prepareStatement("insert into UserPicture(FileName,Picture) value (?,?)");
 	    ps.setString(1, fileName);
 	    ps.setBlob(2, b1);
 	    ps.executeUpdate();
@@ -60,11 +54,9 @@ public class GlassfishBlobManager implements CloudBlobManager {
 	@Override
 	public void deleteBlob(String fileName) {
 		
-		Connection conn;
 		try {
-			conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 			String sql="delete from UserPicture where FileName=?";
-            PreparedStatement pst=conn.prepareStatement(sql);
+            PreparedStatement pst=this.conn.prepareStatement(sql);
             pst.setString(1, fileName);
             pst.executeUpdate(sql);
 			
@@ -81,9 +73,8 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		Connection conn;
 
 		try {
-			conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 			String sql="select Picture from UserPicture up where up.FileName=?";
-            PreparedStatement pst=conn.prepareStatement(sql);
+            PreparedStatement pst=this.conn.prepareStatement(sql);
             pst.setString(1, fileName);
             ResultSet rs=pst.executeQuery();
             if(rs.next()){
@@ -103,9 +94,8 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		Connection conn;
 
 		try {
-			conn = (Connection) DriverManager.getConnection(blobConnectionString,user,pwd);
 			String sql="select FileName from UserPicture";
-            PreparedStatement pst=conn.prepareStatement(sql);
+            PreparedStatement pst=this.conn.prepareStatement(sql);
             ResultSet rs=pst.executeQuery();
             ArrayList<String> toReturn=new ArrayList<String>();
 

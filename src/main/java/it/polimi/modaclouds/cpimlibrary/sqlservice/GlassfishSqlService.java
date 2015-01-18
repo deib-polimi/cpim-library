@@ -20,27 +20,39 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javax.annotation.Resource;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 public class GlassfishSqlService extends CloudSqlService {
-	private String connectionString = null;
-	private String username=null;
-	private String password=null;
+
+	
+    private DataSource dataSource;
 
 
-	public GlassfishSqlService(String connectionString, String username, String password) {
-		this.connectionString = connectionString;
-		this.username=username;
-		this.password=password;
+	public GlassfishSqlService(String dataSource) {
+		
+		try {
+			Context ctx = new InitialContext();
+			this.dataSource= (DataSource)ctx.lookup(dataSource);
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
 	public Connection getConnection() {
 		Connection c = null;
+		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			c = (Connection) DriverManager.getConnection(connectionString,username,password);
+			if (dataSource != null) {
+	            c=dataSource.getConnection();
+	        } 
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		return c;
