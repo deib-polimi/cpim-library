@@ -35,6 +35,10 @@ public class CloudEntityManagerFactory {
         this.persistenceUnit = persistenceUnit;
     }
 
+    private void initializeFactory(String persistenceUnit) {
+        this.factory = Persistence.createEntityManagerFactory(persistenceUnit);
+    }
+
     /**
      * @return a new instance of {@link it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager}
      */
@@ -47,9 +51,5 @@ public class CloudEntityManagerFactory {
 
     public void close() {
         factory.close();
-    }
-
-    private void initializeFactory(String persistenceUnit) {
-        this.factory = Persistence.createEntityManagerFactory(persistenceUnit);
     }
 }

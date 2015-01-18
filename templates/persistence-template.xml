@@ -22,18 +22,12 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
     <persistence-unit name="pu">
         <provider>com.impetus.kundera.KunderaPersistence</provider>
-        <class><!-- persisted classes --></class>
-        <class><!-- persisted classes --></class>
+        <class><!-- FULL CLASS NAME --></class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="kundera.client.lookup.class" value="CHOSEN-KUNDERA-CLIENT"/>
-            <!--
-                others kundera properties or client specific properties
-                see common configuration:
-                    https://github.com/impetus-opensource/Kundera/wiki/Common-Configuration
-                see client specific configuration:
-                    https://github.com/impetus-opensource/Kundera/wiki/Data-store-Specific-Configuration
-            -->
+            <!-- kundera properties (see https://github.com/impetus-opensource/Kundera/wiki/Common-Configuration) -->
+            <!-- client specific properties (see https://github.com/impetus-opensource/Kundera/wiki/Data-store-Specific-Configuration) -->
         </properties>
     </persistence-unit>
 </persistence>
