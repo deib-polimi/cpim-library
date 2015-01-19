@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 
@@ -36,22 +37,23 @@ import java.util.Arrays;
 @Slf4j
 public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
-    private static final int OFFSET = 10; // TODO goes in migration.xml
     private String tableName;
     private int[] sequenceNumbers;
     private int current;
+    private int offset;
     private ZKclient zKclient;
 
     public SeqNumberDispenserImpl(String tableName) {
         this.tableName = tableName;
         this.sequenceNumbers = new int[0];
         this.current = 0;
+        this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
         this.zKclient = MigrationManager.getInstance().getZKclient();
     }
 
     private void getAssignedSequenceNumbers() {
         try {
-            int[] more = zKclient.assignSeqNrRange(this.tableName, OFFSET);
+            int[] more = zKclient.assignSeqNrRange(this.tableName, offset);
             this.sequenceNumbers = ArrayUtils.addAll(this.sequenceNumbers, more);
         } catch (Exception e) {
             throw new RuntimeException("Some error occurred while retrieving a sequence number range", e);

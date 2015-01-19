@@ -16,12 +16,14 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Maintains configurations for statement builders, provides methods to set and read configuration.
  * <p/>
- * By default cascade types are not followed, behavior can be changed at runtime by calling
+ * By default cascade types are not followed, behavior can be changed
+ * via configuration file in the {@code migration.xml} or at runtime by calling
  * {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration#followCascades()} or
  * {@link it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.BuildersConfiguration#doNotFollowCascades()}.
  *
@@ -36,7 +38,7 @@ public class BuildersConfiguration {
     private boolean followCascades;
 
     private BuildersConfiguration() {
-        this.followCascades = false; // TODO goes in migration.xml
+        this.followCascades = MF.getFactory().getCloudMetadata().getFollowCascades();
     }
 
     public static synchronized BuildersConfiguration getInstance() {

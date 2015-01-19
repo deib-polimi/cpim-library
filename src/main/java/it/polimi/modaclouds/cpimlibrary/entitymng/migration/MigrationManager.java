@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,6 @@ import javax.persistence.Query;
 @Slf4j
 public class MigrationManager {
 
-    private static final String CONNECTION_STRING = "localhost:2181"; // TODO goes in migration.xml
     private static MigrationManager instance = null;
     @Getter private State normalState;
     @Getter private State migrationState;
@@ -44,7 +44,8 @@ public class MigrationManager {
     private MigrationManager() {
         this.normalState = new NormalState(this);
         this.migrationState = new MigrationState(this);
-        zKclient = new ZKclient(CONNECTION_STRING);
+        String connectionString = MF.getFactory().getCloudMetadata().getZookeeperConnectionString();
+        zKclient = new ZKclient(connectionString);
         try {
             if (zKclient.isSynchronizing(new SynchronizationListener())) {
                 this.state = migrationState;
@@ -52,7 +53,7 @@ public class MigrationManager {
                 this.state = normalState;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Cannot connect to ZooKeeper [" + CONNECTION_STRING + "]", e);
+            throw new RuntimeException("Cannot connect to ZooKeeper [" + connectionString + "]", e);
         }
     }
 
