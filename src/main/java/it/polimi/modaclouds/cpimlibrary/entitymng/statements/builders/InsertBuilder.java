@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.ReflectionUtils;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.InsertStatement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
@@ -28,7 +29,6 @@ import javax.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Builder for INSERT statements.
@@ -85,19 +85,17 @@ public class InsertBuilder extends StatementBuilder {
     @Override
     protected void onIdField(Statement statement, Object entity, Field idFiled) {
         String fieldName = ReflectionUtils.getJPAColumnName(idFiled);
-        Object fieldValue = ReflectionUtils.getFieldValue(entity, idFiled);
-        if (fieldValue == null) {
-            String generatedId = generateId();
-            log.info("generated Id for {} is {}", entity.getClass().getSimpleName(), generatedId);
-            ReflectionUtils.setIdBackToEntity(entity, idFiled, generatedId);
-            fieldValue = generatedId;
-        }
-        log.debug("{} will be {} = {}", idFiled.getName(), fieldName, fieldValue);
-        statement.addField(fieldName, fieldValue);
+        String generatedId = generateId(statement.getTable());
+        ReflectionUtils.setEntityField(entity, idFiled, generatedId);
+        log.debug("{} will be {} = {}", idFiled.getName(), fieldName, generatedId);
+        statement.addField(fieldName, generatedId);
     }
 
-    private String generateId() {
-        return UUID.randomUUID().toString();
+    private String generateId(String tableName) {
+        int id = SeqNumberProvider.getInstance().getNextSequenceNumber(tableName);
+        String generatedId = String.valueOf(id);
+        log.info("generated Id for {} is {}", tableName, generatedId);
+        return generatedId;
     }
 
     /* (non-Javadoc)

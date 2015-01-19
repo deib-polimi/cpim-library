@@ -16,12 +16,15 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.persistence.Query;
 
 /**
  * @author Fabio Arcidiacono.
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager
  */
+@Slf4j
 public class NormalState implements State {
 
     private MigrationManager manager;
@@ -36,6 +39,7 @@ public class NormalState implements State {
      */
     @Override
     public void startMigration() {
+        log.info("Starting migration");
         manager.setState(manager.getMigrationState());
     }
 

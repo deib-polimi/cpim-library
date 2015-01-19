@@ -366,7 +366,7 @@ public class ReflectionUtils {
      *
      * @throws RuntimeException if nome error occurs while accessing {@code field}.
      */
-    public static void setIdBackToEntity(Object entity, Field field, Object generatedId) {
+    public static void setEntityField(Object entity, Field field, Object generatedId) {
         if (!field.isAccessible()) {
             field.setAccessible(true);
         }

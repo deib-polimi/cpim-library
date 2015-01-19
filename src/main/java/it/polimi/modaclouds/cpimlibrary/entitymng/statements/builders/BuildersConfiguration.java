@@ -36,7 +36,7 @@ public class BuildersConfiguration {
     private boolean followCascades;
 
     private BuildersConfiguration() {
-        this.followCascades = false;
+        this.followCascades = false; // TODO goes in migration.xml
     }
 
     public static synchronized BuildersConfiguration getInstance() {

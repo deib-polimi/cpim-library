@@ -56,6 +56,7 @@ public class MigrationState implements State {
      */
     @Override
     public void stopMigration() {
+        log.info("Stopping migration") ;
         manager.setState(manager.getNormalState());
     }
 
