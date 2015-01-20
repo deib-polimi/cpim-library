@@ -19,6 +19,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,17 +39,19 @@ public class SequenceNumberTest {
         Assert.assertNotNull(migrant.getZKclient());
 
         SeqNumberProvider seqNumberProvider = SeqNumberProvider.getInstance();
-        seqNumberProvider.addTable("Goofy");
 
-        int id = seqNumberProvider.getNextSequenceNumber("Goofy");
-        int id2 = seqNumberProvider.getNextSequenceNumber("Goofy");
-        int id3 = seqNumberProvider.getNextSequenceNumber("Goofy");
-        Assert.assertFalse(id2 == id);
-        Assert.assertFalse(id3 == id2);
-        Assert.assertFalse(id3 == id);
-
+        int range = MF.getFactory().getCloudMetadata().getSeqNumberRange();
         for (String table : PersistenceMetadata.getInstance().getPersistedTables()) {
-            Assert.assertNotNull(seqNumberProvider.getNextSequenceNumber(table));
+            int[] receivedIds = new int[range * 2];
+            for (int i = 0; i < range * 2; i++) {
+                int id = seqNumberProvider.getNextSequenceNumber(table);
+                Assert.assertNotNull(id);
+                receivedIds[i] = id;
+            }
+            // System.out.println(table + " " + Arrays.toString(receivedIds));
+            for (int i = 1; i < receivedIds.length - 1; i++) {
+                Assert.assertFalse(receivedIds[i - 1] == receivedIds[i]);
+            }
         }
 
         thrown.expect(RuntimeException.class);

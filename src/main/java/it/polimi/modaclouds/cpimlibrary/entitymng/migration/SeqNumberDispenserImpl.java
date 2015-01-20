@@ -19,7 +19,6 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 import it.polimi.hegira.zkWrapper.ZKclient;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ArrayUtils;
 
 import java.util.Arrays;
 
@@ -38,23 +37,22 @@ import java.util.Arrays;
 public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     private String tableName;
-    private int[] sequenceNumbers;
-    private int current;
+    private int[] range;
+    private int next;
     private int offset;
     private ZKclient zKclient;
 
     public SeqNumberDispenserImpl(String tableName) {
         this.tableName = tableName;
-        this.sequenceNumbers = new int[0];
-        this.current = 0;
-        this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
         this.zKclient = MigrationManager.getInstance().getZKclient();
+        this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
+        this.range = getAssignedSequenceNumbers();
+        this.next = range[0];
     }
 
-    private void getAssignedSequenceNumbers() {
+    private int[] getAssignedSequenceNumbers() {
         try {
-            int[] more = zKclient.assignSeqNrRange(this.tableName, offset);
-            this.sequenceNumbers = ArrayUtils.addAll(this.sequenceNumbers, more);
+            return zKclient.assignSeqNrRange(this.tableName, offset);
         } catch (Exception e) {
             throw new RuntimeException("Some error occurred while retrieving a sequence number range", e);
         }
@@ -62,12 +60,14 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     @Override
     public int nextSequenceNumber() {
-        if (this.current == this.sequenceNumbers.length) {
-            getAssignedSequenceNumbers();
+        int current = next;
+        if (this.next == this.range[this.range.length - 1]) {
+            this.range = getAssignedSequenceNumbers();
+            this.next = this.range[0];
+        } else {
+            this.next++;
         }
-        int next = sequenceNumbers[current];
-        log.info("TABLE: " + this.tableName + ", RANGE: " + Arrays.toString(sequenceNumbers) + ", NEXT: " + next);
-        current++;
-        return next;
+        log.debug("TABLE: " + this.tableName + ", RANGE: " + Arrays.toString(range) + ", CURRENT: " + current + ", NEXT: " + next);
+        return current;
     }
 }
