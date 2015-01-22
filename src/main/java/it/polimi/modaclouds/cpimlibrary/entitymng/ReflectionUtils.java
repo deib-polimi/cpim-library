@@ -248,29 +248,39 @@ public class ReflectionUtils {
 
     /**
      * Returns the name specified in the {@link javax.persistence.Table} annotation.
+     * <p/>
+     * If class is not annotated with {@link javax.persistence.Table} or if no table name
+     * is specified inside {@link javax.persistence.Table} annotation, the simple class name is returned
+     * since is JPA default.
      *
      * @param entity a JPA annotated object
      *
      * @return a {@code String} representing the name
-     *
-     * @throws java.lang.RuntimeException if {@link javax.persistence.Table} is not present.
      */
     public static String getJPATableName(Object entity) {
-        Table table = getAnnotation(entity.getClass(), Table.class);
+        Table table = entity.getClass().getAnnotation(Table.class);
+        if (table == null || table.name().equals("")) {
+            return entity.getClass().getSimpleName();
+        }
         return table.name();
     }
 
     /**
      * Returns the name specified in the {@link javax.persistence.Table} annotation.
+     * <p/>
+     * If class is not annotated with {@link javax.persistence.Table} or if no table name
+     * is specified inside {@link javax.persistence.Table} annotation, the simple class name is returned
+     * since is JPA default.
      *
      * @param clazz a JPA annotated class
      *
      * @return a {@code String} representing the name
-     *
-     * @throws java.lang.RuntimeException if {@link javax.persistence.Table} is not present.
      */
     public static String getJPATableName(Class<?> clazz) {
-        Table table = getAnnotation(clazz, Table.class);
+        Table table = clazz.getAnnotation(Table.class);
+        if (table == null || table.name().equals("")) {
+            return clazz.getSimpleName();
+        }
         return table.name();
     }
 

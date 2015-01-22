@@ -24,7 +24,6 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "Department", schema = "gae-test@pu")
 public class Department {
 
     @Id
