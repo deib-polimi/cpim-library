@@ -247,7 +247,7 @@ public class BuildersTest extends TestBase {
 
         Statement statement = statements.removeFirst();
         Assert.assertTrue(statement instanceof UpdateStatement);
-        Assert.assertEquals("EMPLOYEE", statement.getTable());
+        Assert.assertEquals("Employee", statement.getTable());
         Iterator<Filter> fieldsIterator = statement.getFieldsIterator();
         Filter filter = fieldsIterator.next();
         Assert.assertEquals("SALARY", filter.getColumn());
@@ -285,7 +285,7 @@ public class BuildersTest extends TestBase {
 
         statement = statements.removeFirst();
         Assert.assertTrue(statement instanceof DeleteStatement);
-        Assert.assertEquals("EMPLOYEE", statement.getTable());
+        Assert.assertEquals("Employee", statement.getTable());
         Assert.assertFalse(statement.getFieldsIterator().hasNext());
         conditionsIterator = statement.getConditionsIterator();
         condition = conditionsIterator.next();

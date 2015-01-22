@@ -131,9 +131,13 @@ public class PersistenceMetadata {
         persistedClasses.put(simpleClassName, className);
         if (ReflectionUtils.isClassAnnotatedWith(clazz, Table.class)) {
             Table table = clazz.getAnnotation(Table.class);
-            /* insert also mapping <tableName, fullClassName> */
-            persistedClasses.put(table.name(), className);
-            tables.add(table.name());
+            if (table != null && !table.name().equals("")) {
+                /* insert also mapping <tableName, fullClassName> */
+                persistedClasses.put(table.name(), className);
+                tables.add(table.name());
+            } else {
+                tables.add(simpleClassName);
+            }
         } else {
             tables.add(simpleClassName);
         }

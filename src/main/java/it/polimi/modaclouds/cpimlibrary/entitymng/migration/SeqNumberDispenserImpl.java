@@ -17,12 +17,10 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
-import it.polimi.modaclouds.cpimlibrary.blobmng.CloudDownloadBlob;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 /**
@@ -46,6 +44,9 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
     private ZKclient zKclient;
 
     public SeqNumberDispenserImpl(String tableName) {
+        if (tableName == null) {
+            throw new NullPointerException("Table name cannot be null");
+        }
         this.tableName = tableName;
         this.zKclient = MigrationManager.getInstance().getZKclient();
         this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
@@ -57,7 +58,7 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         try {
             return zKclient.assignSeqNrRange(this.tableName, offset);
         } catch (Exception e) {
-            throw new MigrationException("Some error occurred while retrieving a sequence number range", e);
+            throw new MigrationException("Some error occurred while retrieving sequence number range for table [" + this.tableName + "]", e);
         }
     }
 
