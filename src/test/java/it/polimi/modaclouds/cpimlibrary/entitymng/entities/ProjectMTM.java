@@ -16,21 +16,14 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.entities;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import javax.persistence.*;
+import java.util.Collections;
+import java.util.List;
 
 @Data
 @ToString(exclude = "employees")
@@ -40,18 +33,18 @@ import lombok.ToString;
 @Table(name = "ProjectMTM", schema = "gae-test@pu")
 public class ProjectMTM {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "PROJECT_ID")
-	private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "PROJECT_ID")
+    private String id;
 
-	@Column(name = "NAME")
-	private String name;
+    @Column(name = "NAME")
+    private String name;
 
-	@ManyToMany(mappedBy = "projects")
-	private List<EmployeeMTM> employees;
+    @ManyToMany(mappedBy = "projects")
+    private List<EmployeeMTM> employees;
 
-	public void addEmployees(EmployeeMTM... employees) {
-		Collections.addAll(this.employees, employees);
-	}
+    public void addEmployees(EmployeeMTM... employees) {
+        Collections.addAll(this.employees, employees);
+    }
 }

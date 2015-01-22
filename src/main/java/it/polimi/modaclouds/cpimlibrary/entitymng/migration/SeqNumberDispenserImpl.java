@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
+import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +55,7 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         try {
             return zKclient.assignSeqNrRange(this.tableName, offset);
         } catch (Exception e) {
-            throw new RuntimeException("Some error occurred while retrieving a sequence number range", e);
+            throw new MigrationException("Some error occurred while retrieving a sequence number range", e);
         }
     }
 

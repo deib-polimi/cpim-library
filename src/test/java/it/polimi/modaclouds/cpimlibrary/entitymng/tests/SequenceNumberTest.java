@@ -19,6 +19,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
+import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -54,7 +55,7 @@ public class SequenceNumberTest {
             }
         }
 
-        thrown.expect(RuntimeException.class);
+        thrown.expect(MigrationException.class);
         seqNumberProvider.getNextSequenceNumber("Non-Existent-Table");
     }
 }

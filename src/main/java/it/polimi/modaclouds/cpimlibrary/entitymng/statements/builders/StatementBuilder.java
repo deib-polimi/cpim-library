@@ -23,6 +23,7 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.statements.Statement;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Lexer;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.Token;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.lexer.TokenType;
+import it.polimi.modaclouds.cpimlibrary.exception.PersistenceMetadataException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.CascadeType;
@@ -402,7 +403,7 @@ public abstract class StatementBuilder {
     protected Class getAssociatedClass(String tableName) {
         String fullClassName = PersistenceMetadata.getInstance().getMappedClass(tableName);
         if (fullClassName == null) {
-            throw new RuntimeException(tableName + " is unknown");
+            throw new PersistenceMetadataException(tableName + " is unknown");
         }
         return ReflectionUtils.getClassInstance(fullClassName);
     }

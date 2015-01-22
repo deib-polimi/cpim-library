@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
+import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class SeqNumberProvider {
     public int getNextSequenceNumber(String tableName) {
         SeqNumberDispenser tableDispenser = this.dispenser.get(tableName);
         if (tableDispenser == null) {
-            throw new RuntimeException("Table [" + tableName + "] was not registered");
+            throw new MigrationException("Table [" + tableName + "] was not registered");
         }
         return tableDispenser.nextSequenceNumber();
     }

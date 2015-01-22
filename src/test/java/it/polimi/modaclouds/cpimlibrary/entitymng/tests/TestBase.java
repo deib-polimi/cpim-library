@@ -27,6 +27,7 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.DeleteBuil
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.InsertBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.StatementBuilder;
 import it.polimi.modaclouds.cpimlibrary.entitymng.statements.builders.UpdateBuilder;
+import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
@@ -86,7 +87,7 @@ public abstract class TestBase {
                 builder = new DeleteBuilder();
                 break;
             default:
-                throw new RuntimeException("Operation type: " + operation + " not recognized");
+                throw new MigrationException("Operation type: " + operation + " not recognized");
         }
         return builder.build(entity);
     }
@@ -98,7 +99,7 @@ public abstract class TestBase {
         } else if (query instanceof TypedCloudQuery) {
             queryString = ((TypedCloudQuery) query).getQueryString();
         } else {
-            throw new RuntimeException("Query has not been wrapped by CPIM");
+            throw new MigrationException("Query has not been wrapped by CPIM");
         }
         StatementBuilder builder;
         if (queryString.startsWith("UPDATE")) {
@@ -106,7 +107,7 @@ public abstract class TestBase {
         } else if (queryString.startsWith("DELETE")) {
             builder = new DeleteBuilder();
         } else {
-            throw new RuntimeException("Query is neither UPDATE nor DELETE");
+            throw new MigrationException("Query is neither UPDATE nor DELETE");
         }
         return builder.build(query, queryString);
     }

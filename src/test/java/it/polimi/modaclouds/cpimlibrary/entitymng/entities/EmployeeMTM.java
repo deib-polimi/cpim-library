@@ -16,26 +16,15 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.entities;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Data
 @ToString(exclude = "projects")
@@ -45,25 +34,25 @@ import lombok.ToString;
 @Table(name = "EmployeeMTM", schema = "gae-test@pu")
 public class EmployeeMTM {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "EMPLOYEE_ID")
-	private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "EMPLOYEE_ID")
+    private String id;
 
-	@Column(name = "NAME")
-	private String name;
+    @Column(name = "NAME")
+    private String name;
 
-	@Column(name = "SALARY")
-	private Long salary;
+    @Column(name = "SALARY")
+    private Long salary;
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinTable(name = "EMPLOYEE_PROJECT", joinColumns = { @JoinColumn(name = "EMPLOYEE_ID") }, inverseJoinColumns = { @JoinColumn(name = "PROJECT_ID") })
-	private List<ProjectMTM> projects;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "EMPLOYEE_PROJECT", joinColumns = {@JoinColumn(name = "EMPLOYEE_ID")}, inverseJoinColumns = {@JoinColumn(name = "PROJECT_ID")})
+    private List<ProjectMTM> projects;
 
-	public void addProjects(ProjectMTM... projects) {
-		if (this.projects == null) {
-			this.projects = new ArrayList<ProjectMTM>();
-		}
-		Collections.addAll(this.projects, projects);
-	}
+    public void addProjects(ProjectMTM... projects) {
+        if (this.projects == null) {
+            this.projects = new ArrayList<ProjectMTM>();
+        }
+        Collections.addAll(this.projects, projects);
+    }
 }

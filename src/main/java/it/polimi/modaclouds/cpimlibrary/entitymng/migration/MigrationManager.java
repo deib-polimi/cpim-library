@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
+import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +54,7 @@ public class MigrationManager {
                 this.state = normalState;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Cannot connect to ZooKeeper [" + connectionString + "]", e);
+            throw new MigrationException("Cannot connect to ZooKeeper [" + connectionString + "]", e);
         }
     }
 
