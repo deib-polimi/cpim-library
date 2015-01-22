@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SynchronizationListener;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,6 +60,26 @@ public class MigrantTest {
             // that's fine
         }
         migrant.stopMigration();
+        Assert.assertFalse(migrant.isMigrating());
+    }
+
+    @Test
+    public void testListener() throws Exception {
+        SynchronizationListener listener = new SynchronizationListener();
+        MigrationManager migrant = MigrationManager.getInstance();
+        Assert.assertFalse(migrant.isMigrating());
+
+        // stop migration while is not running
+        listener.countHasChanged(null, 0);
+        Assert.assertFalse(migrant.isMigrating());
+        // call migration
+        listener.countHasChanged(null, 1);
+        Assert.assertTrue(migrant.isMigrating());
+        // call migration while is running
+        listener.countHasChanged(null, 1);
+        Assert.assertTrue(migrant.isMigrating());
+        // stop migration while is running
+        listener.countHasChanged(null, 0);
         Assert.assertFalse(migrant.isMigrating());
     }
 }

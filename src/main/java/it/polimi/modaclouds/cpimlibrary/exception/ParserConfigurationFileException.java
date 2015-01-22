@@ -24,7 +24,11 @@ public class ParserConfigurationFileException extends Exception {
         super(msg);
     }
 
-    public ParserConfigurationFileException(String msg, Throwable e) {
-        super(msg, e);
+    public ParserConfigurationFileException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
+    public ParserConfigurationFileException(Throwable cause) {
+        super(cause);
     }
 }

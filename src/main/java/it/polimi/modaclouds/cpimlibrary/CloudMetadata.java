@@ -39,6 +39,7 @@ import java.util.List;
  */
 public class CloudMetadata {
 
+    public static final int DEFAULT_RANGE = 10;
     private static CloudMetadata instance = null;
     private String typeCloud = null;
     private String hostServerSmtp = null;
@@ -57,7 +58,7 @@ public class CloudMetadata {
     private HashMap<String, QueueInfo> queueInfo = null;
     private String backend_name = null;
     private String zookeeperConnection = null;
-    private int seqNumberRange = 10;
+    private int seqNumberRange = DEFAULT_RANGE;
     private boolean followCascades = false;
 
     public String getBackend_name() {
@@ -427,42 +428,39 @@ public class CloudMetadata {
         try {
             DocumentBuilder b = f.newDocumentBuilder();
             Document d = b.parse(findAssemblyMigration());
-
             Element root = d.getDocumentElement();
             NodeList children = root.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
                 Node n = children.item(i);
-                if (n.getNodeName().equals("zooKeeper")) {
-                    this.zookeeperConnection = n.getTextContent();
-                }
-                if (n.getNodeName().equals("followCascades")) {
-                    if (n.getTextContent().equalsIgnoreCase("true")) {
-                        this.followCascades = true;
-                    } else if (n.getTextContent().equalsIgnoreCase("false")) {
-                        this.followCascades = false;
-                    } else {
-                        throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
-                    }
-                }
-                if (n.getNodeName().equals("rangeSize")) {
-                    int range;
-                    try {
-                        range = Integer.parseInt(n.getTextContent());
-                    } catch (NumberFormatException e) {
-                        throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <rangeSize>", e);
-                    }
-                    this.seqNumberRange = range;
+                switch (n.getNodeName()) {
+                    case "zooKeeper":
+                        this.zookeeperConnection = n.getTextContent();
+                        break;
+                    case "followCascades":
+                        if (n.getTextContent().equalsIgnoreCase("true")) {
+                            this.followCascades = true;
+                        } else if (n.getTextContent().equalsIgnoreCase("false")) {
+                            this.followCascades = false;
+                        } else {
+                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
+                        }
+                        break;
+                    case "rangeSize":
+                        int range;
+                        try {
+                            range = Integer.parseInt(n.getTextContent());
+                        } catch (NumberFormatException e) {
+                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <rangeSize>", e);
+                        }
+                        this.seqNumberRange = range;
+                        break;
                 }
             }
             if (this.zookeeperConnection == null || this.zookeeperConnection.equals("")) {
                 throw new ParserConfigurationFileException("ZooKeeper connection string is required!");
             }
-        } catch (ParserConfigurationException e) {
-            throw new ParserConfigurationFileException(e.getMessage());
-        } catch (SAXException e) {
-            throw new ParserConfigurationFileException(e.getMessage());
-        } catch (IOException e) {
-            throw new ParserConfigurationFileException(e.getMessage());
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new ParserConfigurationFileException(e);
         }
     }
 
