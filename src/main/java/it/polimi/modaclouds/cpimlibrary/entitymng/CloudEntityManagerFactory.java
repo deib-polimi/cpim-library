@@ -28,9 +28,9 @@ public class CloudEntityManagerFactory {
     private String persistenceUnit = null;
 
     public CloudEntityManagerFactory(String persistenceUnit) {
-        /*
-         * Note that for AWS no NoSQL service is supported
-         */
+        // if ("Amazon".equals(vendor)) {
+        //    throw new UnsupportedOperationException("No NoSQL service is available for AWS");
+        // }
         this.persistenceUnit = persistenceUnit;
     }
 

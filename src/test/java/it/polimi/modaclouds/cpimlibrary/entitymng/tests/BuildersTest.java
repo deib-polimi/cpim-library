@@ -48,7 +48,6 @@ public class BuildersTest extends TestBase {
         employee.setName("Fabio");
         employee.setSalary(123L);
         employee.addProjects(project);
-
         Deque<Statement> statements;
 
         print("insert project");

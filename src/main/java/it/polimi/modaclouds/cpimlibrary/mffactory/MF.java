@@ -96,6 +96,7 @@ public class MF {
      */
     public CloudEntityManagerFactory getEntityManagerFactory() {
         if (emfInstance == null) {
+            // emfInstance = new CloudEntityManagerFactory(metadata.getTypeCloud(), metadata.getPersistenceUnit());
             emfInstance = new CloudEntityManagerFactory(metadata.getPersistenceUnit());
         }
         return emfInstance;

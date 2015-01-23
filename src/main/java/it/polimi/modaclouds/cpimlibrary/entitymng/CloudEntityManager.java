@@ -18,6 +18,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +62,10 @@ public class CloudEntityManager implements EntityManager {
             log.info("is MIGRATION state");
             migrant.propagate(entity, OperationType.INSERT);
         } else {
+            String tableName = ReflectionUtils.getJPATableName(entity);
+            int id = SeqNumberProvider.getInstance().getNextSequenceNumber(tableName);
+            Field idField = ReflectionUtils.getIdField(entity);
+            ReflectionUtils.setEntityField(entity, idField ,String.valueOf(id));
             delegate.persist(entity);
         }
     }
