@@ -16,10 +16,19 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
+
 /**
  * @author Fabio Arcidiacono.
  */
 public interface SeqNumberDispenser {
+
+    /**
+     * Returns the table the dispenser is responsible for.
+     *
+     * @return the string table name
+     */
+    public String getTable();
 
     /**
      * Gives the next sequence number assigned by migration system.
@@ -27,4 +36,22 @@ public interface SeqNumberDispenser {
      * @return the next sequence number
      */
     public int nextSequenceNumber();
+
+    /**
+     * Returns a representation of the current dispenser state.
+     *
+     * @return the current state representation.
+     */
+    public byte[] save();
+
+    /**
+     * Restore the dispenser state.
+     *
+     * @param content a state representation obtained through {@link SeqNumberDispenser#save()}.
+     *
+     * @return true if success, false otherwise
+     *
+     * @throws it.polimi.modaclouds.cpimlibrary.exception.CloudException of something goes wrong during restore.
+     */
+    public boolean restore(byte[] content) throws CloudException;
 }

@@ -16,9 +16,13 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.blobmng.CloudBlobManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
+import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -39,8 +43,10 @@ import java.util.Set;
  */
 public class SeqNumberProvider {
 
+    private final static String BLOB_PREFIX = "SeqNumber_";
     private static SeqNumberProvider instance = null;
     private Map<String, SeqNumberDispenser> dispenser;
+    private CloudBlobManager blobManager;
 
     private SeqNumberProvider() {
         this.dispenser = new HashMap<>();
@@ -48,6 +54,7 @@ public class SeqNumberProvider {
         for (String table : persistedTables) {
             this.addTable(table);
         }
+        this.blobManager = MF.getFactory().getBlobManagerFactory().createCloudBlobManager();
     }
 
     public static synchronized SeqNumberProvider getInstance() {
@@ -59,15 +66,29 @@ public class SeqNumberProvider {
 
     /**
      * Register a table so its ids can be managed through the migration system.
+     * <p/>
+     * Before registering the table, check if a blob with previous backup exists
+     * in this case restore the state of the created table dispenser.
      *
      * @param tableName the table name
      */
     public void addTable(String tableName) {
-        this.dispenser.put(tableName, new SeqNumberDispenserImpl(tableName));
+        SeqNumberDispenserImpl tableDispenser = new SeqNumberDispenserImpl(tableName);
+        String blobFileName = getFileName(tableDispenser);
+        if (blobManager.fileExists(blobFileName)) {
+            try {
+                byte[] savedState = blobManager.downloadBlob(blobFileName).getContent();
+                tableDispenser.restore(savedState);
+            } catch (IOException | CloudException e) {
+                throw new MigrationException("Some problem occurred while restoring the previous state for table [" + tableName + "]", e);
+            }
+        }
+        this.dispenser.put(tableName, tableDispenser);
     }
 
     /**
-     * Gives the next sequence number assigned by migration system for the given table.
+     * Gives the next sequence number assigned by migration system for the given table
+     * and backup to a blob the new state of the table dispenser.
      *
      * @param tableName the table name
      *
@@ -80,6 +101,13 @@ public class SeqNumberProvider {
         if (tableDispenser == null) {
             throw new MigrationException("Table [" + tableName + "] was not registered");
         }
-        return tableDispenser.nextSequenceNumber();
+        int next = tableDispenser.nextSequenceNumber();
+        byte[] newState = tableDispenser.save();
+        blobManager.uploadBlob(newState, getFileName(tableDispenser));
+        return next;
+    }
+
+    private String getFileName(SeqNumberDispenser tableDispenser) {
+        return BLOB_PREFIX + tableDispenser.getTable();
     }
 }
