@@ -17,10 +17,12 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
+import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -37,6 +39,7 @@ import java.util.Arrays;
 @Slf4j
 public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
+    private final String CHARSET = "UTF-8";
     private String tableName;
     private int[] range;
     private int next;
@@ -63,6 +66,11 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
     }
 
     @Override
+    public String getTable() {
+        return this.tableName;
+    }
+
+    @Override
     public int nextSequenceNumber() {
         int current = next;
         if (this.next == this.range[this.range.length - 1]) {
@@ -73,5 +81,45 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         }
         log.debug("TABLE: " + this.tableName + ", RANGE: " + Arrays.toString(range) + ", CURRENT: " + current + ", NEXT: " + next);
         return current;
+    }
+
+    @Override
+    public byte[] save() {
+        String state = Arrays.toString(this.range) + ":" + this.next;
+        return state.getBytes(Charset.forName(CHARSET));
+    }
+
+    @Override
+    public boolean restore(byte[] content) throws CloudException {
+        String state = new String(content, Charset.forName(CHARSET));
+        String[] parts = state.split(":");
+        if (parts.length == 1 || parts.length > 2) {
+            throw new CloudException("state is malformed and cannot be restored. " + state);
+        }
+        String[] elements = parts[0].replace("[", "").replace("]", "").split(",");
+        if (elements.length != 2) {
+            throw new CloudException("range is malformed and cannot be restored. " + parts[0]);
+        }
+
+        int[] range;
+        try {
+            range = new int[]{Integer.parseInt(elements[0].trim()), Integer.parseInt(elements[1].trim())};
+        } catch (NumberFormatException e) {
+            throw new CloudException(e);
+        }
+        int next;
+        try {
+            next = Integer.parseInt(parts[1].trim());
+        } catch (NumberFormatException e) {
+            throw new CloudException(e);
+        }
+
+        if (next < range[0] || next > range[1]) {
+            throw new CloudException("next sequence number (" + next + ") is outside range (" + Arrays.toString(range) + ")");
+        }
+
+        this.range = range;
+        this.next = next;
+        return true;
     }
 }

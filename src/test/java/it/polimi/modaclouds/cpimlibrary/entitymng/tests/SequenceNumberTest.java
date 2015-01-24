@@ -18,13 +18,17 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberDispenserImpl;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
+import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.nio.charset.Charset;
 
 /**
  * @author Fabio Arcidiacono.
@@ -57,5 +61,69 @@ public class SequenceNumberTest {
 
         thrown.expect(MigrationException.class);
         seqNumberProvider.getNextSequenceNumber("Non-Existent-Table");
+    }
+
+    @Test
+    public void testSaveAndRestore() {
+        SeqNumberDispenserImpl dispenser = new SeqNumberDispenserImpl("Test");
+        byte[] state;
+
+        try {
+            state = dispenser.save();
+            Assert.assertNotNull(state);
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        try {
+            state = "".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+
+        try {
+            state = "[11]:11".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+        try {
+            state = "[11,e]:11".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+        try {
+            state = "[e,11]:11".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+        try {
+            state = "[10,20]:f".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+        try {
+            state = "[10,20]:8".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+        try {
+            state = "[10,20]:33".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
+        try {
+            state = "[10,20]:15".getBytes(Charset.forName("UTF-8"));
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            // that's fine
+        }
     }
 }
