@@ -264,7 +264,7 @@ public class CloudMetadata {
      * Returns the configuration from <i>migration.xml</i> file for the prefix
      * to add to each sequence number dispenser backup.
      *
-     * @return true if is needed to backup to blob, false otherwise.
+     * @return the choosen string prefix.
      */
     public String getBackupPrefix() {
         return this.backupPrefix;
@@ -483,7 +483,7 @@ public class CloudMetadata {
                         } else if (n.getTextContent().equalsIgnoreCase("false")) {
                             this.backupToBlob = false;
                         } else {
-                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
+                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <backupToBlob>");
                         }
                         break;
                     case "backupPrefix":
