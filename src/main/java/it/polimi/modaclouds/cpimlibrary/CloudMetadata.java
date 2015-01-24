@@ -40,6 +40,7 @@ import java.util.List;
 public class CloudMetadata {
 
     public static final int DEFAULT_RANGE = 10;
+    public static final String DEFAULT_PREFIX = "SeqNumber_";
     private static CloudMetadata instance = null;
     private String typeCloud = null;
     private String hostServerSmtp = null;
@@ -60,6 +61,8 @@ public class CloudMetadata {
     private String zookeeperConnection = null;
     private int seqNumberRange = DEFAULT_RANGE;
     private boolean followCascades = false;
+    private boolean backupToBlob = true;
+    private String backupPrefix = DEFAULT_PREFIX;
 
     public String getBackend_name() {
         return backend_name;
@@ -245,6 +248,26 @@ public class CloudMetadata {
      */
     public boolean getFollowCascades() {
         return this.followCascades;
+    }
+
+    /**
+     * Returns the configuration from <i>migration.xml</i> file for backup to blob
+     * the sequence number dispenser state.
+     *
+     * @return true if is needed to backup to blob, false otherwise.
+     */
+    public boolean getBackupToBlob() {
+        return this.backupToBlob;
+    }
+
+    /**
+     * Returns the configuration from <i>migration.xml</i> file for the prefix
+     * to add to each sequence number dispenser backup.
+     *
+     * @return true if is needed to backup to blob, false otherwise.
+     */
+    public String getBackupPrefix() {
+        return this.backupPrefix;
     }
 
     private CloudMetadata() throws ParserConfigurationFileException {
@@ -453,6 +476,18 @@ public class CloudMetadata {
                             throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <rangeSize>", e);
                         }
                         this.seqNumberRange = range;
+                        break;
+                    case "backupToBlob":
+                        if (n.getTextContent().equalsIgnoreCase("true")) {
+                            this.backupToBlob = true;
+                        } else if (n.getTextContent().equalsIgnoreCase("false")) {
+                            this.backupToBlob = false;
+                        } else {
+                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
+                        }
+                        break;
+                    case "backupPrefix":
+                        this.backupPrefix = n.getTextContent();
                         break;
                 }
             }

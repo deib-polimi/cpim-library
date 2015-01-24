@@ -18,7 +18,9 @@
 
 -->
 <migration>
-	<zooKeeper>localhost:2181</zooKeeper>
+    <zooKeeper>localhost:2181</zooKeeper>
     <followCascades>false</followCascades>
     <rangeSize>5</rangeSize>
+    <backupToBlob>false</backupToBlob>
+    <!--<backupPrefix>SeqNumber_</backupPrefix>-->
 </migration>

@@ -65,7 +65,7 @@ public class CloudEntityManager implements EntityManager {
             String tableName = ReflectionUtils.getJPATableName(entity);
             int id = SeqNumberProvider.getInstance().getNextSequenceNumber(tableName);
             Field idField = ReflectionUtils.getIdField(entity);
-            ReflectionUtils.setEntityField(entity, idField ,String.valueOf(id));
+            ReflectionUtils.setEntityField(entity, idField, String.valueOf(id));
             delegate.persist(entity);
         }
     }

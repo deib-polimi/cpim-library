@@ -43,9 +43,10 @@ import java.util.Set;
  */
 public class SeqNumberProvider {
 
-    private final static String BLOB_PREFIX = "SeqNumber_";
     private static SeqNumberProvider instance = null;
     private Map<String, SeqNumberDispenser> dispenser;
+    private final boolean backupToBlob;
+    private String blobPrefix;
     private CloudBlobManager blobManager;
 
     private SeqNumberProvider() {
@@ -54,7 +55,11 @@ public class SeqNumberProvider {
         for (String table : persistedTables) {
             this.addTable(table);
         }
-        this.blobManager = MF.getFactory().getBlobManagerFactory().createCloudBlobManager();
+        this.backupToBlob = MF.getFactory().getCloudMetadata().getBackupToBlob();
+        if (backupToBlob) {
+            this.blobPrefix = MF.getFactory().getCloudMetadata().getBackupPrefix();
+            this.blobManager = MF.getFactory().getBlobManagerFactory().createCloudBlobManager();
+        }
     }
 
     public static synchronized SeqNumberProvider getInstance() {
@@ -74,14 +79,8 @@ public class SeqNumberProvider {
      */
     public void addTable(String tableName) {
         SeqNumberDispenserImpl tableDispenser = new SeqNumberDispenserImpl(tableName);
-        String blobFileName = getFileName(tableDispenser);
-        if (blobManager.fileExists(blobFileName)) {
-            try {
-                byte[] savedState = blobManager.downloadBlob(blobFileName).getContent();
-                tableDispenser.restore(savedState);
-            } catch (IOException | CloudException e) {
-                throw new MigrationException("Some problem occurred while restoring the previous state for table [" + tableName + "]", e);
-            }
+        if (backupToBlob) {
+            restoreDispenserState(tableDispenser);
         }
         this.dispenser.put(tableName, tableDispenser);
     }
@@ -102,12 +101,30 @@ public class SeqNumberProvider {
             throw new MigrationException("Table [" + tableName + "] was not registered");
         }
         int next = tableDispenser.nextSequenceNumber();
-        byte[] newState = tableDispenser.save();
-        blobManager.uploadBlob(newState, getFileName(tableDispenser));
+        if (backupToBlob) {
+            backupDispenserState(tableDispenser);
+        }
         return next;
     }
 
     private String getFileName(SeqNumberDispenser tableDispenser) {
-        return BLOB_PREFIX + tableDispenser.getTable();
+        return blobPrefix + tableDispenser.getTable();
+    }
+
+    private void backupDispenserState(SeqNumberDispenser tableDispenser) {
+        byte[] newState = tableDispenser.save();
+        blobManager.uploadBlob(newState, getFileName(tableDispenser));
+    }
+
+    private void restoreDispenserState(SeqNumberDispenser tableDispenser) {
+        String blobFileName = getFileName(tableDispenser);
+        if (blobManager.fileExists(blobFileName)) {
+            try {
+                byte[] savedState = blobManager.downloadBlob(blobFileName).getContent();
+                tableDispenser.restore(savedState);
+            } catch (IOException | CloudException e) {
+                throw new MigrationException("Some problem occurred while restoring the previous state for table [" + tableDispenser.getTable() + "]", e);
+            }
+        }
     }
 }
