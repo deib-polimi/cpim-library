@@ -63,7 +63,7 @@
 			</snapshots>
 		</repository>
 
-		<!-- local repo for:
+		<!-- local repo for: TODO move to deib repo ?
 				- sqljdbc4
 				- zql
 				- kundera-azure-table
@@ -146,7 +146,7 @@
 			<version>3.12.1.GA</version>
 		</dependency>
 
-		<!-- in local repo, TODO need to uploaded to deib repo -->
+		<!-- in local repo since is a repackage of jpa4azure -->
 		<dependency>
 			<groupId>com.windowsazure</groupId>
 			<artifactId>windowsazure</artifactId>
@@ -216,7 +216,7 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- in local repo, TODO need to uploaded to deib repo -->
+		<!-- in local repo -->
 		<dependency>
 			<groupId>com.impetus.kundera.client</groupId>
 			<artifactId>kundera-gae-datastore</artifactId>
