@@ -19,6 +19,12 @@
 -->
 <migration>
 	<zooKeeper>ZOOKEEPER-SERVER:PORT</zooKeeper>
-    <followCascades>TRUE|FALSE</followCascades>
-    <rangeSize>INTEGER[1-100]</rangeSize>
+	<!-- optional, default: false -->
+	<followCascades>TRUE|FALSE</followCascades>
+	<!-- optional, default: 10 -->
+	<rangeSize>INTEGER[1-100]</rangeSize>
+	<!-- optional, default: true -->
+	<backupToBlob>TRUE|FALSE</backupToBlob>
+	<!-- optional, default: SeqNumber_ -->
+	<backupPrefix>BLOB PREFIX FOR SEQ NUMBER BACKUP</backupPrefix>
 </migration>

@@ -52,6 +52,7 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         }
         this.tableName = tableName;
         this.zKclient = MigrationManager.getInstance().getZKclient();
+        // TODO make this configurable at runtime
         this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
         this.range = getAssignedSequenceNumbers();
         this.next = range[0];
