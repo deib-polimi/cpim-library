@@ -18,6 +18,7 @@ package it.polimi.modaclouds.cpimlibrary.mffactory;
 
 import it.polimi.modaclouds.cpimlibrary.CloudMetadata;
 import it.polimi.modaclouds.cpimlibrary.blobmng.CloudBlobManagerFactory;
+import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.CloudEntityManagerFactory;
 import it.polimi.modaclouds.cpimlibrary.exception.ParserConfigurationFileException;
 import it.polimi.modaclouds.cpimlibrary.mailservice.CloudMailManager;
@@ -37,6 +38,7 @@ public class MF {
     private static MF _instance = null;
     private CloudMetadata metadata = null;
     private CloudEntityManagerFactory emfInstance = null;
+    private CloudEntityManager emInstance = null;
     private CloudBlobManagerFactory bmfInstance = null;
     private CloudMessageQueueFactory mqfInstance = null;
     private CloudTaskQueueFactory tqfInstance = null;
@@ -96,10 +98,25 @@ public class MF {
      */
     public CloudEntityManagerFactory getEntityManagerFactory() {
         if (emfInstance == null) {
-            // emfInstance = new CloudEntityManagerFactory(metadata.getTypeCloud(), metadata.getPersistenceUnit());
             emfInstance = new CloudEntityManagerFactory(metadata.getPersistenceUnit());
         }
         return emfInstance;
+    }
+
+    /**
+     * Returns a {@code CloudEntityManager}. If it's the first time the Entity Manager is requested
+     * then it is instantiated through {@code CloudEntityManagerFactory}.
+     * This method is used to get the manager of the NoSQL service.
+     *
+     * @return the instance of the {@code CloudEntityManager}
+     *
+     * @see CloudEntityManager
+     */
+    public CloudEntityManager getEntityManager() {
+        if (emInstance == null) {
+            emInstance = getEntityManagerFactory().createCloudEntityManager();
+        }
+        return emInstance;
     }
 
     /**

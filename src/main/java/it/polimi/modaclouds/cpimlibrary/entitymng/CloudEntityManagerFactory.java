@@ -28,14 +28,7 @@ public class CloudEntityManagerFactory {
     private String persistenceUnit = null;
 
     public CloudEntityManagerFactory(String persistenceUnit) {
-        // if ("Amazon".equals(vendor)) {
-        //    throw new UnsupportedOperationException("No NoSQL service is available for AWS");
-        // }
         this.persistenceUnit = persistenceUnit;
-    }
-
-    private void initializeFactory(String persistenceUnit) {
-        this.factory = Persistence.createEntityManagerFactory(persistenceUnit);
     }
 
     /**
@@ -43,7 +36,7 @@ public class CloudEntityManagerFactory {
      */
     public CloudEntityManager createCloudEntityManager() {
         if (factory == null || !factory.isOpen()) {
-            initializeFactory(this.persistenceUnit);
+            this.factory = Persistence.createEntityManagerFactory(persistenceUnit);
         }
         return new CloudEntityManager(factory.createEntityManager());
     }
