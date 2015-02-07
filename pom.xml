@@ -78,6 +78,24 @@
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>it.polimi.modaclouds</groupId>
+			<artifactId>sqljdbc4</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>it.polimi.modaclouds</groupId>
+			<artifactId>zql</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.windowsazure</groupId>
+			<artifactId>windowsazure</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 		<!-- Google App Engine -->
 		<dependency>
 			<groupId>com.google.appengine</groupId>
@@ -110,7 +128,7 @@
 		<dependency>
 			<groupId>it.polimi.hegira</groupId>
 			<artifactId>zkWrapper-client</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- memcached (for memcache service)-->
@@ -144,27 +162,6 @@
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.12.1.GA</version>
-		</dependency>
-
-		<!-- in local repo since is a repackage of jpa4azure -->
-		<dependency>
-			<groupId>com.windowsazure</groupId>
-			<artifactId>windowsazure</artifactId>
-			<version>1.0</version>
-		</dependency>
-
-		<!-- in local repo since not available in any maven repo -->
-		<dependency>
-			<groupId>it.polimi.modaclouds</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<version>1.0</version>
-		</dependency>
-
-		<!-- in local repo since not available in any maven repo -->
-		<dependency>
-			<groupId>it.polimi.modaclouds</groupId>
-			<artifactId>zql</artifactId>
-			<version>1.0</version>
 		</dependency>
 
 		<!-- Apache commons -->
@@ -216,7 +213,6 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- in local repo -->
 		<dependency>
 			<groupId>com.impetus.kundera.client</groupId>
 			<artifactId>kundera-gae-datastore</artifactId>
