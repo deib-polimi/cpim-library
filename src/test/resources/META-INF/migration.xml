@@ -18,7 +18,16 @@
 
 -->
 <migration>
-	<zooKeeper>localhost:2181</zooKeeper>
-	<rangeSize>5</rangeSize>
-	<backupToBlob>false</backupToBlob>
+	<zooKeeper>
+		<type>thread</type>
+		<connection>localhost:2181</connection>
+		<!--
+		<type>http</type>
+		<connection>http://131.175.141.251/hegira-api/zkService</connection>
+		 -->
+		<range>5</range>
+	</zooKeeper>
+	<backup>
+		<execute>no</execute>
+	</backup>
 </migration>

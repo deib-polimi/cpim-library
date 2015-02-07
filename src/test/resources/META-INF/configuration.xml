@@ -18,6 +18,5 @@
 
 -->
 <configurations>
-	<!-- TODO add iaas or paas -->
 	<vendor>Google</vendor>
 </configurations>

@@ -32,6 +32,7 @@ public class ConfigurationTest {
         CloudMetadata cloudMetadata = CloudMetadata.getCloudMetadata();
 
         Assert.assertFalse(cloudMetadata.getFollowCascades());
+        Assert.assertEquals("thread", cloudMetadata.getZooKeeperType());
         Assert.assertEquals("localhost:2181", cloudMetadata.getZookeeperConnectionString());
         Assert.assertEquals(5, cloudMetadata.getSeqNumberRange());
         Assert.assertFalse(cloudMetadata.getBackupToBlob());

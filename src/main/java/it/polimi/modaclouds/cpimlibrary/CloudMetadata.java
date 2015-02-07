@@ -39,8 +39,6 @@ import java.util.List;
  */
 public class CloudMetadata {
 
-    public static final int DEFAULT_RANGE = 10;
-    public static final String DEFAULT_PREFIX = "SeqNumber_";
     private static CloudMetadata instance = null;
     private String typeCloud = null;
     private String hostServerSmtp = null;
@@ -58,11 +56,13 @@ public class CloudMetadata {
     private String memcacheAddr = null;
     private HashMap<String, QueueInfo> queueInfo = null;
     private String backend_name = null;
+
+    private String zookeeperType = null;
     private String zookeeperConnection = null;
-    private int seqNumberRange = DEFAULT_RANGE;
-    private boolean followCascades = false;
+    private int seqNumberRange = 10;
     private boolean backupToBlob = true;
-    private String backupPrefix = DEFAULT_PREFIX;
+    private String backupPrefix = "SeqNumber_";
+    private boolean followCascades = false;
 
     public String getBackend_name() {
         return backend_name;
@@ -221,6 +221,16 @@ public class CloudMetadata {
     }
 
     /**
+     * Returns the value of the ZooKeeper type specified in
+     * the <i>migration.xml</i> file.
+     *
+     * @return the ZooKeeper type.
+     */
+    public String getZooKeeperType() {
+        return this.zookeeperType;
+    }
+
+    /**
      * Returns the value of the connection string to ZooKeeper specified in
      * the <i>migration.xml</i> file.
      *
@@ -241,16 +251,6 @@ public class CloudMetadata {
     }
 
     /**
-     * Returns the configuration from <i>migration.xml</i> file for following cascade types during
-     * statement building.
-     *
-     * @return true if is needed to follow cascade types, false otherwise.
-     */
-    public boolean getFollowCascades() {
-        return this.followCascades;
-    }
-
-    /**
      * Returns the configuration from <i>migration.xml</i> file for backup to blob
      * the sequence number dispenser state.
      *
@@ -268,6 +268,16 @@ public class CloudMetadata {
      */
     public String getBackupPrefix() {
         return this.backupPrefix;
+    }
+
+    /**
+     * Returns the configuration from <i>migration.xml</i> file for following cascade types during
+     * statement building.
+     *
+     * @return true if is needed to follow cascade types, false otherwise.
+     */
+    public boolean getFollowCascades() {
+        return this.followCascades;
     }
 
     private CloudMetadata() throws ParserConfigurationFileException {
@@ -455,44 +465,56 @@ public class CloudMetadata {
             NodeList children = root.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
                 Node n = children.item(i);
-                switch (n.getNodeName()) {
-                    case "zooKeeper":
-                        this.zookeeperConnection = n.getTextContent();
-                        break;
-                    case "followCascades":
-                        if (n.getTextContent().equalsIgnoreCase("true")) {
-                            this.followCascades = true;
-                        } else if (n.getTextContent().equalsIgnoreCase("false")) {
-                            this.followCascades = false;
-                        } else {
-                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
+                if (n.getNodeName().equals("zooKeeper")) {
+                    NodeList zooKeeperChildren = n.getChildNodes();
+                    for (int u = 0; u < zooKeeperChildren.getLength(); u++) {
+                        Node n2 = zooKeeperChildren.item(u);
+                        if (n2.getNodeName().equals("type")) {
+                            if (!"http".equalsIgnoreCase(n2.getTextContent()) && !"thread".equalsIgnoreCase(n2.getTextContent())) {
+                                throw new ParserConfigurationFileException("Unrecognized value '" + n2.getTextContent() + "' for zooKeeper <type>");
+                            }
+                            this.zookeeperType = n2.getTextContent();
+                        } else if (n2.getNodeName().equals("connection")) {
+                            if ("".equals(n2.getTextContent())) {
+                                throw new ParserConfigurationFileException("ZooKeeper connection string is required!");
+                            }
+                            this.zookeeperConnection = n2.getTextContent();
+                        } else if (n2.getNodeName().equals("range")) {
+                            try {
+                                this.seqNumberRange = Integer.parseInt(n2.getTextContent());
+                            } catch (NumberFormatException e) {
+                                throw new ParserConfigurationFileException("Unrecognized value '" + n2.getTextContent() + "' for zooKeeper <range>", e);
+                            }
                         }
-                        break;
-                    case "rangeSize":
-                        int range;
-                        try {
-                            range = Integer.parseInt(n.getTextContent());
-                        } catch (NumberFormatException e) {
-                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <rangeSize>", e);
+                    }
+                } else if (n.getNodeName().equals("backup")) {
+                    NodeList backupChildren = n.getChildNodes();
+                    for (int u = 0; u < backupChildren.getLength(); u++) {
+                        Node n2 = backupChildren.item(u);
+                        if (n2.getNodeName().equals("execute")) {
+                            if ("yes".equalsIgnoreCase(n2.getTextContent())) {
+                                this.backupToBlob = true;
+                            } else if ("no".equalsIgnoreCase(n2.getTextContent())) {
+                                this.backupToBlob = false;
+                            } else {
+                                throw new ParserConfigurationFileException("Unrecognized value '" + n2.getTextContent() + "' for backup <execute>");
+                            }
+                        } else if (n2.getNodeName().equals("prefix")) {
+                            if ("".equals(n2.getTextContent())) {
+                                throw new ParserConfigurationFileException("You cannot specify a blank prefix for backups!");
+                            }
+                            this.backupPrefix = n2.getTextContent();
                         }
-                        this.seqNumberRange = range;
-                        break;
-                    case "backupToBlob":
-                        if (n.getTextContent().equalsIgnoreCase("true")) {
-                            this.backupToBlob = true;
-                        } else if (n.getTextContent().equalsIgnoreCase("false")) {
-                            this.backupToBlob = false;
-                        } else {
-                            throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <backupToBlob>");
-                        }
-                        break;
-                    case "backupPrefix":
-                        this.backupPrefix = n.getTextContent();
-                        break;
+                    }
+                } else if (n.getNodeName().equals("followCascades")) {
+                    if ("yes".equalsIgnoreCase(n.getTextContent())) {
+                        this.followCascades = true;
+                    } else if ("no".equalsIgnoreCase(n.getTextContent())) {
+                        this.followCascades = false;
+                    } else {
+                        throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
+                    }
                 }
-            }
-            if (this.zookeeperConnection == null || this.zookeeperConnection.equals("")) {
-                throw new ParserConfigurationFileException("ZooKeeper connection string is required!");
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new ParserConfigurationFileException(e);

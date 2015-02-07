@@ -18,13 +18,21 @@
 
 -->
 <migration>
-	<zooKeeper>ZOOKEEPER-SERVER:PORT</zooKeeper>
-	<!-- optional, default: false -->
-	<followCascades>TRUE|FALSE</followCascades>
-	<!-- optional, default: 10 -->
-	<rangeSize>INTEGER[1-100]</rangeSize>
-	<!-- optional, default: true -->
-	<backupToBlob>TRUE|FALSE</backupToBlob>
-	<!-- optional, default: SeqNumber_ -->
-	<backupPrefix>BLOB PREFIX FOR SEQ NUMBER BACKUP</backupPrefix>
+	<zooKeeper>
+		<!-- required -->
+		<type>THREAD|HTTP</type>
+		<!-- required -->
+		<!-- ZOOKEEPER-SERVER:PORT case type is thread, API-BASE-PATH case type is http -->
+		<connection>ZOOKEEPER-SERVER:PORT|API-BASE-PATH</connection>
+		<!-- optional, default: 10 -->
+		<range>INTEGER[1-100]</range>
+	</zooKeeper>
+	<backup>
+		<!-- optional, default: yes -->
+		<execute>no</execute>
+		<!-- optional, default: SeqNumber_ -->
+		<prefix>BLOB PREFIX FOR SEQ NUMBER BACKUP</prefix>
+	</backup>
+	<!-- optional, default: no -->
+	<followCascades>yes|no</followCascades>
 </migration>
