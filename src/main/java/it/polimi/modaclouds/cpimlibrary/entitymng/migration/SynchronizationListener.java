@@ -37,13 +37,7 @@ public class SynchronizationListener implements SharedCountListener {
     @Override
     public void countHasChanged(SharedCountReader sharedCount, int newCount) throws Exception {
         log.info("Shared counter has changed to: " + newCount);
-        MigrationManager migrant = MigrationManager.getInstance();
-        boolean isSynchronizing = ZKclient.toBoolean(newCount);
-        if (isSynchronizing && !migrant.isMigrating()) {
-            migrant.startMigration();
-        } else if (!isSynchronizing && migrant.isMigrating()) {
-            migrant.stopMigration();
-        }
+        HegiraConnector.getInstance().setSynchronizing(ZKclient.toBoolean(newCount));
     }
 
     @Override

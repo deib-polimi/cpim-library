@@ -16,9 +16,6 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
-import it.polimi.hegira.zkWrapper.ZKclient;
-import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
-import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,21 +37,16 @@ public class MigrationManager {
     @Getter private State normalState;
     @Getter private State migrationState;
     @Setter private State state;
-    @Getter private ZKclient zKclient;
+    private HegiraConnector hegiraConnector;
 
     private MigrationManager() {
         this.normalState = new NormalState(this);
         this.migrationState = new MigrationState(this);
-        String connectionString = MF.getFactory().getCloudMetadata().getZookeeperConnectionString();
-        zKclient = new ZKclient(connectionString);
-        try {
-            if (zKclient.isSynchronizing(new SynchronizationListener())) {
-                this.state = migrationState;
-            } else {
-                this.state = normalState;
-            }
-        } catch (Exception e) {
-            throw new MigrationException("Cannot connect to ZooKeeper [" + connectionString + "]", e);
+        this.hegiraConnector = HegiraConnector.getInstance();
+        if (hegiraConnector.isSynchronizing()) {
+            this.state = migrationState;
+        } else {
+            this.state = normalState;
         }
     }
 
@@ -66,7 +58,13 @@ public class MigrationManager {
     }
 
     public boolean isMigrating() {
-        return this.state.equals(migrationState);
+        boolean isSynchronizing = hegiraConnector.isSynchronizing();
+        if (isSynchronizing && this.state.equals(this.normalState)) {
+            startMigration();
+        } else if (!isSynchronizing && this.state.equals(this.migrationState)) {
+            stopMigration();
+        }
+        return this.state.equals(this.migrationState);
     }
 
     public void startMigration() {

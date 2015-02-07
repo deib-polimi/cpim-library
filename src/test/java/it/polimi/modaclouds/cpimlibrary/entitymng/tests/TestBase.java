@@ -60,7 +60,6 @@ public abstract class TestBase {
         }
         em = emf.createCloudEntityManager();
         migrant = MigrationManager.getInstance();
-        migrant.startMigration();
     }
 
     @After
@@ -71,7 +70,6 @@ public abstract class TestBase {
         if (emf != null) {
             emf.close();
         }
-        migrant.stopMigration();
     }
 
     protected Deque<Statement> buildStatements(Object entity, OperationType operation) {

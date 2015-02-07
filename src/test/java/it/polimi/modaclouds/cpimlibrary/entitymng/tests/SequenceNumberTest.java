@@ -17,7 +17,6 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
-import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberDispenserImpl;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
 import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
@@ -40,9 +39,6 @@ public class SequenceNumberTest {
 
     @Test
     public void testSequenceNumber() {
-        MigrationManager migrant = MigrationManager.getInstance();
-        Assert.assertNotNull(migrant.getZKclient());
-
         SeqNumberProvider seqNumberProvider = SeqNumberProvider.getInstance();
 
         int range = MF.getFactory().getCloudMetadata().getSeqNumberRange();
