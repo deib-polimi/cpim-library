@@ -14,9 +14,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
+package it.polimi.modaclouds.cpimlibrary.entitymng.migration.hegira;
 
 import it.polimi.hegira.zkWrapper.ZKclient;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCountListener;
@@ -37,7 +38,14 @@ public class SynchronizationListener implements SharedCountListener {
     @Override
     public void countHasChanged(SharedCountReader sharedCount, int newCount) throws Exception {
         log.info("Shared counter has changed to: " + newCount);
-        HegiraConnector.getInstance().setSynchronizing(ZKclient.toBoolean(newCount));
+        boolean isSynchronizing = ZKclient.toBoolean(newCount);
+        HegiraConnector.getInstance().setSynchronizing(isSynchronizing);
+        MigrationManager migrant = MigrationManager.getInstance();
+        if (isSynchronizing && !migrant.isMigrating()) {
+            migrant.startMigration();
+        } else if (!isSynchronizing && migrant.isMigrating()) {
+            migrant.stopMigration();
+        }
     }
 
     @Override

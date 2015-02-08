@@ -24,7 +24,7 @@
 		<!--
 		<type>http</type>
 		<connection>http://131.175.141.251/hegira-api/zkService/</connection>
-		 -->
+		-->
 		<range>5</range>
 	</zooKeeper>
 	<backup>

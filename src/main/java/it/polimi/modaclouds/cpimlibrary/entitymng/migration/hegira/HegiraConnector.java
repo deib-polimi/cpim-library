@@ -14,35 +14,31 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
+package it.polimi.modaclouds.cpimlibrary.entitymng.migration.hegira;
 
-import it.polimi.hegira.zkWrapper.ZKclient;
-import it.polimi.hegira.zkWrapper.rest.RestClient;
 import it.polimi.modaclouds.cpimlibrary.CloudMetadata;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
-import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Fabio Arcidiacono.
  */
+@Slf4j
 public class HegiraConnector {
 
     private static HegiraConnector instance = null;
-    private ZKclient zkClient = null;
-    private RestClient restClient = null;
-    @Setter private boolean isSynchronizing;
-    private boolean useRestClient;
+    private ZKAdapter zkClient = null;
 
     private HegiraConnector() {
         CloudMetadata cloudMetadata = MF.getFactory().getCloudMetadata();
         String type = cloudMetadata.getZooKeeperType();
         if (type.equalsIgnoreCase("thread")) {
-            this.useRestClient = false;
-            initializeZKClient(cloudMetadata.getZookeeperConnectionString());
+            log.info("Instantiating THREAD type ZKClient");
+            zkClient = new ZKThread(cloudMetadata.getZookeeperConnectionString());
         } else if (type.equalsIgnoreCase("http")) {
-            this.useRestClient = true;
-            initializeRestClient(cloudMetadata.getZookeeperConnectionString());
+            log.info("Instantiating HTTP type ZKClient");
+            zkClient = new ZKHttp(cloudMetadata.getZookeeperConnectionString());
         } else {
             throw new MigrationException("Unrecognized type '" + type + "' for ZooKeeper client");
         }
@@ -55,41 +51,19 @@ public class HegiraConnector {
         return instance;
     }
 
-    private void initializeZKClient(String connectionString) {
-        this.zkClient = new ZKclient(connectionString);
-        try {
-            this.isSynchronizing = zkClient.isSynchronizing(new SynchronizationListener());
-        } catch (Exception e) {
-            throw new MigrationException("Cannot connect to ZooKeeper [" + connectionString + "]", e);
-        }
-    }
-
-    private void initializeRestClient(String basePath) {
-        this.restClient = new RestClient(basePath);
-    }
-
     public int[] assignSeqNrRange(String tableName, int offset) throws Exception {
-        if (useRestClient) {
-            return restClient.assignSeqNrRange(tableName, offset);
-        }
         return zkClient.assignSeqNrRange(tableName, offset);
     }
 
     public int assignSeqNr(String tableName) throws Exception {
-        if (useRestClient) {
-            return restClient.assignSeqNr(tableName);
-        }
         return zkClient.assignSeqNr(tableName);
     }
 
+    public void setSynchronizing(boolean status) {
+        zkClient.setSynchronizing(status);
+    }
+
     public boolean isSynchronizing() {
-        if (useRestClient) {
-            try {
-                return restClient.isSynchronizing();
-            } catch (Exception e) {
-                throw new MigrationException("Some error occurred", e);
-            }
-        }
-        return isSynchronizing;
+        return zkClient.isSynchronizing();
     }
 }

@@ -17,10 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng.tests;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Department;
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeMTO;
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.EmployeeOTO;
-import it.polimi.modaclouds.cpimlibrary.entitymng.entities.Phone;
+import it.polimi.modaclouds.cpimlibrary.entitymng.entities.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,13 +29,13 @@ public class MetadataTest {
     @Test
     public void testPersistedClass() {
         Assert.assertEquals(Department.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("Department"));
-
+        Assert.assertEquals(Employee.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("Employee"));
+        Assert.assertEquals(EmployeeMTM.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeMTM"));
         Assert.assertEquals(EmployeeMTO.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeMTO"));
-
         Assert.assertEquals(EmployeeOTO.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeOTO"));
         Assert.assertEquals(EmployeeOTO.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("EmployeeOTOne"));
-
         Assert.assertEquals(Phone.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("Phone"));
+        Assert.assertEquals(ProjectMTM.class.getCanonicalName(), PersistenceMetadata.getInstance().getMappedClass("ProjectMTM"));
     }
 
     @Test

@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.hegira.HegiraConnector;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -58,13 +59,7 @@ public class MigrationManager {
     }
 
     public boolean isMigrating() {
-        boolean isSynchronizing = hegiraConnector.isSynchronizing();
-        if (isSynchronizing && this.state.equals(this.normalState)) {
-            startMigration();
-        } else if (!isSynchronizing && this.state.equals(this.migrationState)) {
-            stopMigration();
-        }
-        return this.state.equals(this.migrationState);
+        return hegiraConnector.isSynchronizing();
     }
 
     public void startMigration() {

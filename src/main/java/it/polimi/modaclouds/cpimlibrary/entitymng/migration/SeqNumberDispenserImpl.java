@@ -16,6 +16,7 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.hegira.HegiraConnector;
 import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;

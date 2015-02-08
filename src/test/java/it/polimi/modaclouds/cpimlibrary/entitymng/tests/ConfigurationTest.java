@@ -30,6 +30,7 @@ public class ConfigurationTest {
     @Test
     public void configurationTest() throws ParserConfigurationFileException {
         CloudMetadata cloudMetadata = CloudMetadata.getCloudMetadata();
+        Assert.assertEquals(cloudMetadata, MF.getFactory().getCloudMetadata());
 
         Assert.assertFalse(cloudMetadata.getFollowCascades());
         Assert.assertEquals("thread", cloudMetadata.getZooKeeperType());
@@ -37,7 +38,5 @@ public class ConfigurationTest {
         Assert.assertEquals(5, cloudMetadata.getSeqNumberRange());
         Assert.assertFalse(cloudMetadata.getBackupToBlob());
         Assert.assertEquals("SeqNumber_", cloudMetadata.getBackupPrefix());
-
-        Assert.assertEquals(cloudMetadata, MF.getFactory().getCloudMetadata());
     }
 }
