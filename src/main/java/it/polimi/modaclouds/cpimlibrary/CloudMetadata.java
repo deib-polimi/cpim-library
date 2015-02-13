@@ -516,6 +516,9 @@ public class CloudMetadata {
                     }
                 }
             }
+            if (this.zookeeperType.equals("http") && !this.zookeeperConnection.endsWith("/")) {
+                this.zookeeperConnection += "/";
+            }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new ParserConfigurationFileException(e);
         }
