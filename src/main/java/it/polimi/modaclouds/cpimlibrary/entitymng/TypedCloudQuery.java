@@ -17,6 +17,7 @@
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +43,7 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
     private Map<Parameter<?>, Object> parameters;
 
     public TypedCloudQuery(String queryString, TypedQuery<X> query) {
-        this.migrant = MigrationManager.getInstance();
+        this.migrant = MF.getFactory().getCloudMetadata().useMigration() ? MigrationManager.getInstance() : null;
         this.parameters = new HashMap<>();
         this.queryString = queryString.trim();
         this.query = query;
@@ -67,7 +68,7 @@ public class TypedCloudQuery<X> implements TypedQuery<X> {
      */
     @Override
     public int executeUpdate() {
-        if (migrant.isMigrating()) {
+        if (migrant != null && migrant.isMigrating()) {
             log.info("is MIGRATION state");
             migrant.propagate(this);
             return 0;

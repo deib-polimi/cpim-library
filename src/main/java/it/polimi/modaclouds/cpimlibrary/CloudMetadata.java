@@ -57,6 +57,7 @@ public class CloudMetadata {
     private HashMap<String, QueueInfo> queueInfo = null;
     private String backend_name = null;
 
+    private boolean useDataMigration;
     private String zookeeperType = null;
     private String zookeeperConnection = null;
     private int seqNumberRange = 10;
@@ -218,6 +219,16 @@ public class CloudMetadata {
      */
     public HashMap<String, String> getPersistenceInfo() {
         return persistenceInfo;
+    }
+
+    /**
+     * Returns true is migration has been configured in the <i>migration.xml</i> file.
+     * Return false if no <i>migration.xml</i> file has been found.
+     *
+     * @return the ZooKeeper type.
+     */
+    public boolean useMigration() {
+        return this.useDataMigration;
     }
 
     /**
@@ -461,6 +472,8 @@ public class CloudMetadata {
         try {
             DocumentBuilder b = f.newDocumentBuilder();
             Document d = b.parse(findAssemblyMigration());
+            // file has been found so parse migration configuration
+            useDataMigration = true;
             Element root = d.getDocumentElement();
             NodeList children = root.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
@@ -521,6 +534,9 @@ public class CloudMetadata {
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new ParserConfigurationFileException(e);
+        } catch (IllegalArgumentException e) {
+            // migration.xml is missing, do not ue migration facilities
+            useDataMigration = false;
         }
     }
 

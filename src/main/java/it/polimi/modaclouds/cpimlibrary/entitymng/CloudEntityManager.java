@@ -19,6 +19,7 @@ package it.polimi.modaclouds.cpimlibrary.entitymng;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -45,7 +46,7 @@ public class CloudEntityManager implements EntityManager {
     private EntityManager delegate;
 
     public CloudEntityManager(EntityManager entityManager) {
-        this.migrant = MigrationManager.getInstance();
+        this.migrant = MF.getFactory().getCloudMetadata().useMigration() ? MigrationManager.getInstance() : null;
         this.delegate = entityManager;
     }
 
@@ -58,14 +59,18 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public void persist(Object entity) {
-        if (migrant.isMigrating()) {
-            log.info("is MIGRATION state");
-            migrant.propagate(entity, OperationType.INSERT);
+        if (migrant != null) {
+            if (migrant.isMigrating()) {
+                log.info("is MIGRATION state");
+                migrant.propagate(entity, OperationType.INSERT);
+            } else {
+                String tableName = ReflectionUtils.getJPATableName(entity);
+                int id = SeqNumberProvider.getInstance().getNextSequenceNumber(tableName);
+                Field idField = ReflectionUtils.getIdField(entity);
+                ReflectionUtils.setEntityField(entity, idField, String.valueOf(id));
+                delegate.persist(entity);
+            }
         } else {
-            String tableName = ReflectionUtils.getJPATableName(entity);
-            int id = SeqNumberProvider.getInstance().getNextSequenceNumber(tableName);
-            Field idField = ReflectionUtils.getIdField(entity);
-            ReflectionUtils.setEntityField(entity, idField, String.valueOf(id));
             delegate.persist(entity);
         }
     }
@@ -79,7 +84,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public <T> T merge(T entity) {
-        if (migrant.isMigrating()) {
+        if (migrant != null && migrant.isMigrating()) {
             log.info("is MIGRATION state");
             migrant.propagate(entity, OperationType.UPDATE);
             return entity;
@@ -97,7 +102,7 @@ public class CloudEntityManager implements EntityManager {
      */
     @Override
     public void remove(Object entity) {
-        if (migrant.isMigrating()) {
+        if (migrant != null && migrant.isMigrating()) {
             log.info("is MIGRATION state");
             migrant.propagate(entity, OperationType.DELETE);
         } else {
