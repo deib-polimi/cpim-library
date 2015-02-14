@@ -52,7 +52,6 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         }
         this.tableName = tableName;
         this.hegiraConnector = HegiraConnector.getInstance();
-        // TODO make this configurable at runtime
         this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
         this.range = getAssignedSequenceNumbers();
         this.next = range[0];
@@ -69,6 +68,11 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
     @Override
     public String getTable() {
         return this.tableName;
+    }
+
+    @Override
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     @Override

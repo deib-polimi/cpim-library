@@ -86,6 +86,17 @@ public class SeqNumberProvider {
     }
 
     /**
+     * Gives the possibility to modify at runtime the offset for the given table.
+     *
+     * @param tableName the name of the table on which modify the offset
+     * @param offset    the new offset
+     */
+    public void setOffset(String tableName, int offset) {
+        SeqNumberDispenser tableDispenser = this.dispenser.get(tableName);
+        tableDispenser.setOffset(offset);
+    }
+
+    /**
      * Gives the next sequence number assigned by migration system for the given table
      * and backup to a blob the new state of the table dispenser.
      *

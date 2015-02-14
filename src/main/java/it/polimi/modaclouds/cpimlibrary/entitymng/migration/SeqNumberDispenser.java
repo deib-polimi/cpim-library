@@ -31,6 +31,14 @@ public interface SeqNumberDispenser {
     public String getTable();
 
     /**
+     * A setter to modify the default offset at runtime.
+     * The default one is the one specified in the <i>migration.xml</i> .
+     *
+     * @param offset the new offset
+     */
+    public void setOffset(int offset);
+
+    /**
      * Gives the next sequence number assigned by migration system.
      *
      * @return the next sequence number
