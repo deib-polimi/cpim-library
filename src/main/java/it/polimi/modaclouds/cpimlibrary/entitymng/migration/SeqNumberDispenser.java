@@ -39,6 +39,11 @@ public interface SeqNumberDispenser {
     public void setOffset(int offset);
 
     /**
+     * Get the current offset value.
+     */
+    public int geOffset();
+
+    /**
      * Gives the next sequence number assigned by migration system.
      *
      * @return the next sequence number

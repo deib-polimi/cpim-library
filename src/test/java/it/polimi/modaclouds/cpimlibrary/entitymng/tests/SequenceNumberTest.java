@@ -20,7 +20,6 @@ import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberDispenserImpl;
 import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
 import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
-import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -54,9 +53,36 @@ public class SequenceNumberTest {
                 Assert.assertFalse(receivedIds[i - 1] == receivedIds[i]);
             }
         }
+    }
 
-        thrown.expect(MigrationException.class);
-        seqNumberProvider.getNextSequenceNumber("Non-Existent-Table");
+    @Test
+    public void testOffsetConfiguration() {
+        SeqNumberProvider seqNumberProvider = SeqNumberProvider.getInstance();
+
+        int defaultOffset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
+        Assert.assertEquals(defaultOffset, seqNumberProvider.getOffset("Department"));
+
+        seqNumberProvider.setOffset("Department", 50);
+        Assert.assertEquals(50, seqNumberProvider.getOffset("Department"));
+    }
+
+    @Test
+    public void testNonExistentTable() {
+        try {
+            SeqNumberProvider.getInstance().getOffset("pippo");
+        } catch (IllegalArgumentException e) {
+            /* that's fine */
+        }
+        try {
+            SeqNumberProvider.getInstance().setOffset("pippo", 50);
+        } catch (IllegalArgumentException e) {
+            /* that's fine */
+        }
+        try {
+            SeqNumberProvider.getInstance().getNextSequenceNumber("pippo");
+        } catch (IllegalArgumentException e) {
+            /* that's fine */
+        }
     }
 
     @Test

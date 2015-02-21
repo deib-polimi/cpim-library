@@ -69,6 +69,14 @@ public class SeqNumberProvider {
         return instance;
     }
 
+    private SeqNumberDispenser getDispenser(String tableName) {
+        SeqNumberDispenser seqNumberDispenser = this.dispenser.get(tableName);
+        if (seqNumberDispenser == null) {
+            throw new IllegalArgumentException("Table [" + tableName + "] was not registered");
+        }
+        return seqNumberDispenser;
+    }
+
     /**
      * Register a table so its ids can be managed through the migration system.
      * <p/>
@@ -92,8 +100,20 @@ public class SeqNumberProvider {
      * @param offset    the new offset
      */
     public void setOffset(String tableName, int offset) {
-        SeqNumberDispenser tableDispenser = this.dispenser.get(tableName);
+        SeqNumberDispenser tableDispenser = getDispenser(tableName);
         tableDispenser.setOffset(offset);
+    }
+
+    /**
+     * Returns the current offset fot the given table.
+     *
+     * @param tableName the table name
+     *
+     * @return the integer value of the current offset
+     */
+    public int getOffset(String tableName) {
+        SeqNumberDispenser tableDispenser = getDispenser(tableName);
+        return tableDispenser.geOffset();
     }
 
     /**
@@ -107,10 +127,7 @@ public class SeqNumberProvider {
      * @throws java.lang.RuntimeException if {@code tableName} was not registered
      */
     public int getNextSequenceNumber(String tableName) {
-        SeqNumberDispenser tableDispenser = this.dispenser.get(tableName);
-        if (tableDispenser == null) {
-            throw new MigrationException("Table [" + tableName + "] was not registered");
-        }
+        SeqNumberDispenser tableDispenser = getDispenser(tableName);
         int next = tableDispenser.nextSequenceNumber();
         if (backupToBlob) {
             backupDispenserState(tableDispenser);

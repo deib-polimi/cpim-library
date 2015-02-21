@@ -57,14 +57,6 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         this.next = range[0];
     }
 
-    private int[] getAssignedSequenceNumbers() {
-        try {
-            return hegiraConnector.assignSeqNrRange(this.tableName, offset);
-        } catch (Exception e) {
-            throw new MigrationException("Some error occurred while retrieving sequence number range for table [" + this.tableName + "]", e);
-        }
-    }
-
     @Override
     public String getTable() {
         return this.tableName;
@@ -72,7 +64,13 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     @Override
     public void setOffset(int offset) {
+        log.debug("Offset modification for " + this.getTable() + ", from: " + this.offset + "to: " + offset);
         this.offset = offset;
+    }
+
+    @Override
+    public int geOffset() {
+        return this.offset;
     }
 
     @Override
@@ -86,6 +84,14 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         }
         log.debug("TABLE: " + this.tableName + ", RANGE: " + Arrays.toString(range) + ", CURRENT: " + current + ", NEXT: " + next);
         return current;
+    }
+
+    private int[] getAssignedSequenceNumbers() {
+        try {
+            return hegiraConnector.assignSeqNrRange(this.tableName, this.offset);
+        } catch (Exception e) {
+            throw new MigrationException("Some error occurred while retrieving sequence number range for table [" + this.tableName + "]", e);
+        }
     }
 
     @Override
