@@ -71,17 +71,17 @@ public class SequenceNumberTest {
         try {
             SeqNumberProvider.getInstance().getOffset("pippo");
         } catch (IllegalArgumentException e) {
-            /* that's fine */
+            Assert.assertTrue(e.getMessage().equals("Table [pippo] was not registered"));
         }
         try {
             SeqNumberProvider.getInstance().setOffset("pippo", 50);
         } catch (IllegalArgumentException e) {
-            /* that's fine */
+            Assert.assertTrue(e.getMessage().equals("Table [pippo] was not registered"));
         }
         try {
             SeqNumberProvider.getInstance().getNextSequenceNumber("pippo");
         } catch (IllegalArgumentException e) {
-            /* that's fine */
+            Assert.assertTrue(e.getMessage().equals("Table [pippo] was not registered"));
         }
     }
 
@@ -90,6 +90,7 @@ public class SequenceNumberTest {
         SeqNumberDispenserImpl dispenser = new SeqNumberDispenserImpl("Test");
         byte[] state;
 
+        /* empty state */
         try {
             state = dispenser.save();
             Assert.assertNotNull(state);
@@ -102,50 +103,66 @@ public class SequenceNumberTest {
             state = "".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getMessage().startsWith("state is malformed and cannot be restored."));
         }
 
         try {
             state = "[11]:11".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getMessage().startsWith("range is malformed and cannot be restored."));
         }
+
         try {
             state = "[11,e]:11".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getCause() instanceof NumberFormatException);
         }
+
         try {
             state = "[e,11]:11".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getCause() instanceof NumberFormatException);
         }
+
         try {
             state = "[10,20]:f".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getCause() instanceof NumberFormatException);
         }
+
         try {
             state = "[10,20]:8".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getMessage().startsWith("next sequence number (8) is outside range"));
         }
+
         try {
             state = "[10,20]:33".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.assertTrue(e.getMessage().startsWith("next sequence number (33) is outside range"));
         }
+
         try {
             state = "[10,20]:15".getBytes(Charset.forName("UTF-8"));
             dispenser.restore(state);
         } catch (CloudException e) {
-            // that's fine
+            Assert.fail(e.getMessage());
+        }
+
+        /* full state */
+        try {
+            dispenser.nextSequenceNumber();
+            state = dispenser.save();
+            Assert.assertNotNull(state);
+            dispenser.restore(state);
+        } catch (CloudException e) {
+            Assert.fail(e.getMessage());
         }
     }
 }

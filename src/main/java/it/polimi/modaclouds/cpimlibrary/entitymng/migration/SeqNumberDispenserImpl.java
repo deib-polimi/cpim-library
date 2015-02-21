@@ -53,8 +53,6 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
         this.tableName = tableName;
         this.hegiraConnector = HegiraConnector.getInstance();
         this.offset = MF.getFactory().getCloudMetadata().getSeqNumberRange();
-        this.range = getAssignedSequenceNumbers();
-        this.next = range[0];
     }
 
     @Override
@@ -64,7 +62,7 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     @Override
     public void setOffset(int offset) {
-        log.debug("Offset modification for " + this.getTable() + ", from: " + this.offset + "to: " + offset);
+        log.debug("Offset modification for " + this.getTable() + ", from: " + this.offset + " to: " + offset);
         this.offset = offset;
     }
 
@@ -75,6 +73,10 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     @Override
     public int nextSequenceNumber() {
+        if (this.range == null) {
+            this.range = getAssignedSequenceNumbers();
+            this.next = this.range[0];
+        }
         int current = next;
         if (this.next == this.range[this.range.length - 1]) {
             this.range = getAssignedSequenceNumbers();
@@ -88,6 +90,7 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     private int[] getAssignedSequenceNumbers() {
         try {
+            log.debug("need more sequence number for table: " + this.tableName + ", asking " + this.offset + " more");
             return hegiraConnector.assignSeqNrRange(this.tableName, this.offset);
         } catch (Exception e) {
             throw new MigrationException("Some error occurred while retrieving sequence number range for table [" + this.tableName + "]", e);
@@ -96,13 +99,23 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     @Override
     public byte[] save() {
-        String state = Arrays.toString(this.range) + ":" + this.next;
+        String state;
+        if (this.range == null) {
+            state = "[]";
+        } else {
+            state = Arrays.toString(this.range) + ":" + this.next;
+        }
         return state.getBytes(Charset.forName(CHARSET));
     }
 
     @Override
     public boolean restore(byte[] content) throws CloudException {
         String state = new String(content, Charset.forName(CHARSET));
+        if (state.equals("[]")) {
+            /* state was saved as empty */
+            return true;
+        }
+
         String[] parts = state.split(":");
         if (parts.length == 1 || parts.length > 2) {
             throw new CloudException("state is malformed and cannot be restored. " + state);
