@@ -39,7 +39,7 @@ public class ConfigurationTest {
         Assert.assertEquals(5, cloudMetadata.getSeqNumberRange());
         Assert.assertTrue(cloudMetadata.executeBackup());
         Assert.assertFalse(cloudMetadata.isBackupToBlob());
-        Assert.assertEquals("/Users/Fabio/Desktop/", cloudMetadata.getBackupFile());
+        Assert.assertEquals("/Users/Fabio/Desktop/state/", cloudMetadata.getBackupDir());
         Assert.assertEquals("SeqNumber_", cloudMetadata.getBackupPrefix());
     }
 }

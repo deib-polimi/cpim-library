@@ -63,7 +63,7 @@ public class SeqNumberProvider {
             if (backupToBlob) {
                 this.blobManager = MF.getFactory().getBlobManagerFactory().createCloudBlobManager();
             } else {
-                this.backupFile = MF.getFactory().getCloudMetadata().getBackupFile();
+                this.backupFile = MF.getFactory().getCloudMetadata().getBackupDir();
             }
         }
 

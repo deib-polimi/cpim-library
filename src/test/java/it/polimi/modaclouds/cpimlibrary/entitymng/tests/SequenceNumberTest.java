@@ -89,7 +89,7 @@ public class SequenceNumberTest {
 
     @Test
     public void testFileBackup() throws IOException {
-        String fileName = MF.getFactory().getCloudMetadata().getBackupFile() + MF.getFactory().getCloudMetadata().getBackupPrefix() + "pippo";
+        String fileName = MF.getFactory().getCloudMetadata().getBackupDir() + MF.getFactory().getCloudMetadata().getBackupPrefix() + "pippo";
         byte[] state = "[10,20]:15".getBytes(Charset.forName("UTF-8"));
         FileOutputStream out = new FileOutputStream(fileName);
         out.write(state);

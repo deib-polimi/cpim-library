@@ -33,7 +33,7 @@
 		<!-- optional, default: blob -->
 		<type>blob|file</type>
 		<!-- required iff type is file -->
-		<file>FULL PATH OF DIRECTORY FOR BACKUP FILES</file>
+		<directory>FULL PATH OF DIRECTORY FOR BACKUP DIRECTORY</directory>
 		<!-- required iff type is blob, default: SeqNumber_ -->
 		<prefix>BLOB PREFIX FOR SEQ NUMBER BACKUP</prefix>
 	</backup>

@@ -64,7 +64,7 @@ public class CloudMetadata {
     private boolean executeBackup = true;
     private boolean backupToBlob = true;
     private String backupPrefix = "SeqNumber_";
-    private String backupFile;
+    private String backupDir;
     private boolean followCascades = false;
 
     public String getBackend_name() {
@@ -303,10 +303,10 @@ public class CloudMetadata {
     /**
      * Returns the configuration from <i>migration.xml</i> file for the full path for sequence number dispenser backup file.
      *
-     * @return the choosen string prefix.
+     * @return the backup directory.
      */
-    public String getBackupFile() {
-        return this.backupFile;
+    public String getBackupDir() {
+        return this.backupDir;
     }
 
     /**
@@ -548,11 +548,11 @@ public class CloudMetadata {
                             } else {
                                 throw new ParserConfigurationFileException("Unrecognized value '" + n2.getTextContent() + "' for backup <type>");
                             }
-                        } else if (n2.getNodeName().equals("file")) {
+                        } else if (n2.getNodeName().equals("directory")) {
                             if ("".equals(n2.getTextContent())) {
-                                throw new ParserConfigurationFileException("You cannot specify a blank file path for backups!");
+                                throw new ParserConfigurationFileException("You cannot specify a blank directory path for backups!");
                             }
-                            this.backupFile = n2.getTextContent();
+                            this.backupDir = n2.getTextContent();
                         } else if (n2.getNodeName().equals("prefix")) {
                             if ("".equals(n2.getTextContent())) {
                                 throw new ParserConfigurationFileException("You cannot specify a blank prefix for backups!");
@@ -570,8 +570,8 @@ public class CloudMetadata {
                     }
                 }
             }
-            if (!this.backupToBlob && !this.backupFile.endsWith("/")) {
-                this.backupFile += "/";
+            if (!this.backupToBlob && !this.backupDir.endsWith("/")) {
+                this.backupDir += "/";
             }
             if (this.zookeeperType.equals("http") && !this.zookeeperConnection.endsWith("/")) {
                 this.zookeeperConnection += "/";
