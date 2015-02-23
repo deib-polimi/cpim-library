@@ -110,8 +110,13 @@ public class SeqNumberDispenserImpl implements SeqNumberDispenser {
 
     @Override
     public boolean restore(byte[] content) throws CloudException {
+        if (content == null) {
+           /* state was saved as empty */
+            return true;
+        }
+
         String state = new String(content, Charset.forName(CHARSET));
-        if (state.equals("[]")) {
+        if (state.isEmpty() || state.equals("[]")) {
             /* state was saved as empty */
             return true;
         }

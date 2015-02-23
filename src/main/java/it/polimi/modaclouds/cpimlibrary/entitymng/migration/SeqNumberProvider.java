@@ -23,6 +23,7 @@ import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
@@ -55,11 +56,6 @@ public class SeqNumberProvider {
     private CloudBlobManager blobManager;
 
     private SeqNumberProvider() {
-        this.dispenser = new HashMap<>();
-        Set<String> persistedTables = PersistenceMetadata.getInstance().getPersistedTables();
-        for (String table : persistedTables) {
-            this.addTable(table);
-        }
         this.executeBackup = MF.getFactory().getCloudMetadata().executeBackup();
         this.backupToBlob = MF.getFactory().getCloudMetadata().isBackupToBlob();
         if (executeBackup) {
@@ -69,6 +65,12 @@ public class SeqNumberProvider {
             } else {
                 this.backupFile = MF.getFactory().getCloudMetadata().getBackupFile();
             }
+        }
+
+        this.dispenser = new HashMap<>();
+        Set<String> persistedTables = PersistenceMetadata.getInstance().getPersistedTables();
+        for (String table : persistedTables) {
+            this.addTable(table);
         }
     }
 
@@ -98,7 +100,6 @@ public class SeqNumberProvider {
     public void addTable(String tableName) {
         SeqNumberDispenserImpl tableDispenser = new SeqNumberDispenserImpl(tableName);
         if (executeBackup) {
-            log.info("Restoring state for table [" + tableName + "]");
             restoreDispenserState(tableDispenser);
         }
         this.dispenser.put(tableName, tableDispenser);
@@ -173,9 +174,13 @@ public class SeqNumberProvider {
                 }
             } else {
                 String fileName = getFileName(tableDispenser);
-                FileInputStream in = new FileInputStream(fileName);
-                savedState = IOUtils.toByteArray(in);
-                in.close();
+                File f = new File(fileName);
+                if (f.exists() && !f.isDirectory()) {
+                    log.info("Restoring state for table [" + tableDispenser.getTable() + "]");
+                    FileInputStream in = new FileInputStream(fileName);
+                    savedState = IOUtils.toByteArray(in);
+                    in.close();
+                }
             }
             tableDispenser.restore(savedState);
         } catch (Exception e) {
