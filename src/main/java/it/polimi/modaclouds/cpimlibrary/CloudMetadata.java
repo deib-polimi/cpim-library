@@ -61,8 +61,10 @@ public class CloudMetadata {
     private String zookeeperType = null;
     private String zookeeperConnection = null;
     private int seqNumberRange = 10;
+    private boolean executeBackup = true;
     private boolean backupToBlob = true;
     private String backupPrefix = "SeqNumber_";
+    private String backupFile;
     private boolean followCascades = false;
 
     public String getBackend_name() {
@@ -262,23 +264,49 @@ public class CloudMetadata {
     }
 
     /**
-     * Returns the configuration from <i>migration.xml</i> file for backup to blob
-     * the sequence number dispenser state.
+     * Returns the configuration from <i>migration.xml</i> file for backing up the sequence number dispenser state.
      *
      * @return true if is needed to backup to blob, false otherwise.
      */
-    public boolean getBackupToBlob() {
+    public boolean isBackupToBlob() {
         return this.backupToBlob;
+    }
+
+    /**
+     * Returns the configuration from <i>migration.xml</i> file for backing up the sequence number dispenser state.
+     *
+     * @return true if is needed to backup to file, false otherwise.
+     */
+    public boolean isBackupToFile() {
+        return !this.backupToBlob;
+    }
+
+    /**
+     * Returns the configuration from <i>migration.xml</i> file for backing up the sequence number dispenser stae.
+     *
+     * @return true if is needed to backup, false otherwise.
+     */
+    public boolean executeBackup() {
+        return this.executeBackup;
     }
 
     /**
      * Returns the configuration from <i>migration.xml</i> file for the prefix
      * to add to each sequence number dispenser backup.
      *
-     * @return the choosen string prefix.
+     * @return the choose string prefix.
      */
     public String getBackupPrefix() {
         return this.backupPrefix;
+    }
+
+    /**
+     * Returns the configuration from <i>migration.xml</i> file for the full path for sequence number dispenser backup file.
+     *
+     * @return the choosen string prefix.
+     */
+    public String getBackupFile() {
+        return this.backupFile;
     }
 
     /**
@@ -506,12 +534,25 @@ public class CloudMetadata {
                         Node n2 = backupChildren.item(u);
                         if (n2.getNodeName().equals("execute")) {
                             if ("yes".equalsIgnoreCase(n2.getTextContent())) {
-                                this.backupToBlob = true;
+                                this.executeBackup = true;
                             } else if ("no".equalsIgnoreCase(n2.getTextContent())) {
-                                this.backupToBlob = false;
+                                this.executeBackup = false;
                             } else {
                                 throw new ParserConfigurationFileException("Unrecognized value '" + n2.getTextContent() + "' for backup <execute>");
                             }
+                        } else if (n2.getNodeName().equals("type")) {
+                            if ("blob".equalsIgnoreCase(n2.getTextContent())) {
+                                this.backupToBlob = true;
+                            } else if ("file".equalsIgnoreCase(n2.getTextContent())) {
+                                this.backupToBlob = false;
+                            } else {
+                                throw new ParserConfigurationFileException("Unrecognized value '" + n2.getTextContent() + "' for backup <type>");
+                            }
+                        } else if (n2.getNodeName().equals("file")) {
+                            if ("".equals(n2.getTextContent())) {
+                                throw new ParserConfigurationFileException("You cannot specify a blank file path for backups!");
+                            }
+                            this.backupFile = n2.getTextContent();
                         } else if (n2.getNodeName().equals("prefix")) {
                             if ("".equals(n2.getTextContent())) {
                                 throw new ParserConfigurationFileException("You cannot specify a blank prefix for backups!");
@@ -528,6 +569,9 @@ public class CloudMetadata {
                         throw new ParserConfigurationFileException("Unrecognized value " + n.getTextContent() + " for <followCascades>");
                     }
                 }
+            }
+            if (!this.backupToBlob && !this.backupFile.endsWith("/")) {
+                this.backupFile += "/";
             }
             if (this.zookeeperType.equals("http") && !this.zookeeperConnection.endsWith("/")) {
                 this.zookeeperConnection += "/";

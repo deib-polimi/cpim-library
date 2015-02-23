@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
@@ -83,6 +85,17 @@ public class SequenceNumberTest {
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(e.getMessage().equals("Table [pippo] was not registered"));
         }
+    }
+
+    @Test
+    public void testFileBackup() throws IOException {
+        String fileName = MF.getFactory().getCloudMetadata().getBackupFile() + MF.getFactory().getCloudMetadata().getBackupPrefix() + "pippo";
+        byte[] state = "[10,20]:15".getBytes(Charset.forName("UTF-8"));
+        FileOutputStream out = new FileOutputStream(fileName);
+        out.write(state);
+        out.close();
+
+        SeqNumberProvider.getInstance().addTable("pippo");
     }
 
     @Test

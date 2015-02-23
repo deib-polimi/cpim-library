@@ -28,6 +28,7 @@
 		<range>5</range>
 	</zooKeeper>
 	<backup>
-		<execute>no</execute>
+		<type>file</type>
+		<file>/Users/Fabio/Desktop</file>
 	</backup>
 </migration>

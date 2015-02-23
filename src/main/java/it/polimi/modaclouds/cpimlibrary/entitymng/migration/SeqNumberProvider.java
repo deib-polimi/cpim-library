@@ -18,11 +18,12 @@ package it.polimi.modaclouds.cpimlibrary.entitymng.migration;
 
 import it.polimi.modaclouds.cpimlibrary.blobmng.CloudBlobManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
-import it.polimi.modaclouds.cpimlibrary.exception.CloudException;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
+import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -45,8 +46,10 @@ public class SeqNumberProvider {
 
     private static SeqNumberProvider instance = null;
     private Map<String, SeqNumberDispenser> dispenser;
+    private final boolean executeBackup;
     private final boolean backupToBlob;
-    private String blobPrefix;
+    private String prefix;
+    private String backupFile;
     private CloudBlobManager blobManager;
 
     private SeqNumberProvider() {
@@ -55,10 +58,15 @@ public class SeqNumberProvider {
         for (String table : persistedTables) {
             this.addTable(table);
         }
-        this.backupToBlob = MF.getFactory().getCloudMetadata().getBackupToBlob();
-        if (backupToBlob) {
-            this.blobPrefix = MF.getFactory().getCloudMetadata().getBackupPrefix();
-            this.blobManager = MF.getFactory().getBlobManagerFactory().createCloudBlobManager();
+        this.executeBackup = MF.getFactory().getCloudMetadata().executeBackup();
+        this.backupToBlob = MF.getFactory().getCloudMetadata().isBackupToBlob();
+        if (executeBackup) {
+            this.prefix = MF.getFactory().getCloudMetadata().getBackupPrefix();
+            if (backupToBlob) {
+                this.blobManager = MF.getFactory().getBlobManagerFactory().createCloudBlobManager();
+            } else {
+                this.backupFile = MF.getFactory().getCloudMetadata().getBackupFile();
+            }
         }
     }
 
@@ -87,7 +95,7 @@ public class SeqNumberProvider {
      */
     public void addTable(String tableName) {
         SeqNumberDispenserImpl tableDispenser = new SeqNumberDispenserImpl(tableName);
-        if (backupToBlob) {
+        if (executeBackup) {
             restoreDispenserState(tableDispenser);
         }
         this.dispenser.put(tableName, tableDispenser);
@@ -129,30 +137,54 @@ public class SeqNumberProvider {
     public int getNextSequenceNumber(String tableName) {
         SeqNumberDispenser tableDispenser = getDispenser(tableName);
         int next = tableDispenser.nextSequenceNumber();
-        if (backupToBlob) {
+        if (executeBackup) {
             backupDispenserState(tableDispenser);
         }
         return next;
     }
 
-    private String getFileName(SeqNumberDispenser tableDispenser) {
-        return blobPrefix + tableDispenser.getTable();
-    }
-
     private void backupDispenserState(SeqNumberDispenser tableDispenser) {
         byte[] newState = tableDispenser.save();
-        blobManager.uploadBlob(newState, getFileName(tableDispenser));
+        if (backupToBlob) {
+            String blobFileName = getFileName(tableDispenser);
+            blobManager.uploadBlob(newState, blobFileName);
+        } else {
+            try {
+                String fileName = getFileName(tableDispenser);
+                FileOutputStream out = new FileOutputStream(fileName);
+                out.write(newState);
+                out.close();
+            } catch (Exception e) {
+                throw new MigrationException("Could not backup to file.", e);
+            }
+        }
     }
 
     private void restoreDispenserState(SeqNumberDispenser tableDispenser) {
-        String blobFileName = getFileName(tableDispenser);
-        if (blobManager.fileExists(blobFileName)) {
-            try {
-                byte[] savedState = blobManager.downloadBlob(blobFileName).getContent();
-                tableDispenser.restore(savedState);
-            } catch (IOException | CloudException e) {
-                throw new MigrationException("Some problem occurred while restoring the previous state for table [" + tableDispenser.getTable() + "]", e);
+        byte[] savedState = null;
+        try {
+            if (backupToBlob) {
+                String blobFileName = getFileName(tableDispenser);
+                if (blobManager.fileExists(blobFileName)) {
+                    savedState = blobManager.downloadBlob(blobFileName).getContent();
+                }
+            } else {
+                String fileName = getFileName(tableDispenser);
+                FileInputStream in = new FileInputStream(fileName);
+                savedState = IOUtils.toByteArray(in);
+                in.close();
             }
+            tableDispenser.restore(savedState);
+        } catch (Exception e) {
+            throw new MigrationException("Some problem occurred while restoring the previous state for table [" + tableDispenser.getTable() + "]", e);
+        }
+    }
+
+    private String getFileName(SeqNumberDispenser tableDispenser) {
+        if (backupToBlob) {
+            return prefix + tableDispenser.getTable();
+        } else {
+            return backupFile + prefix + tableDispenser.getTable();
         }
     }
 }

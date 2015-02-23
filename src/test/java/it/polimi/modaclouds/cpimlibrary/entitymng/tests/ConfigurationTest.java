@@ -37,7 +37,9 @@ public class ConfigurationTest {
         Assert.assertEquals("thread", cloudMetadata.getZooKeeperType());
         Assert.assertEquals("localhost:2181", cloudMetadata.getZookeeperConnectionString());
         Assert.assertEquals(5, cloudMetadata.getSeqNumberRange());
-        Assert.assertFalse(cloudMetadata.getBackupToBlob());
+        Assert.assertTrue(cloudMetadata.executeBackup());
+        Assert.assertFalse(cloudMetadata.isBackupToBlob());
+        Assert.assertEquals("/Users/Fabio/Desktop/", cloudMetadata.getBackupFile());
         Assert.assertEquals("SeqNumber_", cloudMetadata.getBackupPrefix());
     }
 }

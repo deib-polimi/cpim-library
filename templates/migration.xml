@@ -30,7 +30,11 @@
 	<backup>
 		<!-- optional, default: yes -->
 		<execute>no</execute>
-		<!-- optional, default: SeqNumber_ -->
+		<!-- optional, default: blob -->
+		<type>blob|file</type>
+		<!-- required iff type is file -->
+		<file>FULL PATH OF DIRECTORY FOR BACKUP FILES</file>
+		<!-- required iff type is blob, default: SeqNumber_ -->
 		<prefix>BLOB PREFIX FOR SEQ NUMBER BACKUP</prefix>
 	</backup>
 	<!-- optional, default: no -->
