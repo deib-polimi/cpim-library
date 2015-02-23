@@ -25,7 +25,7 @@ import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 public class ZKThread implements ZKAdapter {
 
     private final ZKclient zkClient;
-    private boolean isSynchronizing;
+    private boolean isSynchronizing = false;
 
     public ZKThread(String connectionString) {
         this.zkClient = new ZKclient(connectionString);

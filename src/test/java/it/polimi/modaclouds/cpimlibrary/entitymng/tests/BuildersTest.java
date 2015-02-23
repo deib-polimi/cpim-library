@@ -277,7 +277,6 @@ public class BuildersTest extends TestBase {
         Query query = em.createQuery("DELETE FROM Employee e WHERE e.name = :n AND e.salary >= :s", Employee.class);
         query.setParameter("n", "Pippo");
         query.setParameter("s", 123L);
-        query.executeUpdate();
         statements = buildStatements(query);
         Assert.assertNotNull(statements);
         Assert.assertEquals(1, statements.size());
