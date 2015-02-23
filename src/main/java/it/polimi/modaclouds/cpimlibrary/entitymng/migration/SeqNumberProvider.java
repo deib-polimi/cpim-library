@@ -20,6 +20,7 @@ import it.polimi.modaclouds.cpimlibrary.blobmng.CloudBlobManager;
 import it.polimi.modaclouds.cpimlibrary.entitymng.PersistenceMetadata;
 import it.polimi.modaclouds.cpimlibrary.exception.MigrationException;
 import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
@@ -42,6 +43,7 @@ import java.util.Set;
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberDispenser
  * @see it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberDispenserImpl
  */
+@Slf4j
 public class SeqNumberProvider {
 
     private static SeqNumberProvider instance = null;
@@ -96,6 +98,7 @@ public class SeqNumberProvider {
     public void addTable(String tableName) {
         SeqNumberDispenserImpl tableDispenser = new SeqNumberDispenserImpl(tableName);
         if (executeBackup) {
+            log.info("Restoring state for table [" + tableName + "]");
             restoreDispenserState(tableDispenser);
         }
         this.dispenser.put(tableName, tableDispenser);
