@@ -17,11 +17,18 @@
 package it.polimi.modaclouds.cpimlibrary.exception;
 
 public class CloudException extends Exception {
-	
-	private static final long serialVersionUID = 1L;
 
-	public CloudException(String msg){
-		super(msg);
-	}
+    private static final long serialVersionUID = 1L;
 
+    public CloudException(String msg) {
+        super(msg);
+    }
+
+    public CloudException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
+    public CloudException(Throwable cause) {
+        super(cause);
+    }
 }

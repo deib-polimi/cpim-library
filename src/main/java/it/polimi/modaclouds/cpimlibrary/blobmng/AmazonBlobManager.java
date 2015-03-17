@@ -35,8 +35,8 @@ public class AmazonBlobManager implements CloudBlobManager {
 	private String bucketName = null; //serve per non creare un bucket nuovo ogni volta
 //	DatastoreService datastore=null;
 //	FileService fileService=null;
-	
-	
+
+
 	//setta parametri iniziali
 	public AmazonBlobManager(AmazonS3Client s3) {
 		if(this.bucketName == null) {
@@ -60,7 +60,7 @@ public class AmazonBlobManager implements CloudBlobManager {
 			s3.createBucket(bucketName);
 		}
 	}
-	
+
 	@Override
 	public void uploadBlob(byte[] file, String fileName) {
 		System.out.println("uploadBlob " + fileName + ".");
@@ -105,6 +105,12 @@ public class AmazonBlobManager implements CloudBlobManager {
 		}
 		return list;
 	}
+
+    @Override
+    public boolean fileExists(String blobFileName) {
+        ArrayList<String> files = this.getAllBlobFileName();
+        return files.contains(blobFileName.trim());
+    }
 }	
 
 

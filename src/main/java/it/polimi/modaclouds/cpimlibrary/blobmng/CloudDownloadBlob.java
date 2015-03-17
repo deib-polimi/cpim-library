@@ -16,6 +16,9 @@
  */
 package it.polimi.modaclouds.cpimlibrary.blobmng;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -88,6 +91,15 @@ public class CloudDownloadBlob {
 	 */
 	public InputStream getFileStream() {
 		return fileStream;
+	}
+
+	/**
+	 * Returns the content of the blob file as a {@code byte[]}.
+	 *
+	 * @return a {@code byte[]} representation of the file content
+	 */
+	public byte[] getContent() throws IOException {
+		return IOUtils.toByteArray(this.fileStream);
 	}
 
 }

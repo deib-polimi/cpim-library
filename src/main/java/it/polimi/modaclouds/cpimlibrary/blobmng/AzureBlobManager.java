@@ -100,4 +100,10 @@ class AzureBlobManager implements CloudBlobManager {
 
 	}
 
+	@Override
+	public boolean fileExists(String blobFileName) {
+		ArrayList<String> files = this.getAllBlobFileName();
+		return files.contains(blobFileName.trim());
+	}
+
 }

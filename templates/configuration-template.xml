@@ -18,17 +18,17 @@
 
 -->
 <configurations>
-<vendor>Glassfish</vendor>
-<services>
-<sql>
-<connection string="THE-CONNECTION-STRING-TO-YOUR-DATABASE"/>
-<blobconnection string="THE-CONNECTION-STRING-TO-YOUR-BLOB-DATABASE"/>
-</sql>
-<mail>
-<account_info username="YOUR-EMAIL" password="YOUR-EMAIL-PASSWORD"/>/>
-</mail>
-<memcache>
-<host address="127.0.0.1" port="11211"/>
-</memcache>
-</services>
+	<vendor>Glassfish|Google|Azure|Amazon</vendor>
+	<services>
+		<sql>
+			<connection string="THE-CONNECTION-STRING-TO-YOUR-DATABASE"/>
+			<blobconnection string="THE-CONNECTION-STRING-TO-YOUR-BLOB-DATABASE"/>
+		</sql>
+		<mail>
+			<account_info username="YOUR-EMAIL" password="YOUR-EMAIL-PASSWORD"/>/>
+		</mail>
+		<memcache>
+			<host address="MEMCACHE-SERVER" port="MEMCACHE-PORT"/>
+		</memcache>
+	</services>
 </configurations>

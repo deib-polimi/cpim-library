@@ -16,344 +16,396 @@
  */
 package it.polimi.modaclouds.cpimlibrary.entitymng;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.MigrationManager;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.OperationType;
+import it.polimi.modaclouds.cpimlibrary.entitymng.migration.SeqNumberProvider;
+import it.polimi.modaclouds.cpimlibrary.mffactory.MF;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.metamodel.Metamodel;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Interface used to interact with the persistence context in the cloud, using
- * the NoSQL service in the independent-platform way.
- * 
- * <p>
- * The CloudEntityManager API is used to create and remove persistent entity
- * instances, to find entities by their primary key, and to query over entities.
- * </p>
- * <p>
- * The set of entities that can be managed by a given CloudEntityManager
- * instance is defined by a persistence unit. A persistence unit defines the set
- * of all classes that are related or grouped by the application, and which must
- * be colocated in their mapping to a single database.
- * </p>
- * 
- * @since Java Persistence API 1.0
- * 
+ * Delegate every operation to the {@link javax.persistence.EntityManager} implementation
+ * of the runtime provider except for persist, merge, remove and createQuery methods.
+ *
+ * @author Fabio Arcidiacono.
+ * @see javax.persistence.EntityManager
  */
-public interface CloudEntityManager {
+@Slf4j
+public class CloudEntityManager implements EntityManager {
 
-	/**
-	 * Clear the persistence context, causing all managed entities to become
-	 * detached. Changes made to entities that have not been flushed to the
-	 * database will not be persisted.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this CloudEntityManager has been closed.
-	 */
-	public void clear();
+    private MigrationManager migrant;
+    private EntityManager delegate;
 
-	/**
-	 * Close an application-managed EntityManager. After the close method has
-	 * been invoked, all methods on the EntityManager instance and any Query
-	 * objects obtained from it will throw the IllegalStateException except for
-	 * getTransaction and isOpen (which will return false). If this method is
-	 * called when the EntityManager is associated with an active transaction,
-	 * the persistence context remains managed until the transaction completes.
-	 * 
-	 * @throws IllegalStateException
-	 *             if the EntityManager is container-managed or has been already
-	 *             closed.
-	 */
-	public void close();
+    public CloudEntityManager(EntityManager entityManager) {
+        this.migrant = MF.getFactory().getCloudMetadata().useMigration() ? MigrationManager.getInstance() : null;
+        this.delegate = entityManager;
+    }
 
-	/**
-	 * Check if the instance belongs to the current persistence context.
-	 * 
-	 * @param entity
-	 * @return {@code true} if the instance belongs to the current persistence
-	 *         context.
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity
-	 */
-	public boolean contains(Object entity);
+    /**
+     * In case of migration generates a SELECT statement
+     * then sends it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.EntityManager#persist(Object)
+     */
+    @Override
+    public void persist(Object entity) {
+        if (migrant != null) {
+            if (migrant.isMigrating()) {
+                log.info("is MIGRATION state");
+                migrant.propagate(entity, OperationType.INSERT);
+            } else {
+                String tableName = ReflectionUtils.getJPATableName(entity);
+                int id = SeqNumberProvider.getInstance().getNextSequenceNumber(tableName);
+                Field idField = ReflectionUtils.getIdField(entity);
+                ReflectionUtils.setEntityField(entity, idField, String.valueOf(id));
+                delegate.persist(entity);
+            }
+        } else {
+            delegate.persist(entity);
+        }
+    }
 
-	/**
-	 * Create an instance of Query for executing a named query (in the Java
-	 * Persistence query language or in native SQL). In this case the
-	 * aggregation operators and the join are not supported, for the nature of
-	 * the NoSQL service.
-	 * 
-	 * @param name
-	 *            - the name of a query defined in metadata
-	 * @return the new query instance
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if a query has not been defined with the given name
-	 */
-	public Query createNamedQuery(String name);
+    /**
+     * In case of migration generates an UPDATE statements
+     * then sends it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.EntityManager#merge(Object)
+     */
+    @Override
+    public <T> T merge(T entity) {
+        if (migrant != null && migrant.isMigrating()) {
+            log.info("is MIGRATION state");
+            migrant.propagate(entity, OperationType.UPDATE);
+            return entity;
+        } else {
+            return delegate.merge(entity);
+        }
+    }
 
-	/**
-	 * Create an instance of Query for executing a native SQL statement, e.g.,
-	 * for update or delete. In this case the aggregation operators and the join
-	 * are not supported, for the nature of the NoSQL service.
-	 * 
-	 * @param sqlString
-	 *            - a native SQL query string
-	 * @return the new query instance
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Query createNativeQuery(String sqlString);
+    /**
+     * In case of migration generates an DELETE statements
+     * then sends it to the migration system.
+     * Otherwise delegates to the persistence provider implementation.
+     *
+     * @see javax.persistence.EntityManager#remove(Object)
+     */
+    @Override
+    public void remove(Object entity) {
+        if (migrant != null && migrant.isMigrating()) {
+            log.info("is MIGRATION state");
+            migrant.propagate(entity, OperationType.DELETE);
+        } else {
+            delegate.persist(entity);
+        }
+    }
 
-	/**
-	 * Create an instance of Query for executing a native SQL query. In this
-	 * case the aggregation operators and the join are not supported, for the
-	 * nature of the NoSQL service.
-	 * 
-	 * @param sqlString
-	 *            - a native SQL query string
-	 * @param resultClass
-	 *            - the class of the resulting instance(s)
-	 * @return the new query instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Query createNativeQuery(String sqlString,
-			@SuppressWarnings("rawtypes") Class resultClass);
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey) {
+        return delegate.find(entityClass, primaryKey);
+    }
 
-	/**
-	 * Create an instance of Query for executing a native SQL query. In this
-	 * case the aggregation operators and the join are not supported, for the
-	 * nature of the NoSQL service.
-	 * 
-	 * @param sqlString
-	 *            - a native SQL query string
-	 * @param resultSetMapping
-	 *            - the name of the result set mapping
-	 * @return the new query instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Query createNativeQuery(String sqlString, String resultSetMapping);
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
+        return delegate.find(entityClass, primaryKey, properties);
+    }
 
-	/**
-	 * Create an instance of Query for executing a Java Persistence query
-	 * language statement.
-	 * 
-	 * @param qlString
-	 *            - a Java Persistence query language query string
-	 * @return the new query instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if query string is not valid
-	 */
-	public Query createQuery(String qlString);
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
+        return delegate.find(entityClass, primaryKey, lockMode);
+    }
 
-	/**
-	 * Find by primary key.
-	 * 
-	 * @param entityClass
-	 * @param primaryKey
-	 * @return the found entity instance or null if the entity does not exist
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if the first argument does not denote an entity type or the
-	 *             second argument is not a valid type for that entity's primary
-	 *             key
-	 */
-	public <T> T find(Class<T> entityClass, Object primaryKey);
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        return delegate.find(entityClass, primaryKey, lockMode, properties);
+    }
 
-	/**
-	 * Synchronize the persistence context to the underlying database.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws TransactionRequiredException
-	 *             if there is no transaction
-	 * @throws PersistenceException
-	 *             if the flush fails
-	 */
-	public void flush();
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public <T> T getReference(Class<T> entityClass, Object primaryKey) {
+        return delegate.getReference(entityClass, primaryKey);
+    }
 
-	/**
-	 * Return the underlying provider object for the EntityManager, if
-	 * available.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public Object getDelegate();
+    @Override
+    public void flush() {
+        delegate.flush();
+    }
 
-	/**
-	 * Get the flush mode that applies to all objects contained in the
-	 * persistence context.
-	 * 
-	 * @return flush mode
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public FlushModeType getFlushMode();
+    @Override
+    public void setFlushMode(FlushModeType flushMode) {
+        delegate.setFlushMode(flushMode);
+    }
 
-	/**
-	 * Get an instance, whose state may be lazily fetched. If the requested
-	 * instance does not exist in the database, throws
-	 * {@code EntityNotFoundException} when the instance state is first
-	 * accessed. (The persistence provider runtime is permitted to throw
-	 * {@code EntityNotFoundException} when {@code getReference(java.lang.Class,
-	 * java.lang.Object)} is called.) The application should not expect that the
-	 * instance state will be available upon detachment, unless it was accessed
-	 * by the application while the entity manager was open.
-	 * 
-	 * @param entityClass
-	 * @param primaryKey
-	 * @return the found entity instance
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if the first argument does not denote an entity type or the
-	 *             second argument is not a valid type for that entity's primary
-	 *             key
-	 * @throws EntityNotFoundException
-	 *             if the entity state cannot be accessed
-	 */
-	public <T> T getReference(Class<T> entityClass, Object primaryKey);
+    @Override
+    public FlushModeType getFlushMode() {
+        return delegate.getFlushMode();
+    }
 
-	/**
-	 * Returns the resource-level transaction object. The EntityTransaction
-	 * instance may be used serially to begin and commit multiple transactions.
-	 * 
-	 * @return EntityTransaction instance
-	 * @throws IllegalStateException
-	 *             if invoked on a JTA EntityManager.
-	 * 
-	 */
-	public EntityTransaction getTransaction();
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public void lock(Object entity, LockModeType lockMode) {
+        delegate.lock(entity, lockMode);
+    }
 
-	/**
-	 * Determine whether the EntityManager is open.
-	 * 
-	 * @return {@code true} until the EntityManager has been closed.
-	 */
-	public boolean isOpen();
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        delegate.lock(entity, lockMode, properties);
+    }
 
-	/**
-	 * Indicate to the EntityManager that a JTA transaction is active. This
-	 * method should be called on a JTA application managed EntityManager that
-	 * was created outside the scope of the active transaction to associate it
-	 * with the current JTA transaction.
-	 * 
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws TransactionRequiredException
-	 *             if there is no transaction.
-	 */
-	public void joinTransaction();
+    @Override
+    public void refresh(Object entity) {
+        delegate.refresh(entity);
+    }
 
-	/**
-	 * Set the lock mode for an entity object contained in the persistence
-	 * context.
-	 * 
-	 * @param entity
-	 * @param lockMode
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws PersistenceException
-	 *             if an unsupported lock call is made
-	 * @throws IllegalArgumentException
-	 *             if the instance is not an entity or is a detached entity
-	 * @throws TransactionRequiredException
-	 *             if there is no transaction
-	 */
-	public void lock(Object entity, LockModeType lockMode);
+    @Override
+    public void refresh(Object entity, Map<String, Object> properties) {
+        delegate.refresh(entity, properties);
+    }
 
-	/**
-	 * Merge the state of the given entity into the current persistence context.
-	 * Parameters: entity - Returns: Throws:
-	 * 
-	 * 
-	 * 
-	 * @param entity
-	 * @return the instance that the state was merged to
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if instance is not an entity or is a removed entity
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 */
-	public <T> T merge(T entity);
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public void refresh(Object entity, LockModeType lockMode) {
+        delegate.refresh(entity, lockMode);
+    }
 
-	/**
-	 * Make an entity instance managed and persistent.
-	 * 
-	 * @param entity
-	 * @throws EntityExistsException
-	 *             if the entity already exists. (The EntityExistsException may
-	 *             be thrown when the persist operation is invoked, or the
-	 *             EntityExistsException or another PersistenceException may be
-	 *             thrown at flush or commit time.)
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 */
-	public void persist(Object entity);
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {
+        delegate.refresh(entity, lockMode, properties);
+    }
 
-	/**
-	 * Refresh the state of the instance from the database, overwriting changes
-	 * made to the entity, if any.
-	 * 
-	 * @param entity
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity or entity is not managed
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 * @throws EntityNotFoundException
-	 *             if the entity no longer exists in the database.
-	 */
-	public void refresh(Object entity);
+    @Override
+    public void clear() {
+        delegate.clear();
+    }
 
-	/**
-	 * Remove the entity instance.
-	 * 
-	 * @param entity
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 * @throws IllegalArgumentException
-	 *             if not an entity or if a detached entity
-	 * @throws TransactionRequiredException
-	 *             if invoked on a container-managed entity manager of type
-	 *             PersistenceContextType.TRANSACTION and there is no
-	 *             transaction.
-	 */
-	public void remove(Object entity);
+    @Override
+    public void detach(Object entity) {
+        delegate.detach(entity);
+    }
 
-	/**
-	 * Set the flush mode that applies to all objects contained in the
-	 * persistence context.
-	 * 
-	 * @param flushMode
-	 * @throws IllegalStateException
-	 *             if this EntityManager has been closed.
-	 */
-	public void setFlushMode(FlushModeType flushMode);
+    @Override
+    public boolean contains(Object entity) {
+        return delegate.contains(entity);
+    }
 
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public LockModeType getLockMode(Object entity) {
+        return delegate.getLockMode(entity);
+    }
+
+    @Override
+    public void setProperty(String propertyName, Object value) {
+        delegate.setProperty(propertyName, value);
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return delegate.getProperties();
+    }
+
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(String)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
+     */
+    @Override
+    public Query createQuery(String queryString) {
+        log.debug("CloudEntityManager.createQuery WRAPPING");
+        return new CloudQuery(queryString, delegate.createQuery(queryString));
+    }
+
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createQuery(String, Class)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
+     */
+    @Override
+    public <T> TypedQuery<T> createQuery(String queryString, Class<T> resultClass) {
+        log.debug("CloudEntityManager.createQuery WRAPPING");
+        return new TypedCloudQuery<>(queryString, delegate.createQuery(queryString, resultClass));
+    }
+
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createNamedQuery(String)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.CloudQuery
+     */
+    @Override
+    public Query createNamedQuery(String name) {
+        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
+        String queryString = PersistenceMetadata.getInstance().getNamedQuery(name);
+        return new CloudQuery(queryString, delegate.createNamedQuery(name));
+    }
+
+    /**
+     * Delegates query generation to the persistence provider
+     * then returns a wrapped query type.
+     *
+     * @see javax.persistence.EntityManager#createNamedQuery(String, Class)
+     * @see it.polimi.modaclouds.cpimlibrary.entitymng.TypedCloudQuery
+     */
+    @Override
+    public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+        log.debug("CloudEntityManager.createNamedQuery WRAPPING");
+        String queryString = PersistenceMetadata.getInstance().getNamedQuery(name);
+        return new TypedCloudQuery<>(queryString, delegate.createNamedQuery(name, resultClass));
+    }
+
+    @Override
+    public Query createNativeQuery(String queryString) {
+        throw new UnsupportedOperationException("Native queries are not supported");
+    }
+
+    @Override
+    public Query createNativeQuery(String queryString, Class resultClass) {
+        throw new UnsupportedOperationException("Native queries are not supported");
+    }
+
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public Query createNativeQuery(String queryString, String resultSetMapping) {
+        throw new UnsupportedOperationException("Native queries are not supported");
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
+    }
+
+    @Override
+    public Query createQuery(CriteriaUpdate updateQuery) {
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
+    }
+
+    @Override
+    public Query createQuery(CriteriaDelete deleteQuery) {
+        throw new UnsupportedOperationException("Criteria queries are currently not supported");
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
+        throw new UnsupportedOperationException("Stored Procedure queries are currently not supported");
+    }
+
+    @Override
+    public void joinTransaction() {
+        delegate.joinTransaction();
+    }
+
+    // Note: Kundera[2.14] just return false
+    @Override
+    public boolean isJoinedToTransaction() {
+        return delegate.isJoinedToTransaction();
+    }
+
+    // Note: Kundera[2.14] will throw NotImplementedException()
+    @Override
+    public <T> T unwrap(Class<T> cls) {
+        return delegate.unwrap(cls);
+    }
+
+    @Override
+    public Object getDelegate() {
+        return delegate.getDelegate();
+    }
+
+    @Override
+    public void close() {
+        delegate.close();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return delegate.isOpen();
+    }
+
+    @Override
+    public EntityTransaction getTransaction() {
+        return delegate.getTransaction();
+    }
+
+    /**
+     * Use of this method is discouraged due to possibility of escaping from migration control.
+     *
+     * @return the entityManagerFactory of the runtime persistence provider
+     */
+    @Override
+    public EntityManagerFactory getEntityManagerFactory() {
+        log.warn("get EntityManagerFactory from CloudEntityManager");
+        return delegate.getEntityManagerFactory();
+    }
+
+    @Override
+    public CriteriaBuilder getCriteriaBuilder() {
+        return delegate.getCriteriaBuilder();
+    }
+
+    @Override
+    public Metamodel getMetamodel() {
+        return delegate.getMetamodel();
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) {
+        return delegate.createEntityGraph(rootType);
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public EntityGraph<?> createEntityGraph(String graphName) {
+        return delegate.createEntityGraph(graphName);
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public EntityGraph<?> getEntityGraph(String graphName) {
+        return delegate.getEntityGraph(graphName);
+    }
+
+    // Note: Kundera[2.14] just return null
+    @Override
+    public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
+        return delegate.getEntityGraphs(entityClass);
+    }
 }

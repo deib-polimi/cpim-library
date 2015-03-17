@@ -116,6 +116,12 @@ class GoogleBlobManager implements CloudBlobManager {
 		bs.delete(bi.getBlobKey());
 	}
 
+	@Override
+	public boolean fileExists(String blobFileName) {
+		ArrayList<String> files = this.getAllBlobFileName();
+		return files.contains(blobFileName.trim());
+	}
+
 }	
 
 

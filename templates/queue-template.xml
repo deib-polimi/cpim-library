@@ -18,11 +18,11 @@
 
 -->
 <queue-entries>
-<queue>
-<name>queuetask</name>
-<mode>PUSH</mode>
-<rate>5/s</rate>
-<messageQueueConnection>YOUR JMS CONNECTION FACTORY IN GLASSFISH</messageQueueConnection>
-<messageQueueResource>YOUR JMS QUEUE RESOURCE IN GLASSFISH</messageQueueResource>
-</queue>
+	<queue>
+		<name>queuetask</name>
+		<mode>PUSH</mode>
+		<rate>5/s</rate>
+		<messageQueueConnection>YOUR JMS CONNECTION FACTORY IN GLASSFISH</messageQueueConnection>
+		<messageQueueResource>YOUR JMS QUEUE RESOURCE IN GLASSFISH</messageQueueResource>
+	</queue>
 </queue-entries>

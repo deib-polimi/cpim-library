@@ -18,10 +18,17 @@ package it.polimi.modaclouds.cpimlibrary.exception;
 
 public class ParserConfigurationFileException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public ParserConfigurationFileException(String msg){
-		super(msg);
-	}
+    public ParserConfigurationFileException(String msg) {
+        super(msg);
+    }
 
+    public ParserConfigurationFileException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
+    public ParserConfigurationFileException(Throwable cause) {
+        super(cause);
+    }
 }

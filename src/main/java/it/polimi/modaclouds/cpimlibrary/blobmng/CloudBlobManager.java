@@ -21,13 +21,13 @@ import java.util.ArrayList;
 /**
  * This abstract class exposes the method to manage the Blob service on the cloud in
  * an independent-platform way.
- * 
+ *
  */
 public interface CloudBlobManager {
 
 	/**
 	 * Upload a file on the cloud. The maximum size allowed is 32 MB.
-	 * 
+	 *
 	 * @param file
 	 *            - byte array
 	 * @param fileName
@@ -37,14 +37,14 @@ public interface CloudBlobManager {
 	/**
 	 * Delete the Blob on cloud by giving the file name. Do nothing if the file
 	 * does not exist.
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void deleteBlob(String fileName);
 
 	/**
 	 * Returns a CloudDowloadBlob that represent the Blob file stored on cloud.
-	 * 
+	 *
 	 * @param fileName
 	 * @return a CloudDownload Blob or null if the Blob does not exist
 	 * @see CloudDownloadBlob
@@ -54,8 +54,17 @@ public interface CloudBlobManager {
 	/**
 	 * Returns a list of strings that contains all the file name stored on
 	 * cloud. <b>This operation is expensive</b>.
-	 * 
+	 *
 	 * @return list of file name
 	 */
 	public ArrayList<String> getAllBlobFileName();
+
+    /**
+     * Returns true if a blob exists with the given name.
+     *
+     * @param blobFileName the file name
+     *
+     * @return true if file exits, false otherwise
+     */
+    boolean fileExists(String blobFileName);
 }

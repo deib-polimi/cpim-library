@@ -112,6 +112,11 @@ public class GlassfishBlobManager implements CloudBlobManager {
 		}
 		return null;
 	}
-	
+
+	@Override
+	public boolean fileExists(String blobFileName) {
+		ArrayList<String> files = this.getAllBlobFileName();
+		return files.contains(blobFileName.trim());
+	}
 
 }
