@@ -9,9 +9,9 @@ At the moment it is not yet present any maven repository to enable the automatic
 In order to use within a project the CPIM library it is necessary to add the following maven dependency:
 ```xml
 <dependency>
-	<groupId> it.polimi.modaclouds.cpimlibrary </groupId>
+	<groupId>it.polimi.modaclouds.cpimlibrary</groupId>
 	<artifactId>CPIM-library</artifactId>
-	<version> 1.0 -SNAPSHOT </version>
+	<version>2.0-SNAPSHOT</version>
 </dependency>
 ```
 Not all the required dependencies can be isntalled directly through maven since are not available in any maven repo. Those dependencies are available in the repo folder which contains:
@@ -92,7 +92,7 @@ The file structure is as follows:
 ```xml
 <queue-entries>
 	<queue>
-		<name> message_queue_name </name>
+		<name>message_queue_name</name>
 		<mode>PULL</mode>
 	</queue>
 	<queue>
@@ -108,7 +108,7 @@ A generic queue is marked by the tag `<queue>`,specifying a unique name for each
 What makes explicit the difference between message and task queue is the tag `<mode>` that admits values __PULL__ or __PUSH__ to indicate that you want to use, in the first case a message queue,in the second a task queue.
 In the case of task queue, it must also be specified a rate, which is the time interval that the system will wait between the execution of a task and that of the next one. The rate should be specified as [numberoftasks/seconds].
 
-To also allow integration with Glassfish the file structure was extended. In the case of a deployment on Glassfish applications that makes use of the message queue service must also specify the two tags `<messagequeueconnection>` `<messagequeueresource>` whose meaning will be explained in the paragraphs relating to the setup of the architecture and the deploy configuration for Glassfish.
+To also allow integration with Glassfish the file structure was extended. In the case of a deployment on Glassfish applications that makes use of the message queue service must also specify the two tags `<messagequeueconnection>` and `<messagequeueresource>` whose meaning will be explained in the paragraphs relating to the setup of the architecture and the deploy configuration for Glassfish.
 
 ##migration.xml
 The file structure is as follow
@@ -165,7 +165,7 @@ Regarding this service, as other vendors have a specific database in which to st
 Even in this case not being present in a Glassfish implementation of such a service has been necessary to resort to external tools. First of all you must have a memecached server that implements the service locally. In the configuration section we will explain how to get one. As regards the actual implementation of the APIs that are meeting this problem, it is chosen to use the library spymemcached already used for the implementation of the service provider to the relatively Azure. In order to use work with the memcached server we also need to provide Glassifish extra modules. Even in this case, see the chapter on the setup of the architecture for more details.
 
 ##Setup of the Architecture
-##SQL and Blob Services
+###SQL and Blob Services
 Those services make use of _MySQL 5.6.15 DBMS_. First thing to do then is to have a _MySQL 5.6.15 server_. Through this it will be necessary to create two databases, one for data and one for normal data type Blob providing the user with which you will access to MySQL all rights to the two databases created by using the command:
 
 ```
