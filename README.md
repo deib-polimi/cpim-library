@@ -14,9 +14,9 @@ In order to use within a project the CPIM library it is necessary to add the fol
 	<version>2.0-SNAPSHOT</version>
 </dependency>
 ```
-Not all the required dependencies can be isntalled directly through maven since are not available in any maven repo. Those dependencies are available in the repo folder which contains:
+Not all the required dependencies can be installed directly through maven since are not available in any maven repository. Those dependencies are available in the repo folder which contains:
 
-- `com.azure.microsoft.helper` that is a repackage of [jpa4azure](https://jpa4azure.codeplex.com/) which contains only the helper classes to access azure services
+- `com.azure.microsoft.helper` that is a repackage of [jpa4azure](https://jpa4azure.codeplex.com/) which contains only the helper classes to access Azure services
 - `com.microsoft.sqlserver.sqljdbc4` that is the JDBC driver for Microsoft SQL server used for CPIM SQL service.
 
 #CPIM User Manual
