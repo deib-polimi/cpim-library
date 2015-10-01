@@ -21,33 +21,119 @@ import it.polimi.modaclouds.cpimlibrary.QueueInfo;
 import com.windowsazure.samples.queue.AzureQueueManagerFactory;
 import com.windowsazure.samples.queue.AzureQueueMessageCollection;
 import com.windowsazure.samples.queue.QueueOperationResponse;
+import com.microsoft.azure.storage.*;
+import com.microsoft.azure.storage.queue.*;
+import it.polimi.modaclouds.cpimlibrary.*;
+import it.polimi.kundera.client.azuretable.AzureTableClientFactory;
+
+
+import com.impetus.kundera.PersistenceProperties;
+import com.impetus.kundera.client.Client;
+import com.impetus.kundera.configure.ClientProperties;
+import com.impetus.kundera.configure.schema.api.SchemaManager;
+import com.impetus.kundera.loader.ClientLoaderException;
+import com.impetus.kundera.loader.GenericClientFactory;
+import com.impetus.kundera.metadata.model.PersistenceUnitMetadata;
+import com.impetus.kundera.persistence.EntityReader;
+import com.impetus.kundera.loader.GenericClientFactory;
+import com.impetus.kundera.loader.*;
+import it.polimi.modaclouds.cpimlibrary.mffactory.*;
+import java.util.Map;
+import java.util.HashMap;
+import com.microsoft.azure.storage.*;
+import com.microsoft.azure.storage.queue.*;
+
+
+import java.lang.System;
 
 class AzureMessageQueue implements CloudMessageQueue {
 
 	private String queueName = null;
 	private com.windowsazure.samples.queue.AzureQueueManager aqm = null;
 	private String DELIMITER = "---";
+	private CloudMetadata metadata;
+	private String storageConnectionString;
 
 	public AzureMessageQueue(String queueName, AzureQueueManagerFactory aqmf,
-			QueueInfo queueInfo) {
+			QueueInfo queueInfo,CloudMetadata dati) {
 		this.queueName = queueName;
-		aqm = aqmf.createQueueManager();
-		aqm.createQueue(queueName);
+		this.metadata = dati;
+
+		this.storageConnectionString = buildConnectionString();
+
+		creaCoda();
+
+
 	}
-
-	@Override
-	public void add(String msg) throws CloudMessageQueueException {
-		Integer timeToLiveInterval = null;
-		QueueOperationResponse resp = aqm.putMessage(queueName, msg,
-				timeToLiveInterval);
-		if (!resp.getHttpStatusCode().isSuccess()) {
-
-			throw new CloudMessageQueueException("Adding message:---" + msg
-					+ "--- in the queue failed....");
+	public String buildConnectionString() {
+		String accountName = null;
+		String accountKey = null;
+		HashMap<String, String> externalProperties = metadata.getPersistenceInfo();
+		if (externalProperties != null) {
+			accountName = (String) externalProperties.get(PersistenceProperties.KUNDERA_USERNAME);
+			accountKey = (String) externalProperties.get(PersistenceProperties.KUNDERA_PASSWORD);
+		}
+		if (accountName == null || accountKey == null) {
+			throw new ClientLoaderException("Configuration error, check kundera.username kundera.password and in persistence.xml");
 		}
 
+
+		return "DefaultEndpointsProtocol=http;AccountName=" + accountName + ";AccountKey=" + accountKey;
+	}
+	public void creaCoda(){
+		try
+		{
+			// Retrieve storage account from connection-string.
+			CloudStorageAccount storageAccount =
+					CloudStorageAccount.parse(storageConnectionString);
+
+			// Create the queue client.
+			CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
+
+			// Retrieve a reference to a queue.
+			CloudQueue queue = queueClient.getQueueReference("myqueue");
+
+			// Create the queue if it doesn't already exist.
+			queue.createIfNotExists();
+			//System.out.println("ok ha creato la coda");
+		}
+		catch (Exception e)
+		{
+			// Output the stack trace.
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public void add(String msg) throws CloudMessageQueueException {
+		aggiungiMessaggio(msg);
 	}
 
+	public void aggiungiMessaggio(String msg){
+		try
+		{
+			// Retrieve storage account from connection-string.
+			CloudStorageAccount storageAccount =
+					CloudStorageAccount.parse(storageConnectionString);
+
+			// Create the queue client.
+			CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
+
+			// Retrieve a reference to a queue.
+			CloudQueue queue = queueClient.getQueueReference("myqueue");
+
+			// Create the queue if it doesn't already exist.
+			queue.createIfNotExists();
+
+			// Create a message and add it to the queue.
+			CloudQueueMessage message = new CloudQueueMessage(msg);
+			queue.addMessage(message);
+		}
+		catch (Exception e)
+		{
+			// Output the stack trace.
+			e.printStackTrace();
+		}
+	}
 	@Override
 	public String getQueueName() {
 		return queueName;
@@ -60,40 +146,76 @@ class AzureMessageQueue implements CloudMessageQueue {
 
 	@Override
 	public CloudMessage getMessage() {
-		String text = null;
-		String id = null;
-		String pop = null;
-		CloudMessage cmsg = null;
-		AzureQueueMessageCollection msgs = (AzureQueueMessageCollection) aqm
-				.getMessages(queueName, 1, null);
-		if (msgs.getMessages().size() == 0) {
+
+		return recuperaMessaggio();
+
+	}
+
+	public CloudMessage recuperaMessaggio(){
+
+		try
+		{
+		CloudStorageAccount storageAccount =
+				CloudStorageAccount.parse(storageConnectionString);
+
+		// Create the queue client.
+		CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
+
+		// Retrieve a reference to a queue.
+		CloudQueue queue = queueClient.getQueueReference("myqueue");
+
+		// Create the queue if it doesn't already exist.
+		queue.createIfNotExists();
+
+// Peek at the next message
+		CloudQueueMessage peekedMessage = queue.peekMessage();
+		CloudMessage messaggio = new CloudMessage(peekedMessage.getMessageContentAsString());
+			return messaggio;
+// Display message.
+		}
+		catch (Exception e)
+		{
+			// Output the stack trace.
+			e.printStackTrace();
 			return null;
 		}
-		for (com.windowsazure.samples.queue.AzureQueueMessage msg : msgs) {
-			text = msg.getMessageText();
-			id = msg.getMessageId();
-			pop = msg.getPopReceipt();
+
+	}
+
+	public void eliminaMessaggio(){
+		try
+		{
+			// Retrieve storage account from connection-string.
+			CloudStorageAccount storageAccount =
+					CloudStorageAccount.parse(storageConnectionString);
+
+			// Create the queue client.
+			CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
+
+			// Retrieve a reference to a queue.
+			CloudQueue queue = queueClient.getQueueReference("myqueue");
+
+			// Retrieve the first visible message in the queue.
+			CloudQueueMessage retrievedMessage = queue.retrieveMessage();
+
+			if (retrievedMessage != null)
+			{
+				// Process the message in less than 30 seconds, and then delete the message.
+				queue.deleteMessage(retrievedMessage);
+			}
 		}
-		cmsg = new CloudMessage(text);
-		cmsg.setId(id + DELIMITER + pop);
-		return cmsg;
+		catch (Exception e)
+		{
+			// Output the stack trace.
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void deleteMessage(String msgId) throws CloudMessageQueueException {
 
-		String[] ids = msgId.split(DELIMITER);
-		;
-		String id = ids[0];
-		String pop = ids[1];
-		QueueOperationResponse resp = aqm.deleteMessage(queueName, id, pop);
-		if (!resp.getHttpStatusCode().isSuccess()) {
-			throw new CloudMessageQueueException(
-					"ERROR in deleting msg with id!\n" + "INFO ABOUT ERROR:\n"
-							+ "errorcode:" + resp.getErrorCode()
-							+ "\nhttpresponsecode" + resp.getHttpStatusCode());
-		}
 
+		eliminaMessaggio();
 	}
 
 	@Override
